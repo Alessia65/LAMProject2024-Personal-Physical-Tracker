@@ -1,19 +1,20 @@
 package com.example.personalphysicaltracker.ui.home
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.appcompat.app.AlertDialog
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.AccelerometerListener
 import com.example.personalphysicaltracker.activities.Activity
+import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.activities.StandingActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment(), AccelerometerListener {
@@ -80,7 +81,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     // Avvia l'Activity di camminata
     private fun startWalkingActivity() {
-        selectedActivity = Activity(requireContext())
+        selectedActivity = WalkingActivity(requireContext())
         selectedActivity?.registerAccelerometerListener(this)
         selectedActivity?.startSensor() // Avvia la gestione del sensore per WalkingActivity
         changeButton()
@@ -88,37 +89,37 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     // Avvia l'Activity di guida
     private fun startDrivingActivity() {
-        selectedActivity = Activity(requireContext())
+        selectedActivity = DrivingActivity(requireContext())
         selectedActivity?.registerAccelerometerListener(this)
         selectedActivity?.startSensor()
-        // Implementazione simile a startWalkingActivity() per DrivingActivity
         changeButton()
     }
 
     // Avvia l'Activity di stazionamento
     private fun startStandingActivity() {
-        selectedActivity = Activity(requireContext())
+        selectedActivity = StandingActivity(requireContext())
         selectedActivity?.registerAccelerometerListener(this)
         selectedActivity?.startSensor()
-        // Implementazione simile a startWalkingActivity() per StandingActivity
         changeButton()
     }
 
-    private fun changeButton(){
+    // Cambia il testo e il comportamento del pulsante in "Stop Activity"
+    private fun changeButton() {
         buttonStartActivity.text = "Stop Activity"
         buttonStartActivity.setOnClickListener {
             stopSelectedActivity()
         }
     }
 
-    private fun stopSelectedActivity(){
+    // Ferma l'attività selezionata
+    private fun stopSelectedActivity() {
         selectedActivity?.stopActivity()
         buttonStartActivity.text = "Start Activity"
         buttonStartActivity.setOnClickListener {
             showActivitySelectionDialog()
         }
         requireActivity().runOnUiThread {
-            accelText.text = "no activity running"
+            accelText.text = "No activity running"
         }
     }
 
@@ -136,5 +137,4 @@ class HomeFragment : Fragment(), AccelerometerListener {
         selectedActivity?.stopActivity() // Arresta l'attività selezionata quando il Fragment viene distrutto
         _binding = null
     }
-
 }

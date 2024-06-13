@@ -6,12 +6,6 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 
 
 
@@ -20,7 +14,6 @@ open class Activity(private val context: Context) : ActivityInterface, SensorEve
     private var accelerometerListener: AccelerometerListener? = null
     private lateinit var sensorManager: SensorManager
     private var sensorAcc: Sensor? = null
-    private var sensorJob: Job? = null
 
     init {
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -41,13 +34,6 @@ open class Activity(private val context: Context) : ActivityInterface, SensorEve
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
         Log.d("Activity", "Activity started")
-        sensorJob = CoroutineScope(Dispatchers.IO).launch {
-            while (isActive) {
-                delay(1000) // Esegui un'operazione ogni secondo
-                // Puoi aggiungere qui il codice per eseguire operazioni periodiche
-                // che non coinvolgono il thread principale
-            }
-        }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -73,7 +59,7 @@ open class Activity(private val context: Context) : ActivityInterface, SensorEve
 
     override fun stopActivity() {
         sensorManager.unregisterListener(this)
-        sensorJob?.cancel() // Assicurati di cancellare il job della coroutine quando l'attività si ferma
         Log.d("Activity", "Activity stopped")
     }
 }
+
