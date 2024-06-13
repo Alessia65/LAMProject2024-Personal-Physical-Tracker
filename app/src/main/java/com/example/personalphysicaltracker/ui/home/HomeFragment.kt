@@ -15,7 +15,7 @@ import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment() {
-
+    //TestGitHub
     // Binding per il Fragment
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
