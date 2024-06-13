@@ -14,7 +14,6 @@ import androidx.appcompat.app.AlertDialog
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.AccelerometerListener
 import com.example.personalphysicaltracker.activities.Activity
-import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
 
 class HomeFragment : Fragment(), AccelerometerListener {
@@ -105,11 +104,9 @@ class HomeFragment : Fragment(), AccelerometerListener {
     // Implementazione del metodo dell'interfaccia AccelerometerDataListener
     override fun onAccelerometerDataReceived(data: String) {
         // Aggiorna l'UI con i dati dell'accelerometro ricevuti
-        updateAccelerometerText(data)
-    }
-
-    private fun updateAccelerometerText(text: String) {
-        accelText.text = text
+        requireActivity().runOnUiThread {
+            accelText.text = data
+        }
     }
 
     // Metodo chiamato quando il Fragment viene distrutto per liberare le risorse associate
