@@ -83,6 +83,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
         selectedActivity = Activity(requireContext())
         selectedActivity?.registerAccelerometerListener(this)
         selectedActivity?.startSensor() // Avvia la gestione del sensore per WalkingActivity
+        changeButton()
     }
 
     // Avvia l'Activity di guida
@@ -91,6 +92,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
         selectedActivity?.registerAccelerometerListener(this)
         selectedActivity?.startSensor()
         // Implementazione simile a startWalkingActivity() per DrivingActivity
+        changeButton()
     }
 
     // Avvia l'Activity di stazionamento
@@ -99,6 +101,25 @@ class HomeFragment : Fragment(), AccelerometerListener {
         selectedActivity?.registerAccelerometerListener(this)
         selectedActivity?.startSensor()
         // Implementazione simile a startWalkingActivity() per StandingActivity
+        changeButton()
+    }
+
+    private fun changeButton(){
+        buttonStartActivity.text = "Stop Activity"
+        buttonStartActivity.setOnClickListener {
+            stopSelectedActivity()
+        }
+    }
+
+    private fun stopSelectedActivity(){
+        selectedActivity?.stopActivity()
+        buttonStartActivity.text = "Start Activity"
+        buttonStartActivity.setOnClickListener {
+            showActivitySelectionDialog()
+        }
+        requireActivity().runOnUiThread {
+            accelText.text = "no activity running"
+        }
     }
 
     // Implementazione del metodo dell'interfaccia AccelerometerDataListener

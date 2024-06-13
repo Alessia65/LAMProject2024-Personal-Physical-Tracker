@@ -71,7 +71,7 @@ open class Activity(private val context: Context) : ActivityInterface, SensorEve
         // Implementazione specifica nelle sottoclassi, se necessario
     }
 
-    fun stopActivity() {
+    override fun stopActivity() {
         sensorManager.unregisterListener(this)
         sensorJob?.cancel() // Assicurati di cancellare il job della coroutine quando l'attività si ferma
         Log.d("Activity", "Activity stopped")
