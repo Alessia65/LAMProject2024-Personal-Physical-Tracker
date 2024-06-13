@@ -1,6 +1,7 @@
 package com.example.personalphysicaltracker.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,19 +62,25 @@ class HomeFragment : Fragment() {
     // Mostra un dialogo che permette all'utente di selezionare un'attività
     private fun showActivitySelectionDialog() {
         val items = arrayOf("Camminata", "Guida", "Fermo")
-        val builder = AlertDialog.Builder(requireContext())
+        val builder = AlertDialog.Builder(requireActivity())
         builder.setTitle("Seleziona un'attività:")
             .setItems(items) { dialog, item ->
-                // Mostra un Toast con l'attività selezionata dall'utente
-                showToast(items[item])
+                val selectedActivity = items[item]
+                logActivity(selectedActivity)
+                showToast(selectedActivity)
             }
         val alert = builder.create()
         alert.show()
     }
 
+    private fun logActivity(activity: String) {
+        // Invia un messaggio nel Logcat con l'attività selezionata
+        Log.d("HomeFragment", "Attività avviata: $activity")
+    }
+
     // Mostra un Toast con il messaggio specificato
     private fun showToast(message: String) {
-        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+        Toast.makeText(this.context, message, Toast.LENGTH_LONG).show()
     }
 
     // Metodo chiamato quando il Fragment viene distrutto per liberare le risorse associate
