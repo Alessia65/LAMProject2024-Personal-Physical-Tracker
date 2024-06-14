@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.ui.home
 
+import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -56,6 +57,7 @@ class HomeViewModel : ViewModel() {
                 getTotalDurationByActivityType("StandingActivity")
 
             _dailyTime.value = listOf(walkingDuration, drivingDuration, standingDuration)
+            Log.d("dailyTime", "walking: $walkingDuration, driving: $drivingDuration, standing: $standingDuration") //Corretti
 
         }
     }
@@ -71,6 +73,9 @@ class HomeViewModel : ViewModel() {
     fun startSelectedActivity(activity: Activity, listener: AccelerometerListener) {
         setSelectedActivity(activity, listener)
         startTime = getCurrentTime()
+        if (startTime.isEmpty()) {
+            throw IllegalStateException("startTime can't be empty")
+        }
 
     }
 
@@ -100,10 +105,16 @@ class HomeViewModel : ViewModel() {
     fun stopSelectedActivity(){
 
         endTime = getCurrentTime()
+        Log.d("HomeViewModel", "startTime: $startTime, endTime: $endTime")
+
+        if (endTime.isEmpty()) {
+            throw IllegalStateException("endTime can't be empty")
+        }
         duration = calculateDuration(startTime, endTime)
         saveActivityData()
         updateDailyValues()
         selectedActivity?.stopActivity()
+
     }
 
     private fun updateDailyValues() {
@@ -116,6 +127,7 @@ class HomeViewModel : ViewModel() {
                 else -> { /* Gestione per tipi di attività non previsti */ }
             }
         }
+
     }
 
     private fun setDailyTime(index: Int, value: Long) {
@@ -123,10 +135,13 @@ class HomeViewModel : ViewModel() {
             _dailyTime.value?.let { currentDailyTime ->
                 val updatedList = currentDailyTime.toMutableList()
                 if (index in updatedList.indices) {
-                    updatedList[index] = value
+                    // Somma il nuovo valore al valore corrente
+                    val currentValue = updatedList[index] ?: 0L
+                    updatedList[index] = currentValue + value
                     _dailyTime.postValue(updatedList)
                 } else {
                     // Gestione dell'errore o avviso se l'indice non è valido
+                    // Puoi aggiungere un log o una notifica qui se necessario
                 }
             }
         }
@@ -137,7 +152,11 @@ class HomeViewModel : ViewModel() {
 
 
 
+
     private fun calculateDuration(start: String, end: String): Long {
+        if (start.isEmpty() || end.isEmpty()) {
+            throw IllegalArgumentException("dates can't be empty")
+        }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val startTime = dateFormat.parse(start)?.time ?: 0L
         val endTime = dateFormat.parse(end)?.time ?: 0L

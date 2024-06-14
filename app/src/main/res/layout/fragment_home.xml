@@ -28,11 +28,20 @@
         app:layout_constraintStart_toStartOf="@+id/progress_bar_walking"
         app:layout_constraintTop_toTopOf="@+id/progress_bar_walking" />
 
+    <ProgressBar
+        android:id="@+id/progress_bar_standing"
+        style="@style/CircularProgressBar"
+        android:layout_width="341dp"
+        android:layout_height="338dp"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_driving"
+        app:layout_constraintEnd_toEndOf="@+id/progress_bar_driving"
+        app:layout_constraintStart_toStartOf="@+id/progress_bar_driving"
+        app:layout_constraintTop_toTopOf="@+id/progress_bar_driving" />
+
     <TextView
         android:id="@+id/text_progress_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="50%"
         android:textAppearance="@style/TextAppearance.AppCompat"
         app:layout_constraintBottom_toBottomOf="@id/progress_bar_walking"
         app:layout_constraintEnd_toEndOf="@id/progress_bar_walking"
