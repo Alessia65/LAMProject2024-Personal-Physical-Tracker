@@ -23,6 +23,8 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import java.time.Instant
+import java.util.Calendar
 
 class HomeViewModel : ViewModel() {
 
@@ -32,7 +34,7 @@ class HomeViewModel : ViewModel() {
     private var startTime: String = ""
     private var endTime: String = ""
     private var duration: Long = 0
-    private val _dailyTime = MutableLiveData<List<Long?>>(listOf(null, null, null))
+    private val _dailyTime = MutableLiveData<List<Long?>>(listOf(null, null, null, null))
     val dailyTime: LiveData<List<Long?>>
         get() = _dailyTime
 
@@ -55,12 +57,44 @@ class HomeViewModel : ViewModel() {
                 getTotalDurationByActivityType("DrivingActivity")
             val standingDuration =
                 getTotalDurationByActivityType("StandingActivity")
+            val unknownDuration =
+                getUnknownDuration(walkingDuration, drivingDuration, standingDuration)
 
-            _dailyTime.value = listOf(walkingDuration, drivingDuration, standingDuration)
-            Log.d("dailyTime", "walking: $walkingDuration, driving: $drivingDuration, standing: $standingDuration") //Corretti
+            _dailyTime.value = listOf(walkingDuration, drivingDuration, standingDuration, unknownDuration)
+            Log.d("dailyTime", "walking: $walkingDuration, driving: $drivingDuration, standing: $standingDuration, unknown: $unknownDuration") //Corretti
 
         }
     }
+
+    private fun getUnknownDuration(walkingDuration: Long, drivingDuration: Long, standingDuration: Long): Long {
+        // Calcola l'inizio del giorno in millisecondi
+        val startOfDayMillis = System.currentTimeMillis() / 86400000 * 86400000
+
+        // Ottieni l'ora corrente in millisecondi
+        val currentTimeMillis = System.currentTimeMillis()
+
+        // Converti l'inizio del giorno e l'ora corrente da millisecondi a secondi
+        val startOfDaySeconds = startOfDayMillis / 1000
+        val currentTimeSeconds = currentTimeMillis / 1000
+
+        // Calcola la durata totale delle attività conosciute
+        val totalKnownDuration = walkingDuration + drivingDuration + standingDuration
+
+        // Calcola il tempo sconosciuto tra l'inizio del giorno e l'ora corrente
+        val unknownTime = currentTimeSeconds - startOfDaySeconds - totalKnownDuration
+
+        // Log per verificare i valori calcolati
+        println("currentTime: $currentTimeSeconds, startOfDay: $startOfDaySeconds, totalKnownDuration: $totalKnownDuration, unknownTime: $unknownTime")
+
+        // Assicura che unknownTime non sia negativo
+        return if (unknownTime > 0) unknownTime else 0L
+    }
+
+
+
+
+
+
 
     private suspend fun getTotalDurationByActivityType(activityType: String): Long {
         return withContext(Dispatchers.IO) {
