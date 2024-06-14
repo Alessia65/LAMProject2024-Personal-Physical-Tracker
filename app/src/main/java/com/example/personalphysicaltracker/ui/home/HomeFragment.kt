@@ -19,6 +19,11 @@ import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
 
 
+/*
+
+TODO: modificare il db per tenere traccia del giorno di riferimento in realtà gia c'è valutare se inserire una nuova colonna oppure no
+ */
+
 class HomeFragment : Fragment(), AccelerometerListener {
 
     private var _binding: FragmentHomeBinding? = null
