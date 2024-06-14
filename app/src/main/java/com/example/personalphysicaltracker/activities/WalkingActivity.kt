@@ -38,4 +38,6 @@ class WalkingActivity(context: Context) : Activity(context) {
 
         Log.d("WalkingActivity", "Walking activity stopped. Duration: $durationSeconds seconds")
     }
+
+
 }

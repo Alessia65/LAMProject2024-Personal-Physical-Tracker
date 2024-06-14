@@ -16,13 +16,10 @@ import com.example.personalphysicaltracker.activities.Activity
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
-import com.example.personalphysicaltracker.database.ActivityEntity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+
 
 class HomeFragment : Fragment(), AccelerometerListener {
 
@@ -36,11 +33,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
     private lateinit var buttonStartActivity: Button
     private lateinit var accelText: TextView
 
-    private var selectedActivity: Activity? = null
 
-    private var startTime: String = ""
-    private var endTime: String = ""
-    private var duration: Long = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -56,6 +49,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
         val repository = TrackingRepository(application)
         val viewModelFactory = ActivityViewModelFactory(repository)
         activityViewModel = ViewModelProvider(this, viewModelFactory).get(ActivityViewModel::class.java)
+        homeViewModel.initializeModel(activityViewModel)
 
         textView = binding.textHome
         buttonStartActivity = root.findViewById(R.id.button_startActivity)
@@ -81,30 +75,20 @@ class HomeFragment : Fragment(), AccelerometerListener {
             }
         val alert = builder.create()
         alert.show()
+        changeButton()
     }
 
     private fun startWalkingActivity() {
-        selectedActivity = WalkingActivity(requireContext())
-        selectedActivity?.registerAccelerometerListener(this)
-        selectedActivity?.startSensor()
-        startTime = getCurrentTime()
-        changeButton()
+        homeViewModel.startSelectedActivity(WalkingActivity(requireContext()), this)
+
     }
 
     private fun startDrivingActivity() {
-        selectedActivity = DrivingActivity(requireContext())
-        selectedActivity?.registerAccelerometerListener(this)
-        selectedActivity?.startSensor()
-        startTime = getCurrentTime()
-        changeButton()
+        homeViewModel.startSelectedActivity(DrivingActivity(requireContext()), this)
     }
 
     private fun startStandingActivity() {
-        selectedActivity = StandingActivity(requireContext())
-        selectedActivity?.registerAccelerometerListener(this)
-        selectedActivity?.startSensor()
-        startTime = getCurrentTime()
-        changeButton()
+        homeViewModel.startSelectedActivity(StandingActivity(requireContext()), this)
     }
 
     private fun changeButton() {
@@ -115,10 +99,8 @@ class HomeFragment : Fragment(), AccelerometerListener {
     }
 
     private fun stopSelectedActivity() {
-        selectedActivity?.stopActivity()
-        endTime = getCurrentTime()
-        duration = calculateDuration(startTime, endTime)
-        saveActivityData()
+        homeViewModel.stopSelectedActivity()
+
 
         buttonStartActivity.text = "Start Activity"
         buttonStartActivity.setOnClickListener {
@@ -135,31 +117,15 @@ class HomeFragment : Fragment(), AccelerometerListener {
         }
     }
 
-    private fun getCurrentTime(): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        return dateFormat.format(Date())
-    }
 
-    private fun calculateDuration(start: String, end: String): Long {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val startTime = dateFormat.parse(start)?.time ?: 0L
-        val endTime = dateFormat.parse(end)?.time ?: 0L
-        return endTime - startTime
-    }
 
-    private fun saveActivityData() {
-        val activityEntity = ActivityEntity(
-            activityType = selectedActivity?.javaClass?.simpleName ?: "Unknown",
-            dateStart = startTime,
-            dateFinish = endTime,
-            duration = duration
-        )
-        activityViewModel.insertActivityEntity(activityEntity)
-    }
+
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
-        selectedActivity?.stopActivity()
+        homeViewModel.destoryActivity()
         _binding = null
     }
 }
