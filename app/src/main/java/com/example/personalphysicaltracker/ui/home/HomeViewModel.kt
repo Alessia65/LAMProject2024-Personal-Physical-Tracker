@@ -1,6 +1,10 @@
 package com.example.personalphysicaltracker.ui.home
 
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import com.example.mvvm_todolist.TrackingRepository
 import com.example.personalphysicaltracker.activities.AccelerometerListener
 import com.example.personalphysicaltracker.activities.Activity
 import com.example.personalphysicaltracker.activities.DrivingActivity
@@ -8,6 +12,7 @@ import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityEntity
 import com.example.personalphysicaltracker.database.ActivityViewModel
+import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -21,8 +26,12 @@ class HomeViewModel : ViewModel() {
     private var endTime: String = ""
     private var duration: Long = 0
 
-    fun initializeModel(model: ActivityViewModel){
-        activityViewModel = model
+    fun initializeModel(activity: FragmentActivity?, vmso: ViewModelStoreOwner){
+        val application = requireNotNull(activity).application
+        val repository = TrackingRepository(application)
+        val viewModelFactory = ActivityViewModelFactory(repository)
+        activityViewModel = ViewModelProvider(vmso, viewModelFactory).get(ActivityViewModel::class.java)
+
     }
 
     fun startSelectedActivity(activity: Activity, listener: AccelerometerListener) {

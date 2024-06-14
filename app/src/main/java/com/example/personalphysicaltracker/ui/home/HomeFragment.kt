@@ -27,7 +27,6 @@ class HomeFragment : Fragment(), AccelerometerListener {
     private val binding get() = _binding!!
 
     private lateinit var homeViewModel: HomeViewModel
-    private lateinit var activityViewModel: ActivityViewModel
 
     private lateinit var textView: TextView
     private lateinit var buttonStartActivity: Button
@@ -45,11 +44,8 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
 
-        val application = requireNotNull(this.activity).application
-        val repository = TrackingRepository(application)
-        val viewModelFactory = ActivityViewModelFactory(repository)
-        activityViewModel = ViewModelProvider(this, viewModelFactory).get(ActivityViewModel::class.java)
-        homeViewModel.initializeModel(activityViewModel)
+
+        homeViewModel.initializeModel(this.activity, this)
 
         textView = binding.textHome
         buttonStartActivity = root.findViewById(R.id.button_startActivity)
