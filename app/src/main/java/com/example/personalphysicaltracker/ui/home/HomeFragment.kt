@@ -30,9 +30,12 @@ class HomeFragment : Fragment(), AccelerometerListener {
     private lateinit var buttonStartActivity: Button
     private lateinit var text_progress_bar: TextView
     private lateinit var accelText: TextView
-    private lateinit var progress_bar: ProgressBar
+    private lateinit var progress_bar_walking: ProgressBar
+    private lateinit var progress_bar_driving: ProgressBar
 
-    private var progressBar = 0
+    private var progressBarWalking = 0
+    private var progressBarDriving = 0
+
 
 
     override fun onCreateView(
@@ -48,24 +51,36 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
         homeViewModel.initializeModel(this.activity, this)
 
-        // Observer per monitorare i cambiamenti di dailyTime e aggiornare la UI
-        homeViewModel.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
-            dailyTimeList?.let {
-                val firstElement = it[0]
-                val currentProgress = firstElement?.toInt() ?: 0
-                updateProgressBar(currentProgress)
-            }
-        }
+
+
+
+
 
         textView = binding.textHome
         accelText = root.findViewById(R.id.acceleration_text)
         text_progress_bar = root.findViewById(R.id.text_progress_bar)
-        progress_bar = root.findViewById<ProgressBar>(R.id.progress_bar)
+        progress_bar_walking = root.findViewById<ProgressBar>(R.id.progress_bar_walking)
+        progress_bar_driving = root.findViewById<ProgressBar>(R.id.progress_bar_driving)
+
+
 
 
         // Imposta il massimo della ProgressBar per rappresentare 24 ore in secondi
         val maxProgress = 24 * 3600 // 24 ore in secondi
-        progress_bar.max = maxProgress
+        progress_bar_walking.max = maxProgress
+        progress_bar_driving.max = maxProgress
+
+
+        // Observer per monitorare i cambiamenti di dailyTime e aggiornare la UI
+        homeViewModel.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
+            dailyTimeList?.let {
+                val currentProgressWalking = dailyTimeList[0]?.toInt() ?: 0
+                val currentProgressDriving = dailyTimeList[1]?.toInt() ?: 0
+                updateProgressBarWalking(currentProgressWalking)
+                updateProgressBarDriving(currentProgressDriving)
+            }
+        }
+
 
 
         initializeButtons(root)
@@ -83,10 +98,17 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     }
 
-    private fun updateProgressBar(progressCurrent: Int){
+    private fun updateProgressBarWalking(progressCurrent: Int){
         requireActivity().runOnUiThread {
-            progress_bar.progress = progressCurrent
-            text_progress_bar.text = progressBar.toString()
+            progress_bar_walking.progress = progressCurrent
+            text_progress_bar.text = progressBarWalking.toString()
+        }
+    }
+
+    private fun updateProgressBarDriving(progressCurrent: Int){
+        requireActivity().runOnUiThread {
+            progress_bar_driving.progress = progressCurrent
+            text_progress_bar.text = progressBarDriving.toString()
         }
     }
 
@@ -143,8 +165,11 @@ class HomeFragment : Fragment(), AccelerometerListener {
         // Non è necessario ottenere di nuovo dailyTime qui, si può usare homeViewModel.dailyTime
         homeViewModel.dailyTime.value?.let { dailyTimeList ->
             val firstElement = dailyTimeList[0]
-            val currentProgress = firstElement?.toInt() ?: 0
-            updateProgressBar(currentProgress)
+            val secondElement = dailyTimeList[1]
+            val currentProgressWalking = firstElement?.toInt() ?: 0
+            val currentProgressDriving = secondElement?.toInt() ?: 0
+            updateProgressBarWalking(currentProgressWalking)
+            updateProgressBarDriving(currentProgressDriving)
         }
 
         requireActivity().runOnUiThread {
