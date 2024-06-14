@@ -6,6 +6,47 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/CircularProgressBar"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:progress="50"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.219" />
+
+    <TextView
+        android:id="@+id/text_progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="50%"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        app:layout_constraintBottom_toBottomOf="@id/progress_bar"
+        app:layout_constraintEnd_toEndOf="@id/progress_bar"
+        app:layout_constraintStart_toStartOf="@id/progress_bar"
+        app:layout_constraintTop_toTopOf="@id/progress_bar"
+        />
+
+    <Button
+        android:id="@+id/btn_decr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="- 5%"
+        app:layout_constraintStart_toStartOf="@id/progress_bar"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"/>
+
+    <Button
+        android:id="@+id/btn_incr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+ 5%"
+        app:layout_constraintEnd_toEndOf="@id/progress_bar"
+        app:layout_constraintTop_toBottomOf="@id/progress_bar"/>
+
     <TextView
         android:id="@+id/text_home"
         android:layout_width="match_parent"
@@ -17,9 +58,10 @@
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-         />
+        app:layout_constraintVertical_bias="0.076" />
 
     <Button
         android:id="@+id/button_startActivity"
@@ -32,7 +74,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_home" />
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar" />
 
     <TextView
         android:id="@+id/acceleration_text"
@@ -41,7 +83,9 @@
         android:text="dati"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_startActivity" />
+        app:layout_constraintTop_toBottomOf="@+id/button_startActivity"
+        app:layout_constraintVertical_bias="0.288" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
