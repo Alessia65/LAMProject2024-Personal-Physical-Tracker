@@ -20,6 +20,10 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
     fun deleteListActivities (toDelete: List<ActivityEntity>) {
         repository.deleteListActivities(toDelete)
     }
+
+    fun getTotalDurationByActivityType(activityType: String): Long {
+        return repository.getTotalDurationByActivityType(activityType)
+    }
 }
 
 //Che fa???

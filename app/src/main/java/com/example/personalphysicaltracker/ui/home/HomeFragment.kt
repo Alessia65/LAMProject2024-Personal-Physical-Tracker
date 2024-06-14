@@ -28,8 +28,6 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     private lateinit var textView: TextView
     private lateinit var buttonStartActivity: Button
-    private lateinit var btn_decr: Button
-    private lateinit var btn_incr: Button
     private lateinit var text_progress_bar: TextView
     private lateinit var accelText: TextView
     private lateinit var progress_bar: ProgressBar
@@ -50,12 +48,26 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
         homeViewModel.initializeModel(this.activity, this)
 
+        // Observer per monitorare i cambiamenti di dailyTime e aggiornare la UI
+        homeViewModel.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
+            dailyTimeList?.let {
+                val firstElement = it[0]
+                val currentProgress = firstElement?.toInt() ?: 0
+                updateProgressBar(currentProgress)
+            }
+        }
+
         textView = binding.textHome
         accelText = root.findViewById(R.id.acceleration_text)
         text_progress_bar = root.findViewById(R.id.text_progress_bar)
         progress_bar = root.findViewById<ProgressBar>(R.id.progress_bar)
 
-        updateProgressBar()
+
+        // Imposta il massimo della ProgressBar per rappresentare 24 ore in secondi
+        val maxProgress = 24 * 3600 // 24 ore in secondi
+        progress_bar.max = maxProgress
+
+
         initializeButtons(root)
 
 
@@ -63,22 +75,6 @@ class HomeFragment : Fragment(), AccelerometerListener {
     }
 
     private fun initializeButtons(root: ConstraintLayout){
-        btn_decr = root.findViewById(R.id.btn_decr)
-        btn_incr = root.findViewById(R.id.btn_incr)
-
-        btn_decr.setOnClickListener(){
-            if (progressBar >= 5) {
-                progressBar -= 5
-                updateProgressBar()
-            }
-        }
-
-        btn_incr.setOnClickListener(){
-            if (progressBar <= 95) {
-                progressBar += 5
-                updateProgressBar()
-            }
-        }
 
         buttonStartActivity = root.findViewById(R.id.button_startActivity)
         buttonStartActivity.setOnClickListener {
@@ -87,10 +83,11 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     }
 
-    private fun updateProgressBar(){
-        progress_bar.progress = progressBar
-        text_progress_bar.text = progressBar.toString()
-
+    private fun updateProgressBar(progressCurrent: Int){
+        requireActivity().runOnUiThread {
+            progress_bar.progress = progressCurrent
+            text_progress_bar.text = progressBar.toString()
+        }
     }
 
     private fun showActivitySelectionDialog() {
@@ -143,14 +140,17 @@ class HomeFragment : Fragment(), AccelerometerListener {
     }
 
     override fun onAccelerometerDataReceived(data: String) {
+        // Non è necessario ottenere di nuovo dailyTime qui, si può usare homeViewModel.dailyTime
+        homeViewModel.dailyTime.value?.let { dailyTimeList ->
+            val firstElement = dailyTimeList[0]
+            val currentProgress = firstElement?.toInt() ?: 0
+            updateProgressBar(currentProgress)
+        }
+
         requireActivity().runOnUiThread {
             accelText.text = data
         }
     }
-
-
-
-
 
 
 

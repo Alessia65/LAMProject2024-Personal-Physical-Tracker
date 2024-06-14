@@ -33,4 +33,8 @@ class TrackingRepository(app: Application) {
             trackingDao.deleteList(toDelete)
         }
     }
+
+    fun getTotalDurationByActivityType(activityType: String): Long {
+        return trackingDao.getTotalDurationByActivityType(activityType)
+    }
 }

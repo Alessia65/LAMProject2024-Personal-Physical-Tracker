@@ -16,6 +16,9 @@ interface TrackingDao {
     @Query("SELECT * FROM activities_table")
     fun getListOfActivities(): LiveData<List<ActivityEntity>>
 
+    @Query("SELECT SUM(duration) FROM activities_table WHERE activity_type = :activityType")
+    fun getTotalDurationByActivityType(activityType: String): Long
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(activity: ActivityEntity)
 
