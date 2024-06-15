@@ -197,7 +197,7 @@
         android:layout_width="163dp"
         android:layout_height="65dp"
         android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/orchid2"
+        android:background="@drawable/rounded_button"
         android:onClick="startActivityRequest"
         android:text="Start activity"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -205,7 +205,7 @@
         app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.526" />
+        app:layout_constraintVertical_bias="0.661" />
 
     <TextView
         android:id="@+id/acceleration_text"
@@ -223,53 +223,52 @@
         android:id="@+id/text_walking_title"
         android:layout_width="65dp"
         android:layout_height="28dp"
+        android:elevation="4dp"
         android:fontFamily="@font/andika_new_basic"
         android:text="Walking"
         android:textAlignment="center"
-        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
         app:layout_constraintEnd_toStartOf="@+id/text_driving_title"
-        app:layout_constraintHorizontal_bias="0.504"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.802" />
+        app:layout_constraintVertical_bias="0.613" />
 
     <TextView
         android:id="@+id/text_driving_title"
         android:layout_width="65dp"
         android:layout_height="28dp"
+        android:elevation="4dp"
         android:fontFamily="@font/andika_new_basic"
         android:text="Driving"
         android:textAlignment="center"
-        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.802" />
+        app:layout_constraintVertical_bias="0.613" />
 
     <TextView
         android:id="@+id/text_standing_title"
         android:layout_width="65dp"
         android:layout_height="28dp"
+        android:elevation="4dp"
         android:fontFamily="@font/andika_new_basic"
         android:text="Standing"
         android:textAlignment="center"
-        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.55"
+        app:layout_constraintHorizontal_bias="0.555"
         app:layout_constraintStart_toEndOf="@+id/text_driving_title"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.802" />
+        app:layout_constraintVertical_bias="0.613" />
 
     <TextView
         android:id="@+id/text_walking_hours"
         android:layout_width="65dp"
         android:layout_height="26dp"
+        android:elevation="4dp"
         android:text=""
         android:textAlignment="center"
-        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/text_walking_title"
         app:layout_constraintEnd_toStartOf="@+id/text_driving_hours"
         app:layout_constraintStart_toStartOf="parent"
@@ -280,9 +279,9 @@
         android:id="@+id/text_driving_hours"
         android:layout_width="65dp"
         android:layout_height="26dp"
+        android:elevation="4dp"
         android:text=""
         android:textAlignment="center"
-        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/text_driving_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -293,9 +292,9 @@
         android:id="@+id/text_standing_hours"
         android:layout_width="65dp"
         android:layout_height="26dp"
+        android:elevation="4dp"
         android:text=""
         android:textAlignment="center"
-        android:elevation="4dp"
         app:layout_constraintBottom_toTopOf="@+id/text_standing_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.555"
@@ -343,11 +342,10 @@
         android:id="@+id/img_blue_line"
         android:layout_width="425dp"
         android:layout_height="160dp"
-        android:layout_marginBottom="24dp"
+        android:layout_marginBottom="64dp"
         android:src="@drawable/img_blue_line"
         app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
