@@ -6,35 +6,54 @@
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <!-- Walking Progress Bar -->
+
     <ProgressBar
-        android:id="@+id/progress_bar_walking"
-        style="@style/CircularProgressBar_Walking"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.219" />
-
-    <!-- Icona per Walking -->
-
-    <!-- Driving Progress Bar -->
+        android:id="@+id/progress_bar_standing"
+        style="@style/CircularProgressBar_Standing"
+        android:layout_width="341dp"
+        android:layout_height="338dp"
+        app:layout_constraintBottom_toBottomOf="@id/progress_bar_driving"
+        app:layout_constraintEnd_toEndOf="@id/progress_bar_driving"
+        app:layout_constraintHorizontal_bias="0.492"
+        app:layout_constraintStart_toStartOf="@id/progress_bar_driving"
+        app:layout_constraintTop_toTopOf="@id/progress_bar_driving"
+        app:layout_constraintVertical_bias="0.491" />
 
     <ImageView
-        android:id="@+id/icon_walking"
-        android:layout_width="34dp"
-        android:layout_height="35dp"
-        android:layout_marginBottom="16dp"
-        android:src="@drawable/icon_walking"
-        app:layout_constraintBottom_toBottomOf="@id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.668"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.217" />
+        android:id="@+id/graph_left_bar"
+        android:layout_width="80dp"
+        android:layout_height="29dp"
+        android:src="@drawable/icon_orizz_bar"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintEnd_toEndOf="@+id/progress_bar_standing"
+        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintStart_toStartOf="@+id/progress_bar_standing"
+        app:layout_constraintTop_toTopOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.495" />
+
+    <ImageView
+        android:id="@+id/graph_right_bar"
+        android:layout_width="80dp"
+        android:layout_height="29dp"
+        android:src="@drawable/icon_orizz_bar"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintEnd_toEndOf="@+id/progress_bar_standing"
+        app:layout_constraintHorizontal_bias="0.862"
+        app:layout_constraintStart_toStartOf="@+id/progress_bar_standing"
+        app:layout_constraintTop_toTopOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.495" />
+
+    <ImageView
+        android:id="@+id/graph_up_bar"
+        android:layout_width="29dp"
+        android:layout_height="80dp"
+        android:src="@drawable/icon_vertical_bar"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintEnd_toEndOf="@+id/progress_bar_standing"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="@+id/progress_bar_standing"
+        app:layout_constraintTop_toTopOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.124" />
 
     <ProgressBar
         android:id="@+id/progress_bar_driving"
@@ -44,163 +63,8 @@
         app:layout_constraintBottom_toBottomOf="@id/progress_bar_walking"
         app:layout_constraintEnd_toEndOf="@id/progress_bar_walking"
         app:layout_constraintStart_toStartOf="@id/progress_bar_walking"
-        app:layout_constraintTop_toTopOf="@id/progress_bar_walking" />
-
-    <!-- Icona per Driving -->
-
-    <!-- Standing Progress Bar -->
-
-    <ImageView
-        android:id="@+id/icon_driving"
-        android:layout_width="57dp"
-        android:layout_height="43dp"
-        android:layout_marginBottom="16dp"
-        android:src="@drawable/icon_driving"
-        app:layout_constraintBottom_toBottomOf="@id/progress_bar_driving"
-        app:layout_constraintEnd_toEndOf="@id/progress_bar_driving"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.201" />
-
-    <ProgressBar
-        android:id="@+id/progress_bar_standing"
-        style="@style/CircularProgressBar_Standing"
-        android:layout_width="341dp"
-        android:layout_height="338dp"
-        app:layout_constraintBottom_toBottomOf="@id/progress_bar_driving"
-        app:layout_constraintEnd_toEndOf="@id/progress_bar_driving"
-        app:layout_constraintStart_toStartOf="@id/progress_bar_driving"
-        app:layout_constraintTop_toTopOf="@id/progress_bar_driving" />
-
-    <!-- Icona per Standing -->
-
-    <!-- TextView per il testo della progress bar -->
-
-    <ImageView
-        android:id="@+id/icon_standing"
-        android:layout_width="34dp"
-        android:layout_height="35dp"
-        android:src="@drawable/icon_standing"
-        app:layout_constraintBottom_toTopOf="@+id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="@id/progress_bar_standing"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.792" />
-
-    <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.076" />
-
-    <Button
-        android:id="@+id/button_startActivity"
-        android:layout_width="163dp"
-        android:layout_height="65dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/orchid2"
-        android:onClick="startActivityRequest"
-        android:text="Start activity"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar_walking" />
-
-    <TextView
-        android:id="@+id/acceleration_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="dati"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_startActivity"
-        app:layout_constraintVertical_bias="0.288" />
-
-    <ImageView
-        android:id="@+id/graph_up_bar"
-        android:layout_width="29dp"
-        android:layout_height="80dp"
-        android:src="@drawable/icon_vertical_bar"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_standing"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="@+id/progress_bar_standing"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.12" />
-
-    <ImageView
-        android:id="@+id/graph_bottom_bar"
-        android:layout_width="29dp"
-        android:layout_height="80dp"
-        android:src="@drawable/icon_vertical_bar"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_standing"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="@+id/progress_bar_standing"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.883" />
-
-    <ImageView
-        android:id="@+id/graph_left_bar"
-        android:layout_width="80dp"
-        android:layout_height="29dp"
-        android:src="@drawable/icon_orizz_bar"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_standing"
-        app:layout_constraintHorizontal_bias="0.126"
-        app:layout_constraintStart_toStartOf="@+id/progress_bar_standing"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_standing"
+        app:layout_constraintTop_toTopOf="@id/progress_bar_walking"
         app:layout_constraintVertical_bias="0.491" />
-
-    <ImageView
-        android:id="@+id/graph_right_bar"
-        android:layout_width="80dp"
-        android:layout_height="29dp"
-        android:src="@drawable/icon_orizz_bar"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_standing"
-        app:layout_constraintHorizontal_bias="0.869"
-        app:layout_constraintStart_toStartOf="@+id/progress_bar_standing"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.491" />
-
-    <TextView
-        android:id="@+id/text_hour1"
-        android:layout_width="18dp"
-        android:layout_height="23dp"
-        android:layout_marginEnd="104dp"
-        android:text="0h"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.258" />
-
-    <TextView
-        android:id="@+id/text_hour2"
-        android:layout_width="20dp"
-        android:layout_height="23dp"
-        android:layout_marginEnd="44dp"
-        android:text="6h"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.502" />
 
     <TextView
         android:id="@+id/text_hour3"
@@ -225,5 +89,265 @@
         app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
         app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
         app:layout_constraintVertical_bias="0.502" />
+
+    <TextView
+        android:id="@+id/text_hour2"
+        android:layout_width="20dp"
+        android:layout_height="23dp"
+        android:layout_marginEnd="44dp"
+        android:text="6h"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_walking"
+        app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
+        app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
+        app:layout_constraintVertical_bias="0.502" />
+
+    <TextView
+        android:id="@+id/text_home"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.029" />
+
+    <TextView
+        android:id="@+id/text_hour1"
+        android:layout_width="18dp"
+        android:layout_height="23dp"
+        android:layout_marginEnd="104dp"
+        android:text="0h"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_walking"
+        app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
+        app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
+        app:layout_constraintVertical_bias="0.258" />
+
+    <ImageView
+        android:id="@+id/graph_bottom_bar"
+        android:layout_width="29dp"
+        android:layout_height="80dp"
+        android:src="@drawable/icon_vertical_bar"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintEnd_toEndOf="@+id/progress_bar_standing"
+        app:layout_constraintHorizontal_bias="0.49"
+        app:layout_constraintStart_toStartOf="@+id/progress_bar_standing"
+        app:layout_constraintTop_toTopOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.887" />
+
+    <ImageView
+        android:id="@+id/icon_walking"
+        android:layout_width="34dp"
+        android:layout_height="35dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/icon_walking"
+        app:layout_constraintBottom_toBottomOf="@id/progress_bar_walking"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.668"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.15" />
+
+    <ImageView
+        android:id="@+id/icon_driving"
+        android:layout_width="57dp"
+        android:layout_height="43dp"
+        android:layout_marginBottom="16dp"
+        android:src="@drawable/icon_driving"
+        app:layout_constraintBottom_toBottomOf="@id/progress_bar_driving"
+        app:layout_constraintEnd_toEndOf="@id/progress_bar_driving"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.139" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar_walking"
+        style="@style/CircularProgressBar_Walking"
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.176" />
+
+    <ImageView
+        android:id="@+id/icon_standing"
+        android:layout_width="34dp"
+        android:layout_height="35dp"
+        android:src="@drawable/icon_standing"
+        app:layout_constraintBottom_toTopOf="@+id/progress_bar_walking"
+        app:layout_constraintEnd_toEndOf="@id/progress_bar_standing"
+        app:layout_constraintHorizontal_bias="0.997"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.709" />
+
+    <Button
+        android:id="@+id/button_startActivity"
+        android:layout_width="163dp"
+        android:layout_height="65dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/orchid2"
+        android:onClick="startActivityRequest"
+        android:text="Start activity"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_walking"
+        app:layout_constraintVertical_bias="0.526" />
+
+    <TextView
+        android:id="@+id/acceleration_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="dati"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_startActivity"
+        app:layout_constraintVertical_bias="0.288" />
+
+    <TextView
+        android:id="@+id/text_walking_title"
+        android:layout_width="65dp"
+        android:layout_height="28dp"
+        android:fontFamily="@font/andika_new_basic"
+        android:text="Walking"
+        android:textAlignment="center"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
+        app:layout_constraintEnd_toStartOf="@+id/text_driving_title"
+        app:layout_constraintHorizontal_bias="0.504"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.802" />
+
+    <TextView
+        android:id="@+id/text_driving_title"
+        android:layout_width="65dp"
+        android:layout_height="28dp"
+        android:fontFamily="@font/andika_new_basic"
+        android:text="Driving"
+        android:textAlignment="center"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.802" />
+
+    <TextView
+        android:id="@+id/text_standing_title"
+        android:layout_width="65dp"
+        android:layout_height="28dp"
+        android:fontFamily="@font/andika_new_basic"
+        android:text="Standing"
+        android:textAlignment="center"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.55"
+        app:layout_constraintStart_toEndOf="@+id/text_driving_title"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.802" />
+
+    <TextView
+        android:id="@+id/text_walking_hours"
+        android:layout_width="65dp"
+        android:layout_height="26dp"
+        android:text=""
+        android:textAlignment="center"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/text_walking_title"
+        app:layout_constraintEnd_toStartOf="@+id/text_driving_hours"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/text_driving_hours"
+        android:layout_width="65dp"
+        android:layout_height="26dp"
+        android:text=""
+        android:textAlignment="center"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/text_driving_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <TextView
+        android:id="@+id/text_standing_hours"
+        android:layout_width="65dp"
+        android:layout_height="26dp"
+        android:text=""
+        android:textAlignment="center"
+        android:elevation="4dp"
+        app:layout_constraintBottom_toTopOf="@+id/text_standing_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.555"
+        app:layout_constraintStart_toEndOf="@+id/text_driving_hours"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <ImageView
+        android:id="@+id/img_background_walking"
+        android:layout_width="110dp"
+        android:layout_height="112dp"
+        android:src="@drawable/background_blue"
+        app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.156"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.236" />
+
+    <ImageView
+        android:id="@+id/img_background_driving"
+        android:layout_width="110dp"
+        android:layout_height="112dp"
+        android:src="@drawable/background_blue"
+        app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.236" />
+
+    <ImageView
+        android:id="@+id/img_background_standing"
+        android:layout_width="110dp"
+        android:layout_height="112dp"
+        android:src="@drawable/background_blue"
+        app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.863"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.236" />
+
+    <ImageView
+        android:id="@+id/img_blue_line"
+        android:layout_width="425dp"
+        android:layout_height="160dp"
+        android:layout_marginBottom="24dp"
+        android:src="@drawable/img_blue_line"
+        app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
