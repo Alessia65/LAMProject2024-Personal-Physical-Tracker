@@ -14,7 +14,10 @@ interface TrackingDao {
 
     //TODO: Fare le query che servono
 
-    @Query("SELECT * FROM activities_table ORDER BY date_finish DESC LIMIT 1")
+    @Query("SELECT SUM(duration) FROM activities_table WHERE activity_type = :activityType AND date = :day")
+    suspend fun getTotalDurationByActivityTypeInDay(day:String, activityType:String): Double
+
+    @Query("SELECT * FROM activities_table ORDER BY time_finish DESC LIMIT 1")
     suspend fun getLastActivity(): ActivityEntity?
 
     @Query("SELECT * FROM activities_table")

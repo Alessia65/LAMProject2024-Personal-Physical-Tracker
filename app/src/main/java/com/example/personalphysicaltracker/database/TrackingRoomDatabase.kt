@@ -39,13 +39,13 @@ abstract class TrackingRoomDatabase : RoomDatabase() {
 
                     //Impostare giorno 15/06 e orario 6.15pm
                     // Attività di tipo "Walking" con durate di 4 ore
-                    dao?.insert(ActivityEntity(activityType = "WalkingActivity", dateStart = "2024-06-15 06:00:00", dateFinish = "2024-06-15 10:00:00", duration = 4 * 3600.0))
+                    dao?.insert(ActivityEntity(activityType = "WalkingActivity", date = "2024-06-15",timeStart = "06:00:00", timeFinish = "10:00:00", duration = 4 * 3600.0))
 
                     // Attività di tipo "Driving" con durate di 6
-                    dao?.insert(ActivityEntity(activityType = "DrivingActivity", dateStart = "2024-06-15 11:00:00", dateFinish = "2024-06-15 17:00:00", duration = 6 * 3600.0))
+                    dao?.insert(ActivityEntity(activityType = "DrivingActivity", date = "2024-06-15",timeStart = "11:00:00", timeFinish = "17:00:00", duration = 6 * 3600.0))
 
                     // Attività di tipo "Standing" con durate di 1 ora
-                    dao?.insert(ActivityEntity(activityType = "StandingActivity", dateStart = "2024-06-15 17:10:00", dateFinish = "2024-06-15 18:10:00", duration = 1 * 3600.0))
+                    dao?.insert(ActivityEntity(activityType = "StandingActivity", date = "2024-06-15", timeStart = "17:10:00", timeFinish = "18:10:00", duration = 1 * 3600.0))
 
                 }
             }

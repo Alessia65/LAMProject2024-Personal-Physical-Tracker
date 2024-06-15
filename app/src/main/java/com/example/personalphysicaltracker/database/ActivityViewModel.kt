@@ -27,6 +27,10 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
     suspend fun getLastActivity(): ActivityEntity? {
         return repository.getLastActivity()
     }
+
+    suspend fun getTotalDurationByActivityTypeInDay(day: String, activityType: String): Double {
+        return repository.getTotalDurationByActivityTypeInDay(day, activityType)
+    }
 }
 
 //Che fa???

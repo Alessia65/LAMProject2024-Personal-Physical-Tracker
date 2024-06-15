@@ -15,11 +15,14 @@ data class ActivityEntity(
     @ColumnInfo(name = "activity_type")
     var activityType: String,
 
-    @ColumnInfo(name = "date_start")
-    var dateStart: String,
+    @ColumnInfo(name = "date")
+    var date: String,
 
-    @ColumnInfo(name = "date_finish")
-    var dateFinish: String,
+    @ColumnInfo(name = "time_start")
+    var timeStart: String,
+
+    @ColumnInfo(name = "time_finish")
+    var timeFinish: String,
 
     @ColumnInfo(name = "duration")
     var duration: Double

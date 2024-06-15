@@ -19,12 +19,6 @@ import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
 import kotlin.math.roundToInt
 
-
-/*
-
-TODO: modificare il db per tenere traccia del giorno di riferimento in realtà gia c'è valutare se inserire una nuova colonna oppure no
- */
-
 class HomeFragment : Fragment(), AccelerometerListener {
 
     private var _binding: FragmentHomeBinding? = null
@@ -32,7 +26,6 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     private lateinit var homeViewModel: HomeViewModel
 
-    private lateinit var textView: TextView
     private lateinit var buttonStartActivity: Button
     private lateinit var accelText: TextView
     private lateinit var progress_bar_walking: ProgressBar
@@ -42,13 +35,6 @@ class HomeFragment : Fragment(), AccelerometerListener {
     private lateinit var driving_hours: TextView
     private lateinit var standing_hours: TextView
 
-    private var progressBarWalking = 0
-    private var progressBarDriving = 0
-    private var progressBarStanding = 0
-
-
-
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -57,30 +43,51 @@ class HomeFragment : Fragment(), AccelerometerListener {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root = binding.root
 
+        // Initialize ViewModel
+        initializeViewModel()
+
+        // Bind views
+        bindViews(root)
+
+        // Set max values for progress bars
+        setProgressBarMaxValues()
+
+        // Observe LiveData changes
+        observeDailyTimeChanges()
+
+        // Initialize buttons
+        initializeButtons(root as ConstraintLayout)
+
+        return root
+    }
+
+    // Initialize the ViewModel
+    private fun initializeViewModel() {
         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-
-
         homeViewModel.initializeModel(this.activity, this)
+    }
 
-
-        textView = binding.textHome
+    // Bind views to their respective IDs
+    private fun bindViews(root: View) {
         accelText = root.findViewById(R.id.acceleration_text)
-        progress_bar_walking = root.findViewById<ProgressBar>(R.id.progress_bar_walking)
-        progress_bar_driving = root.findViewById<ProgressBar>(R.id.progress_bar_driving)
-        progress_bar_standing = root.findViewById<ProgressBar>(R.id.progress_bar_standing)
-
+        progress_bar_walking = root.findViewById(R.id.progress_bar_walking)
+        progress_bar_driving = root.findViewById(R.id.progress_bar_driving)
+        progress_bar_standing = root.findViewById(R.id.progress_bar_standing)
         walking_hours = root.findViewById(R.id.text_walking_hours)
         driving_hours = root.findViewById(R.id.text_driving_hours)
         standing_hours = root.findViewById(R.id.text_standing_hours)
+    }
 
-        // Imposta il massimo della ProgressBar per rappresentare 24 ore in secondi
-        val maxProgress = 24 * 3600 // 24 ore in secondi
+    // Set the maximum value for progress bars to represent 24 hours in seconds
+    private fun setProgressBarMaxValues() {
+        val maxProgress = 24 * 3600 // 24 hours in seconds
         progress_bar_walking.max = maxProgress
         progress_bar_driving.max = maxProgress
         progress_bar_standing.max = maxProgress
+    }
 
-
-        // Observer per monitorare i cambiamenti di dailyTime e aggiornare la UI
+    // Observe changes in dailyTime LiveData and update UI accordingly
+    private fun observeDailyTimeChanges() {
         homeViewModel.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
             dailyTimeList?.let {
                 val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
@@ -91,99 +98,103 @@ class HomeFragment : Fragment(), AccelerometerListener {
                 updateProgressBarStanding(currentProgressStanding)
             }
         }
-
-
-
-        initializeButtons(root)
-
-
-        return root
     }
 
-    private fun initializeButtons(root: ConstraintLayout){
-
+    // Initialize buttons and set their click listeners
+    private fun initializeButtons(root: ConstraintLayout) {
         buttonStartActivity = root.findViewById(R.id.button_startActivity)
         buttonStartActivity.setOnClickListener {
             showActivitySelectionDialog()
         }
-
     }
 
-    private fun updateProgressBarWalking(progressCurrent: Double){
-        var progressCurrentInt = progressCurrent.roundToInt()
+    // Update the walking progress bar and hours
+    private fun updateProgressBarWalking(progressCurrent: Double) {
+        val progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
             progress_bar_walking.progress = progressCurrentInt
-            walking_hours.text = (progressCurrent/3600).toString()
+            walking_hours.text = String.format("%.4f", progressCurrent / 3600.0) + "h"
         }
     }
 
-    private fun updateProgressBarDriving(progressCurrent: Double){
-        var progressCurrentInt = progressCurrent.roundToInt()
+    // Update the driving progress bar and hours
+    private fun updateProgressBarDriving(progressCurrent: Double) {
+        val progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
             progress_bar_driving.progress = progressCurrentInt
-            driving_hours.text = (progressCurrent/3600).toString()
+            driving_hours.text = String.format("%.4f", progressCurrent / 3600.0) + "h"
         }
     }
 
-    private fun updateProgressBarStanding(progressCurrent: Double){
-        var progressCurrentInt = progressCurrent.roundToInt()
+    // Update the standing progress bar and hours
+    private fun updateProgressBarStanding(progressCurrent: Double) {
+        val progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
             progress_bar_standing.progress = progressCurrentInt
-            standing_hours.text = (progressCurrent/3600).toString()
+            standing_hours.text = String.format("%.4f", progressCurrent / 3600.0) + "h"
         }
     }
 
+    // Show a dialog to select an activity
     private fun showActivitySelectionDialog() {
         val items = arrayOf("Walking", "Driving", "Standing")
         val builder = AlertDialog.Builder(requireActivity())
-        builder.setTitle("Seleziona un'attività:")
-            .setItems(items) { dialog, item ->
+        builder.setTitle("Select an activity:")
+            .setItems(items) { _, item ->
                 when (items[item]) {
                     "Walking" -> startWalkingActivity()
                     "Driving" -> startDrivingActivity()
                     "Standing" -> startStandingActivity()
                 }
             }
-        val alert = builder.create()
-        alert.show()
-        changeButton()
+        builder.create().show()
     }
 
+    // Start the walking activity and change button to "Stop Activity"
     private fun startWalkingActivity() {
         homeViewModel.startSelectedActivity(WalkingActivity(requireContext()), this)
-
+        changeButtonToStop()
     }
 
+    // Start the driving activity and change button to "Stop Activity"
     private fun startDrivingActivity() {
         homeViewModel.startSelectedActivity(DrivingActivity(requireContext()), this)
+        changeButtonToStop()
     }
 
+    // Start the standing activity and change button to "Stop Activity"
     private fun startStandingActivity() {
         homeViewModel.startSelectedActivity(StandingActivity(requireContext()), this)
+        changeButtonToStop()
     }
 
-    private fun changeButton() {
+    // Change the button text and behavior to "Stop Activity"
+    private fun changeButtonToStop() {
         buttonStartActivity.text = "Stop Activity"
         buttonStartActivity.setOnClickListener {
             stopSelectedActivity()
         }
     }
 
+    // Stop the currently selected activity and reset the button to "Start Activity"
     private fun stopSelectedActivity() {
         homeViewModel.stopSelectedActivity()
-
-
-        buttonStartActivity.text = "Start Activity"
-        buttonStartActivity.setOnClickListener {
-            showActivitySelectionDialog()
-        }
+        resetButtonToStart()
         requireActivity().runOnUiThread {
             accelText.text = "No activity running"
         }
     }
 
+    // Reset the button text and behavior to "Start Activity"
+    private fun resetButtonToStart() {
+        buttonStartActivity.text = "Start Activity"
+        buttonStartActivity.setOnClickListener {
+            showActivitySelectionDialog()
+        }
+    }
+
+    // Handle accelerometer data updates
     override fun onAccelerometerDataReceived(data: String) {
-        // Non è necessario ottenere di nuovo dailyTime qui, si può usare homeViewModel.dailyTime
         homeViewModel.dailyTime.value?.let { dailyTimeList ->
             val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
             val currentProgressDriving = dailyTimeList[1]?.toDouble() ?: 0.0
@@ -198,8 +209,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
         }
     }
 
-
-
+    // Clean up bindings and stop the activity on view destruction
     override fun onDestroyView() {
         super.onDestroyView()
         homeViewModel.destroyActivity()

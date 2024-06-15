@@ -41,4 +41,8 @@ class TrackingRepository(app: Application) {
     suspend fun getLastActivity(): ActivityEntity? {
         return trackingDao.getLastActivity()
     }
+
+    suspend fun getTotalDurationByActivityTypeInDay(day: String, activityType: String): Double{
+        return trackingDao.getTotalDurationByActivityTypeInDay(day, activityType)
+    }
 }
