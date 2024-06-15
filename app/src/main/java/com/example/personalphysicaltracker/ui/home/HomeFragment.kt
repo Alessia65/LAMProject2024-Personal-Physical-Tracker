@@ -33,7 +33,6 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     private lateinit var textView: TextView
     private lateinit var buttonStartActivity: Button
-    private lateinit var text_progress_bar: TextView
     private lateinit var accelText: TextView
     private lateinit var progress_bar_walking: ProgressBar
     private lateinit var progress_bar_driving: ProgressBar
@@ -60,7 +59,6 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
         textView = binding.textHome
         accelText = root.findViewById(R.id.acceleration_text)
-        text_progress_bar = root.findViewById(R.id.text_progress_bar)
         progress_bar_walking = root.findViewById<ProgressBar>(R.id.progress_bar_walking)
         progress_bar_driving = root.findViewById<ProgressBar>(R.id.progress_bar_driving)
         progress_bar_standing = root.findViewById<ProgressBar>(R.id.progress_bar_standing)
@@ -106,21 +104,18 @@ class HomeFragment : Fragment(), AccelerometerListener {
     private fun updateProgressBarWalking(progressCurrent: Int){
         requireActivity().runOnUiThread {
             progress_bar_walking.progress = progressCurrent
-            text_progress_bar.text = progressBarWalking.toString()
         }
     }
 
     private fun updateProgressBarDriving(progressCurrent: Int){
         requireActivity().runOnUiThread {
             progress_bar_driving.progress = progressCurrent
-            text_progress_bar.text = progressBarDriving.toString()
         }
     }
 
     private fun updateProgressBarStanding(progressCurrent: Int){
         requireActivity().runOnUiThread {
             progress_bar_standing.progress = progressCurrent
-            text_progress_bar.text = progressBarStanding.toString()
         }
     }
 

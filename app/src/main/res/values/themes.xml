@@ -14,8 +14,16 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="CircularProgressBar">
+    <style name="CircularProgressBar_Walking">
         <item name="android:indeterminateOnly">false</item>
-        <item name="android:progressDrawable">@drawable/circle_graph</item>
+        <item name="android:progressDrawable">@drawable/circle_graph_walking</item>
+    </style>
+    <style name="CircularProgressBar_Driving">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/circle_graph_driving</item>
+    </style>
+    <style name="CircularProgressBar_Standing">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/circle_graph_standing</item>
     </style>
 </resources>

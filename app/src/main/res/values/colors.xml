@@ -8,4 +8,10 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="orchid2">#EE7AE9</color>
+    <color name="blue_200">#FF4B8BF6</color>
+    <color name="blue_500">#FF1976D2</color>
+    <color name="green_200">#FF81C784</color>
+    <color name="green_500">#FF4CAF50</color>
+    <color name="red_200">#FFEF9A9A</color>
+    <color name="red_500">#FFF44336</color>
 </resources>
