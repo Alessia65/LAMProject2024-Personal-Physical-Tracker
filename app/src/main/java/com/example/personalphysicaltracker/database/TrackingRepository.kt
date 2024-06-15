@@ -1,4 +1,4 @@
-package com.example.mvvm_todolist
+package com.example.personalphysicaltracker.database
 
 import android.app.Application
 import android.util.Log
@@ -36,5 +36,9 @@ class TrackingRepository(app: Application) {
 
     fun getTotalDurationByActivityType(activityType: String): Long {
         return trackingDao.getTotalDurationByActivityType(activityType)
+    }
+
+    suspend fun getLastActivity(): ActivityEntity? {
+        return trackingDao.getLastActivity()
     }
 }

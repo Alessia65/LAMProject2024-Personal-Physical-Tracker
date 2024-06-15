@@ -13,6 +13,10 @@ import androidx.room.Query
 interface TrackingDao {
 
     //TODO: Fare le query che servono
+
+    @Query("SELECT * FROM activities_table ORDER BY date_finish DESC LIMIT 1")
+    suspend fun getLastActivity(): ActivityEntity?
+
     @Query("SELECT * FROM activities_table")
     fun getListOfActivities(): LiveData<List<ActivityEntity>>
 

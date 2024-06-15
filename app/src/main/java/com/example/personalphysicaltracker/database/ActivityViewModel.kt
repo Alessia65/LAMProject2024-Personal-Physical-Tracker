@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.mvvm_todolist.TrackingRepository
 
 class ActivityViewModel(private val repository: TrackingRepository) : ViewModel() {
 
@@ -23,6 +22,10 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
 
     fun getTotalDurationByActivityType(activityType: String): Long {
         return repository.getTotalDurationByActivityType(activityType)
+    }
+
+    suspend fun getLastActivity(): ActivityEntity? {
+        return repository.getLastActivity()
     }
 }
 

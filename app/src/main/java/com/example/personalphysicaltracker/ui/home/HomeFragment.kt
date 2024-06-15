@@ -193,7 +193,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        homeViewModel.destoryActivity()
+        homeViewModel.destroyActivity()
         _binding = null
     }
 }
