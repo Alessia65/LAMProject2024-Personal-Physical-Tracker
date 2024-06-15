@@ -15,7 +15,7 @@ import java.util.*
 class HomeViewModel : ViewModel() {
 
     private lateinit var activityViewModel: ActivityViewModel
-    private var selectedActivity: Activity? = null
+    private var selectedActivity: PhysicalActivity? = null
 
     private var startTime: String = ""
     private var endTime: String = ""
@@ -27,6 +27,7 @@ class HomeViewModel : ViewModel() {
 
     // Initialize the ViewModel with the necessary repository for database operations
     fun initializeModel(activity: FragmentActivity?, viewmodelstoreowner: ViewModelStoreOwner) {
+
         val application = requireNotNull(activity).application
         val repository = TrackingRepository(application)
         val viewModelFactory = ActivityViewModelFactory(repository)
@@ -48,11 +49,13 @@ class HomeViewModel : ViewModel() {
             }
         } catch (e: Exception) {
             // Exception handling, such as logging or other types of handling
-            Log.e("HomeViewModel", "Exception while fetching duration", e)
+            Log.e("HomeViewModel", "Exception while fetching duration")
         }
 
         return duration
     }
+
+
 
     // Update the daily data (_dailyTime) from the database
     private fun updateDailyTimeFromDatabase() {
@@ -87,7 +90,7 @@ class HomeViewModel : ViewModel() {
     }
 
     // Start a selected activity
-    fun startSelectedActivity(activity: Activity, listener: AccelerometerListener) {
+    fun startSelectedActivity(activity: PhysicalActivity, listener: AccelerometerListener) {
         viewModelScope.launch {
             val lastActivity = getLastActivity()
             val currentTime = getCurrentTime()
@@ -136,16 +139,16 @@ class HomeViewModel : ViewModel() {
             timeFinish = currentTime,
             duration = duration
         )
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             activityViewModel.insertActivityEntity(unknownActivity)
         }
     }
 
     // Set the selected activity and start the accelerometer listener
-    private fun setSelectedActivity(activity: Activity, listener: AccelerometerListener) {
+    private fun setSelectedActivity(activity: PhysicalActivity, listener: AccelerometerListener) {
         selectedActivity = activity
         selectedActivity?.registerAccelerometerListener(listener)
-        selectedActivity?.startSensor()
+        selectedActivity?.startAccelerometer()
     }
 
     // Get the current time in the specified format
@@ -221,7 +224,9 @@ class HomeViewModel : ViewModel() {
             timeFinish = endTime,
             duration = duration
         )
-        activityViewModel.insertActivityEntity(activityEntity)
+        viewModelScope.launch(Dispatchers.IO) {
+            activityViewModel.insertActivityEntity(activityEntity)
+        }
     }
 
     // Stop the selected activity

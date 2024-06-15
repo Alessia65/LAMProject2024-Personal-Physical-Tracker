@@ -1,7 +1,7 @@
 package com.example.personalphysicaltracker.activities
 
-interface ActivityInterface {
+interface PhysicalActivityInterface {
     fun getActivityName(): String
-    fun startSensor()
+    fun startAccelerometer()
     fun stopActivity()
 }
