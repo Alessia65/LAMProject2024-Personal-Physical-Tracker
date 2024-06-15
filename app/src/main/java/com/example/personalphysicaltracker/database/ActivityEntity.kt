@@ -10,7 +10,7 @@ data class ActivityEntity(
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Long = 0,
+    val id: Int = 0,
 
     @ColumnInfo(name = "activity_type")
     var activityType: String,
@@ -22,5 +22,5 @@ data class ActivityEntity(
     var dateFinish: String,
 
     @ColumnInfo(name = "duration")
-    var duration: Long
+    var duration: Double
 )

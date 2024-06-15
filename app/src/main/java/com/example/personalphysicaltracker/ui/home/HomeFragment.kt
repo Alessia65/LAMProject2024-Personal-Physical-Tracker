@@ -17,6 +17,7 @@ import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
+import kotlin.math.roundToInt
 
 
 /*
@@ -37,10 +38,15 @@ class HomeFragment : Fragment(), AccelerometerListener {
     private lateinit var progress_bar_walking: ProgressBar
     private lateinit var progress_bar_driving: ProgressBar
     private lateinit var progress_bar_standing: ProgressBar
+    private lateinit var walking_hours: TextView
+    private lateinit var driving_hours: TextView
+    private lateinit var standing_hours: TextView
 
     private var progressBarWalking = 0
     private var progressBarDriving = 0
     private var progressBarStanding = 0
+
+
 
 
     override fun onCreateView(
@@ -63,7 +69,9 @@ class HomeFragment : Fragment(), AccelerometerListener {
         progress_bar_driving = root.findViewById<ProgressBar>(R.id.progress_bar_driving)
         progress_bar_standing = root.findViewById<ProgressBar>(R.id.progress_bar_standing)
 
-
+        walking_hours = root.findViewById(R.id.text_walking_hours)
+        driving_hours = root.findViewById(R.id.text_driving_hours)
+        standing_hours = root.findViewById(R.id.text_standing_hours)
 
         // Imposta il massimo della ProgressBar per rappresentare 24 ore in secondi
         val maxProgress = 24 * 3600 // 24 ore in secondi
@@ -75,9 +83,9 @@ class HomeFragment : Fragment(), AccelerometerListener {
         // Observer per monitorare i cambiamenti di dailyTime e aggiornare la UI
         homeViewModel.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
             dailyTimeList?.let {
-                val currentProgressWalking = dailyTimeList[0]?.toInt() ?: 0
-                val currentProgressDriving = dailyTimeList[1]?.toInt() ?: 0
-                val currentProgressStanding = dailyTimeList[2]?.toInt() ?: 0
+                val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
+                val currentProgressDriving = dailyTimeList[1]?.toDouble() ?: 0.0
+                val currentProgressStanding = dailyTimeList[2]?.toDouble() ?: 0.0
                 updateProgressBarWalking(currentProgressWalking)
                 updateProgressBarDriving(currentProgressDriving)
                 updateProgressBarStanding(currentProgressStanding)
@@ -101,21 +109,27 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     }
 
-    private fun updateProgressBarWalking(progressCurrent: Int){
+    private fun updateProgressBarWalking(progressCurrent: Double){
+        var progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
-            progress_bar_walking.progress = progressCurrent
+            progress_bar_walking.progress = progressCurrentInt
+            walking_hours.text = (progressCurrent/3600).toString()
         }
     }
 
-    private fun updateProgressBarDriving(progressCurrent: Int){
+    private fun updateProgressBarDriving(progressCurrent: Double){
+        var progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
-            progress_bar_driving.progress = progressCurrent
+            progress_bar_driving.progress = progressCurrentInt
+            driving_hours.text = (progressCurrent/3600).toString()
         }
     }
 
-    private fun updateProgressBarStanding(progressCurrent: Int){
+    private fun updateProgressBarStanding(progressCurrent: Double){
+        var progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
-            progress_bar_standing.progress = progressCurrent
+            progress_bar_standing.progress = progressCurrentInt
+            standing_hours.text = (progressCurrent/3600).toString()
         }
     }
 
@@ -171,9 +185,9 @@ class HomeFragment : Fragment(), AccelerometerListener {
     override fun onAccelerometerDataReceived(data: String) {
         // Non è necessario ottenere di nuovo dailyTime qui, si può usare homeViewModel.dailyTime
         homeViewModel.dailyTime.value?.let { dailyTimeList ->
-            val currentProgressWalking = dailyTimeList[0]?.toInt() ?: 0
-            val currentProgressDriving = dailyTimeList[1]?.toInt() ?: 0
-            val currentProgressStanding = dailyTimeList[2]?.toInt() ?: 0
+            val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
+            val currentProgressDriving = dailyTimeList[1]?.toDouble() ?: 0.0
+            val currentProgressStanding = dailyTimeList[2]?.toDouble() ?: 0.0
             updateProgressBarWalking(currentProgressWalking)
             updateProgressBarDriving(currentProgressDriving)
             updateProgressBarStanding(currentProgressStanding)

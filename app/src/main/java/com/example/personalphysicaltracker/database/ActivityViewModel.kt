@@ -20,7 +20,7 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
         repository.deleteListActivities(toDelete)
     }
 
-    fun getTotalDurationByActivityType(activityType: String): Long {
+    fun getTotalDurationByActivityType(activityType: String): Double {
         return repository.getTotalDurationByActivityType(activityType)
     }
 

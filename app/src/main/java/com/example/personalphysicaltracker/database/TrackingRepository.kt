@@ -34,7 +34,7 @@ class TrackingRepository(app: Application) {
         }
     }
 
-    fun getTotalDurationByActivityType(activityType: String): Long {
+    fun getTotalDurationByActivityType(activityType: String): Double {
         return trackingDao.getTotalDurationByActivityType(activityType)
     }
 

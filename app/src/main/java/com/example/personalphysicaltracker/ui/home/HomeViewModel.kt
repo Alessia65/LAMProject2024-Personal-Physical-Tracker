@@ -32,9 +32,9 @@ class HomeViewModel : ViewModel() {
 
     private var startTime: String = ""
     private var endTime: String = ""
-    private var duration: Long = 0
-    private val _dailyTime = MutableLiveData<List<Long?>>(listOf(null, null, null, null))
-    val dailyTime: LiveData<List<Long?>>
+    private var duration: Double = 0.0
+    private val _dailyTime = MutableLiveData<List<Double?>>(listOf(null, null, null, null))
+    val dailyTime: LiveData<List<Double?>>
         get() = _dailyTime
 
     fun initializeModel(activity: FragmentActivity?, viewmodelstoreowner: ViewModelStoreOwner){
@@ -64,7 +64,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private fun getUnknownDuration(walkingDuration: Long, drivingDuration: Long, standingDuration: Long): Long {
+    private fun getUnknownDuration(walkingDuration: Double, drivingDuration: Double, standingDuration: Double): Double {
         // Calcola l'inizio del giorno in secondi
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -86,10 +86,10 @@ class HomeViewModel : ViewModel() {
         Log.d("getUnknownDuration", "currentTime: $currentTimeSeconds, startOfDay: $startOfDaySeconds, totalKnownDuration: $totalKnownDuration, unknownTime: $unknownTime")
 
         // Assicura che unknownTime non sia negativo
-        return if (unknownTime > 0) unknownTime else 0L
+        return if (unknownTime > 0) unknownTime else 0.0
     }
 
-    private suspend fun getTotalDurationByActivityType(activityType: String): Long {
+    private suspend fun getTotalDurationByActivityType(activityType: String): Double {
         return withContext(Dispatchers.IO) {
             activityViewModel.getTotalDurationByActivityType(activityType)
         }
@@ -180,13 +180,13 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private fun setDailyTime(index: Int, value: Long) {
+    private fun setDailyTime(index: Int, value: Double) {
         viewModelScope.launch {
             _dailyTime.value?.let { currentDailyTime ->
                 val updatedList = currentDailyTime.toMutableList()
                 if (index in updatedList.indices) {
                     // Somma il nuovo valore al valore corrente
-                    val currentValue = updatedList[index] ?: 0L
+                    val currentValue = updatedList[index] ?: 0.0
                     updatedList[index] = currentValue + value
                     _dailyTime.postValue(updatedList)
                 } else {
@@ -197,14 +197,14 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private fun calculateDuration(start: String, end: String): Long {
+    private fun calculateDuration(start: String, end: String): Double {
         if (start.isEmpty() || end.isEmpty()) {
             throw IllegalArgumentException("dates can't be empty")
         }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val startTime = dateFormat.parse(start)?.time ?: 0L
-        val endTime = dateFormat.parse(end)?.time ?: 0L
-        return (endTime - startTime) / 1000
+        val startTime = dateFormat.parse(start)?.time ?: 0.0
+        val endTime = dateFormat.parse(end)?.time ?: 0.0
+        return (endTime.toDouble() - startTime.toDouble()) / 1000
     }
 
     private fun saveActivityData(activityType: String) {
