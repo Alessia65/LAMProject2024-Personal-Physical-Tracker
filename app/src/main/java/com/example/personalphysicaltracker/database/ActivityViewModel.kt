@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
+//Classe per accedere al DB
 class ActivityViewModel(private val repository: TrackingRepository) : ViewModel() {
 
 
@@ -16,13 +17,6 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
         repository.insertActivityEntity(activityEntity)
     }
 
-    fun deleteListActivities (toDelete: List<ActivityEntity>) {
-        repository.deleteListActivities(toDelete)
-    }
-
-    fun getTotalDurationByActivityType(activityType: String): Double {
-        return repository.getTotalDurationByActivityType(activityType)
-    }
 
     suspend fun getLastActivity(): ActivityEntity? {
         return repository.getLastActivity()
@@ -33,7 +27,7 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
     }
 }
 
-//Che fa???
+//TODO: Che fa???
 class ActivityViewModelFactory(private val repository: TrackingRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ActivityViewModel::class.java)) {

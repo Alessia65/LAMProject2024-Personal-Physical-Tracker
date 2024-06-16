@@ -1,6 +1,7 @@
 package com.example.personalphysicaltracker.ui.home
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +13,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.example.personalphysicaltracker.R
-import com.example.personalphysicaltracker.activities.AccelerometerListener
+import com.example.personalphysicaltracker.sensors.AccelerometerListener
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
+import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import kotlin.math.roundToInt
 
 class HomeFragment : Fragment(), AccelerometerListener {
@@ -25,6 +27,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
     private val binding get() = _binding!!
 
     private lateinit var homeViewModel: HomeViewModel
+    private lateinit var sensorHandler: AccelerometerSensorHandler
 
     private lateinit var buttonStartActivity: Button
     private lateinit var accelText: TextView
@@ -43,11 +46,13 @@ class HomeFragment : Fragment(), AccelerometerListener {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root = binding.root
 
+        sensorHandler = AccelerometerSensorHandler(requireContext())
         // Initialize ViewModel
         initializeViewModel()
 
         // Bind views
         bindViews(root)
+
 
         // Set max values for progress bars
         setProgressBarMaxValues()
@@ -64,7 +69,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
     // Initialize the ViewModel
     private fun initializeViewModel() {
         homeViewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
-        homeViewModel.initializeModel(this.activity, this)
+        homeViewModel.initializeActivityViewModel(this.activity, this)
     }
 
     // Bind views to their respective IDs
@@ -86,6 +91,8 @@ class HomeFragment : Fragment(), AccelerometerListener {
         progress_bar_standing.max = maxProgress
     }
 
+
+
     // Observe changes in dailyTime LiveData and update UI accordingly
     private fun observeDailyTimeChanges() {
         homeViewModel.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
@@ -93,12 +100,18 @@ class HomeFragment : Fragment(), AccelerometerListener {
                 val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
                 val currentProgressDriving = dailyTimeList[1]?.toDouble() ?: 0.0
                 val currentProgressStanding = dailyTimeList[2]?.toDouble() ?: 0.0
+                Log.d("VALORI ARRIVATI", "$currentProgressWalking, $currentProgressDriving, $currentProgressStanding")
                 updateProgressBarWalking(currentProgressWalking)
                 updateProgressBarDriving(currentProgressDriving)
                 updateProgressBarStanding(currentProgressStanding)
             }
         }
     }
+
+
+
+
+
 
     // Initialize buttons and set their click listeners
     private fun initializeButtons(root: ConstraintLayout) {
@@ -107,6 +120,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
             showActivitySelectionDialog()
         }
     }
+
 
     // Update the walking progress bar and hours
     private fun updateProgressBarWalking(progressCurrent: Double) {
@@ -135,6 +149,8 @@ class HomeFragment : Fragment(), AccelerometerListener {
         }
     }
 
+
+
     // Show a dialog to select an activity
     private fun showActivitySelectionDialog() {
         val items = arrayOf("Walking", "Driving", "Standing")
@@ -152,20 +168,34 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     // Start the walking activity and change button to "Stop Activity"
     private fun startWalkingActivity() {
-        homeViewModel.startSelectedActivity(WalkingActivity(requireContext()), this)
+        homeViewModel.startSelectedActivity(WalkingActivity())
+        startSensor()
         changeButtonToStop()
     }
 
     // Start the driving activity and change button to "Stop Activity"
     private fun startDrivingActivity() {
-        homeViewModel.startSelectedActivity(DrivingActivity(requireContext()), this)
+        homeViewModel.startSelectedActivity(DrivingActivity())
+        startSensor()
         changeButtonToStop()
     }
 
     // Start the standing activity and change button to "Stop Activity"
     private fun startStandingActivity() {
-        homeViewModel.startSelectedActivity(StandingActivity(requireContext()), this)
+        homeViewModel.startSelectedActivity(StandingActivity())
+        startSensor()
         changeButtonToStop()
+    }
+
+    fun startSensor(){
+        sensorHandler.registerAccelerometerListener(this)
+        sensorHandler.startAccelerometer()
+    }
+
+    fun stopSensor(){
+        sensorHandler.unregisterListener()
+        sensorHandler.stopAccelerometer()
+
     }
 
     // Change the button text and behavior to "Stop Activity"
@@ -178,6 +208,7 @@ class HomeFragment : Fragment(), AccelerometerListener {
 
     // Stop the currently selected activity and reset the button to "Start Activity"
     private fun stopSelectedActivity() {
+        stopSensor()
         homeViewModel.stopSelectedActivity()
         resetButtonToStart()
         requireActivity().runOnUiThread {
@@ -193,26 +224,40 @@ class HomeFragment : Fragment(), AccelerometerListener {
         }
     }
 
+
     // Handle accelerometer data updates
     override fun onAccelerometerDataReceived(data: String) {
+        requireActivity().runOnUiThread {
+            accelText.text = data
+        }
+
+
         homeViewModel.dailyTime.value?.let { dailyTimeList ->
             val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
             val currentProgressDriving = dailyTimeList[1]?.toDouble() ?: 0.0
             val currentProgressStanding = dailyTimeList[2]?.toDouble() ?: 0.0
+            Log.d("CHIUSURA ACTIVITY", "valori correnti: $currentProgressWalking, $currentProgressDriving, $currentProgressStanding")
             updateProgressBarWalking(currentProgressWalking)
             updateProgressBarDriving(currentProgressDriving)
             updateProgressBarStanding(currentProgressStanding)
         }
 
-        requireActivity().runOnUiThread {
-            accelText.text = data
-        }
+
     }
 
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        stopSensor()
+    }
     // Clean up bindings and stop the activity on view destruction
     override fun onDestroyView() {
         super.onDestroyView()
-        homeViewModel.destroyActivity()
+        stopSensor()
         _binding = null
     }
 }

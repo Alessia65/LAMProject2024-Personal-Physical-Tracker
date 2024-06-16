@@ -1,43 +1,41 @@
-package com.example.personalphysicaltracker.activities
+package com.example.personalphysicaltracker.sensors
 
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
+import android.util.Log
 
 
 // Classe per la gestione dei sensori
-class SensorHandler(private val context: Context) : SensorEventListener {
+class AccelerometerSensorHandler(private val context: Context) : SensorEventListener {
 
-    private var sensorManager: SensorManager? = null
+    private var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var accelerometerListener: AccelerometerListener? = null
-
-    init {
-        sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager?
-    }
 
     // Metodo per registrare il listener dell'accelerometro
     fun registerAccelerometerListener(listener: AccelerometerListener) {
         accelerometerListener = listener
     }
 
+    fun unregisterListener() {
+        sensorManager.unregisterListener(this)
+    }
+
     // Metodo per avviare il sensore dell'accelerometro
     fun startAccelerometer() {
-        val accelerometerSensor = sensorManager?.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        accelerometerSensor?.let {
-            sensorManager?.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
+        val accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        accelerometerSensor.let {
+            sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
+        Log.d("Accelerometer", "Sensor started")
     }
 
     // Metodo per fermare il sensore dell'accelerometro
     fun stopAccelerometer() {
-        sensorManager?.unregisterListener(this)
+        sensorManager.unregisterListener(this)
+        Log.d("Accelerometer", "Sensor stopped")
     }
 
     // Metodo richiamato quando i dati del sensore cambiano

@@ -12,21 +12,21 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
+//Comunicazione tra HomeFragment e Altre classi
 class HomeViewModel : ViewModel() {
 
     private lateinit var activityViewModel: ActivityViewModel
-    private var selectedActivity: PhysicalActivity? = null
+    private lateinit var selectedActivity: PhysicalActivity
 
-    private var startTime: String = ""
-    private var endTime: String = ""
-    private var duration: Double = 0.0
+
     private var date: String = ""
     private val _dailyTime = MutableLiveData<List<Double?>>(listOf(null, null, null, null))
     val dailyTime: LiveData<List<Double?>>
         get() = _dailyTime
 
+
     // Initialize the ViewModel with the necessary repository for database operations
-    fun initializeModel(activity: FragmentActivity?, viewmodelstoreowner: ViewModelStoreOwner) {
+    fun initializeActivityViewModel(activity: FragmentActivity?, viewmodelstoreowner: ViewModelStoreOwner) {
 
         val application = requireNotNull(activity).application
         val repository = TrackingRepository(application)
@@ -61,9 +61,9 @@ class HomeViewModel : ViewModel() {
     private fun updateDailyTimeFromDatabase() {
         date = getCurrentDay()
         viewModelScope.launch {
-            val walkingDuration = getTotalDurationByActivityTypeToday("WalkingActivity")
-            val drivingDuration = getTotalDurationByActivityTypeToday("DrivingActivity")
-            val standingDuration = getTotalDurationByActivityTypeToday("StandingActivity")
+            val walkingDuration = getTotalDurationByActivityTypeToday("Walking")
+            val drivingDuration = getTotalDurationByActivityTypeToday("Driving")
+            val standingDuration = getTotalDurationByActivityTypeToday("Standing")
             val unknownDuration = getUnknownDuration(walkingDuration, drivingDuration, standingDuration)
 
             // Update the LiveData with the daily data
@@ -90,21 +90,19 @@ class HomeViewModel : ViewModel() {
     }
 
     // Start a selected activity
-    fun startSelectedActivity(activity: PhysicalActivity, listener: AccelerometerListener) {
-        viewModelScope.launch {
+    fun startSelectedActivity(activity: PhysicalActivity) {
+        viewModelScope.launch(Dispatchers.IO) {
+
             val lastActivity = getLastActivity()
-            val currentTime = getCurrentTime()
+            val currentTime = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
 
             if (lastActivity != null && isGapBetweenActivities(lastActivity.timeFinish, currentTime)) {
                 saveUnknownActivity(lastActivity.timeFinish, currentTime)
             }
 
-            setSelectedActivity(activity, listener)
-            startTime = currentTime
-
-            if (startTime.isEmpty()) {
-                throw IllegalStateException("startTime can't be empty")
-            }
+            //Create Activity
+            selectedActivity = activity
+            selectedActivity.setActivityViewModelVar(activityViewModel)
         }
     }
 
@@ -144,18 +142,6 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    // Set the selected activity and start the accelerometer listener
-    private fun setSelectedActivity(activity: PhysicalActivity, listener: AccelerometerListener) {
-        selectedActivity = activity
-        selectedActivity?.registerAccelerometerListener(listener)
-        selectedActivity?.startAccelerometer()
-    }
-
-    // Get the current time in the specified format
-    private fun getCurrentTime(): String {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        return dateFormat.format(Date())
-    }
 
     // Get the current date in the specified format
     private fun getCurrentDay(): String {
@@ -165,44 +151,34 @@ class HomeViewModel : ViewModel() {
 
     // Stop the selected activity, calculate the duration, and update the daily values
     fun stopSelectedActivity() {
-        endTime = getCurrentTime()
-        if (endTime.isEmpty()) {
-            throw IllegalStateException("endTime can't be empty")
-        }
-        duration = calculateDuration(startTime, endTime)
-        saveActivityData(selectedActivity?.javaClass?.simpleName ?: "Unknown")
+        selectedActivity.setFinishTime()
+        selectedActivity.calculateDuration()
+
+        saveInDb()
         updateDailyValues()
-        selectedActivity?.stopActivity()
     }
 
+    private fun saveInDb(){
+        if (selectedActivity is WalkingActivity){
+            (selectedActivity as WalkingActivity).saveInDb()
+        } else if (selectedActivity is DrivingActivity){
+            (selectedActivity as DrivingActivity).saveInDb()
+        } else if (selectedActivity is StandingActivity){
+            (selectedActivity as StandingActivity).saveInDb()
+        } else{
+            selectedActivity.saveInDb()
+        }
+    }
     // Update the daily values based on the selected activity
     private fun updateDailyValues() {
+        val d = selectedActivity.duration
+        Log.d("CHIUSURA ACTIVITY", "calcolo duration: $d")
         viewModelScope.launch {
-            when (selectedActivity?.javaClass?.simpleName ?: "UnknownActivity") {
-                "WalkingActivity" -> setDailyTime(0, duration)
-                "DrivingActivity" -> setDailyTime(1, duration)
-                "StandingActivity" -> setDailyTime(2, duration)
-                else -> {
-                    setDailyTime(3, duration) // UnknownActivity
-                }
-            }
+            updateDailyTimeFromDatabase()
         }
     }
 
-    // Update the LiveData _dailyTime with the specified value at the index
-    private fun setDailyTime(index: Int, value: Double) {
-        viewModelScope.launch {
-            _dailyTime.value?.let { currentDailyTime ->
-                val updatedList = currentDailyTime.toMutableList()
-                if (index in updatedList.indices) {
-                    updatedList[index] = (updatedList[index] ?: 0.0) + value
-                    _dailyTime.postValue(updatedList)
-                } else {
-                    Log.e("HomeViewModel", "Index out of bounds")
-                }
-            }
-        }
-    }
+
 
     // Calculate the duration between two timestamps in the specified format
     private fun calculateDuration(start: String, end: String): Double {
@@ -215,22 +191,5 @@ class HomeViewModel : ViewModel() {
         return (endTime - startTime).toDouble() / 1000
     }
 
-    // Save the activity data in the database
-    private fun saveActivityData(activityType: String) {
-        val activityEntity = ActivityEntity(
-            activityType = activityType,
-            date = date,
-            timeStart = startTime,
-            timeFinish = endTime,
-            duration = duration
-        )
-        viewModelScope.launch(Dispatchers.IO) {
-            activityViewModel.insertActivityEntity(activityEntity)
-        }
-    }
 
-    // Stop the selected activity
-    fun destroyActivity() {
-        selectedActivity?.stopActivity()
-    }
 }
