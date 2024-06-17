@@ -8,10 +8,15 @@ import kotlin.coroutines.CoroutineContext
 
 class WalkingActivity : PhysicalActivity() {
 
+    private var steps: Long = 0
 
 
     override fun getActivityName(): String {
         return "Walking"
+    }
+
+    fun setActivitySteps(s: Long){
+        steps = s
     }
 
     override fun saveInDb(){
