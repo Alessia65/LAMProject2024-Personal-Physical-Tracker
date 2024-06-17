@@ -7,9 +7,10 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import kotlinx.coroutines.*
 
 // exportSchema set to false to avoid DB migrations
-@Database(entities = [ActivityEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ActivityEntity::class, WalkingActivityEntity::class], version = 1, exportSchema = false)
 abstract class TrackingRoomDatabase : RoomDatabase() {
 
     abstract fun trackingDao(): TrackingDao

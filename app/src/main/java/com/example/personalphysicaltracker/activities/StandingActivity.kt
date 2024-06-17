@@ -12,7 +12,7 @@ class StandingActivity : PhysicalActivity() {
         return "Standing"
     }
 
-    override fun saveInDb(){
+    override suspend fun saveInDb(){
         val activityEntity = ActivityEntity(
             activityType = "Standing",
             date = date,

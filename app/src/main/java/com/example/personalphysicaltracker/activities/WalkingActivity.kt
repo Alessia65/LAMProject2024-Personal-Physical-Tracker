@@ -3,6 +3,7 @@ package com.example.personalphysicaltracker.activities
 import android.content.Context
 import android.util.Log
 import com.example.personalphysicaltracker.database.ActivityEntity
+import com.example.personalphysicaltracker.database.WalkingActivityEntity
 import kotlinx.coroutines.*
 import kotlin.coroutines.CoroutineContext
 
@@ -19,7 +20,7 @@ class WalkingActivity : PhysicalActivity() {
         steps = s
     }
 
-    override fun saveInDb(){
+    override suspend fun saveInDb() {
         val activityEntity = ActivityEntity(
             activityType = "Walking",
             date = date,
@@ -27,8 +28,23 @@ class WalkingActivity : PhysicalActivity() {
             timeFinish = end,
             duration = duration
         )
-        activityViewModel.insertActivityEntity(activityEntity)
-        //TODO: aggiungere step
+
+        withContext(Dispatchers.IO) {
+            // Inserisci l'attività e attendi il completamento
+            activityViewModel.insertActivityEntity(activityEntity)
+            Log.d("ATTIVITA INSERITA", "ho inserito l'attività ")
+
+        }
+
+        // Attendi che l'inserimento sia completato
+
+
+        // Recupera l'ID dell'ultima attività di tipo "Walking" (deve essere una funzione sospesa)
+        val id = activityViewModel.getLastWalkingId()
+
+        Log.d("ATTIVITA INSERITA", "ho inserito walking activity con id: $id ")
+
+        activityViewModel.insertWalkingActivityEntity(id, steps)
     }
 
 

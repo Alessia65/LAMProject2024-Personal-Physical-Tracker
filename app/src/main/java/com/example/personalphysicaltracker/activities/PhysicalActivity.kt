@@ -8,6 +8,7 @@ import com.example.personalphysicaltracker.database.TrackingRepository
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.*
 
 open class PhysicalActivity : PhysicalActivityInterface {
 
@@ -40,7 +41,7 @@ open class PhysicalActivity : PhysicalActivityInterface {
         return 0.0
     }
 
-    open fun saveInDb(){
+    open suspend fun saveInDb(){
         val activityEntity = ActivityEntity(
             activityType = "Unknown",
             date = date,
@@ -49,7 +50,6 @@ open class PhysicalActivity : PhysicalActivityInterface {
             duration = duration
         )
         activityViewModel.insertActivityEntity(activityEntity)
-        //TODO: aggiungere step
     }
 
 }

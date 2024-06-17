@@ -13,7 +13,7 @@ class DrivingActivity: PhysicalActivity() {
         return "Driving"
     }
 
-    override fun saveInDb(){
+    override suspend fun saveInDb(){
         val activityEntity = ActivityEntity(
             activityType = "Driving",
             date = date,

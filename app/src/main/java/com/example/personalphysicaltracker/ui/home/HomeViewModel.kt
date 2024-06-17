@@ -24,6 +24,10 @@ class HomeViewModel : ViewModel() {
     val dailyTime: LiveData<List<Double?>>
         get() = _dailyTime
 
+    private val _dailySteps = MutableLiveData<Long>()
+    val dailySteps: LiveData<Long>
+        get() = _dailySteps
+
 
     // Initialize the ViewModel with the necessary repository for database operations
     fun initializeActivityViewModel(activity: FragmentActivity?, viewmodelstoreowner: ViewModelStoreOwner) {
@@ -56,6 +60,21 @@ class HomeViewModel : ViewModel() {
     }
 
 
+    private suspend fun getTotalStepsFromToday(): Long{
+        var totalSteps = 0L
+        val today = getCurrentDay()
+        try {
+            // Execute the query in the IO thread to get the duration
+            totalSteps = withContext(Dispatchers.IO) {
+                activityViewModel.getTotalStepsFromToday(today)
+            }
+        } catch (e: Exception) {
+            // Exception handling, such as logging or other types of handling
+            Log.e("HomeViewModel", "Exception while fetching duration")
+        }
+
+        return totalSteps
+    }
 
     // Update the daily data (_dailyTime) from the database
     private fun updateDailyTimeFromDatabase() {
@@ -69,6 +88,10 @@ class HomeViewModel : ViewModel() {
             // Update the LiveData with the daily data
             _dailyTime.value = listOf(walkingDuration, drivingDuration, standingDuration, unknownDuration)
             Log.d("dailyTime", "walking: $walkingDuration, driving: $drivingDuration, standing: $standingDuration, unknown: $unknownDuration")
+
+            val totalSteps = getTotalStepsFromToday()
+            _dailySteps.value = totalSteps
+            Log.d("dailySteps", "steps: $totalSteps")
         }
     }
 
@@ -150,29 +173,44 @@ class HomeViewModel : ViewModel() {
     }
 
     // Stop the selected activity, calculate the duration, and update the daily values
-    fun stopSelectedActivity() {
+    fun stopSelectedActivity(steps: Long, isWalkingActivity: Boolean) {
         selectedActivity.setFinishTime()
         selectedActivity.calculateDuration()
 
+        if (isWalkingActivity){
+            (selectedActivity as WalkingActivity).setActivitySteps(steps)
+        }
         saveInDb()
         updateDailyValues()
     }
 
     private fun saveInDb(){
-        if (selectedActivity is WalkingActivity){
-            (selectedActivity as WalkingActivity).saveInDb()
-        } else if (selectedActivity is DrivingActivity){
-            (selectedActivity as DrivingActivity).saveInDb()
-        } else if (selectedActivity is StandingActivity){
-            (selectedActivity as StandingActivity).saveInDb()
-        } else{
-            selectedActivity.saveInDb()
+        Log.d("INSERIMENTO", "Sto per inserire")
+
+        viewModelScope.launch {
+            if (selectedActivity is WalkingActivity){
+                Log.d("INSERIMENTO", "Sto per inserire W")
+                (selectedActivity as WalkingActivity).saveInDb()
+            } else if (selectedActivity is DrivingActivity){
+                Log.d("INSERIMENTO", "Sto per inserire D")
+                (selectedActivity as DrivingActivity).saveInDb()
+            } else if (selectedActivity is StandingActivity){
+                Log.d("INSERIMENTO", "Sto per inserire S")
+                (selectedActivity as StandingActivity).saveInDb()
+            } else {
+                Log.d("INSERIMENTO", "Sto per inserire UNKNOWN")
+                selectedActivity.saveInDb()
+            }
         }
+
     }
     // Update the daily values based on the selected activity
     private fun updateDailyValues() {
+        /*
         val d = selectedActivity.duration
         Log.d("CHIUSURA ACTIVITY", "calcolo duration: $d")
+
+         */
         viewModelScope.launch {
             updateDailyTimeFromDatabase()
         }

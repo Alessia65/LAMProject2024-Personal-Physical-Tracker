@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import com.example.personalphysicaltracker.database.ActivityEntity
 import com.example.personalphysicaltracker.database.TrackingDao
 import com.example.personalphysicaltracker.database.TrackingRoomDatabase
+import kotlinx.coroutines.*
 
 
 class TrackingRepository(app: Application) {
@@ -44,5 +45,17 @@ class TrackingRepository(app: Application) {
 
     suspend fun getTotalDurationByActivityTypeInDay(day: String, activityType: String): Double{
         return trackingDao.getTotalDurationByActivityTypeInDay(day, activityType)
+    }
+
+    suspend fun getLastWalkingId(): Int{
+        return trackingDao.getLastWalkingId()
+    }
+
+    suspend fun insertWalkingActivityEntity(id: Int, steps: Long){
+        return trackingDao.insertWalkingActivityEntity(id, steps)
+    }
+
+    suspend fun getTotalStepsFromToday(date:String): Long{
+        return  trackingDao.getTotalStepsFromToday(date)
     }
 }

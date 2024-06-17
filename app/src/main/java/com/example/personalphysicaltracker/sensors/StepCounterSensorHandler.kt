@@ -15,6 +15,7 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
     private var running: Boolean = false
     private var totalSteps = 0f
     private var previousTotalSteps = 0f
+    private var firstChange = true
 
     // Metodo per registrare il listener dell'accelerometro
     fun registerStepCounterListener(listener: StepCounterListener) {
@@ -27,6 +28,7 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
 
     // Metodo per avviare il sensore dell'accelerometro
     fun startStepCounter() {
+        firstChange = true
         val stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         if (stepCounterSensor!= null) {
             presenceOnDevice = true
@@ -52,18 +54,24 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
     override fun onSensorChanged(event: SensorEvent?) {
         Log.d("Step Counter", "Change on Sensor")
         if (presenceOnDevice) {
+
             Log.d("Step Counter", "Here")
 
             event?.let {
                 if (it.sensor.type == Sensor.TYPE_STEP_COUNTER && running) {
-                    Log.d("Step Counter", "Here2")
-
                     totalSteps = event.values[0]
-                    val currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
+
+                    if (firstChange){
+                        firstChange = false
+                        previousTotalSteps = totalSteps //Altrimenti sono uguali ai passi fatti dall'ultimo riavvio del dispositivo
+                        Log.d("Step Counter", "First Change, steps: $totalSteps")
+                    }
+
+
+                    val currentSteps = totalSteps.toLong() - previousTotalSteps.toLong()
                     Log.d("Step Counter", "Current steps: $currentSteps, totalSteps: $totalSteps, previousSteps: $previousTotalSteps")
 
-                    val message = "Passi: $currentSteps \n"
-                    stepCounterListener?.onStepCounterDataReceived(message)
+                    stepCounterListener?.onStepCounterDataReceived(currentSteps.toString())
 
                 }
             }

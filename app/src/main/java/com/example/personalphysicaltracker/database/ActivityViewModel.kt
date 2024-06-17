@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.personalphysicaltracker.activities.WalkingActivity
 
 //Classe per accedere al DB
 class ActivityViewModel(private val repository: TrackingRepository) : ViewModel() {
@@ -24,6 +25,18 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
 
     suspend fun getTotalDurationByActivityTypeInDay(day: String, activityType: String): Double {
         return repository.getTotalDurationByActivityTypeInDay(day, activityType)
+    }
+
+    suspend fun getLastWalkingId(): Int{
+        return repository.getLastWalkingId()
+    }
+
+    suspend fun insertWalkingActivityEntity(id: Int, steps: Long){
+        return repository.insertWalkingActivityEntity(id, steps)
+    }
+
+    suspend fun getTotalStepsFromToday(date:String): Long{
+        return repository.getTotalStepsFromToday(date)
     }
 }
 
