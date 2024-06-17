@@ -45,16 +45,14 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
                 val accelX = it.values[0]
                 val accelY = it.values[1]
                 val accelZ = it.values[2]
-                val message = "Dati: \n" +
-                        "Acc. X: ${String.format("%.2f", accelX)} \n" +
-                        "Acc. Y: ${String.format("%.2f", accelY)} \n" +
-                        "Acc. Z: ${String.format("%.2f", accelZ)}"
-
+                val message =
+                        "${String.format("%.2f", accelX)};${String.format("%.2f", accelY)};${String.format("%.2f", accelZ)}"
                 // Notifica il listener dell'accelerometro con i nuovi dati
                 accelerometerListener?.onAccelerometerDataReceived(message)
             }
         }
     }
+
 
     // Metodo richiamato quando cambia la precisione del sensore (non utilizzato in questo esempio)
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {

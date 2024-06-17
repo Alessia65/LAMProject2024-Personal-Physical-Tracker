@@ -154,7 +154,7 @@ class HomeViewModel : ViewModel() {
     private fun saveUnknownActivity(lastEndTime: String, currentTime: String) {
         val duration = calculateDuration(lastEndTime, currentTime)
         val unknownActivity = ActivityEntity(
-            activityType = "UnknownActivity",
+            activityType = "Unknown",
             date = date,
             timeStart = lastEndTime,
             timeFinish = currentTime,

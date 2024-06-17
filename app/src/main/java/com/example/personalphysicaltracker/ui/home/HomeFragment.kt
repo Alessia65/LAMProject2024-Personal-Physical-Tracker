@@ -8,20 +8,22 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.R
-import com.example.personalphysicaltracker.sensors.AccelerometerListener
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
+import com.example.personalphysicaltracker.sensors.AccelerometerListener
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterListener
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 import kotlin.math.roundToInt
+import kotlin.math.sqrt
+
 
 class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
@@ -52,6 +54,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     private var stepCounterOn: Boolean = false
     private var isWalkingActivity = false
     private var totalSteps= 0L
+    private var stepCounterWithAcc = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -231,10 +234,34 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     fun startStepCounterSensor(){
         stepCounterSensorHandler.registerStepCounterListener(this)
-        stepCounterSensorHandler.startStepCounter()
-        stepCounterOn = true
+        var presenceStepCounterSensor = stepCounterSensorHandler.startStepCounter()
+        if (!presenceStepCounterSensor){
+            showAlert()
+        } else{
+            stepCounterOn = true
+        }
     }
 
+
+
+    private fun showAlert() {
+        // Creazione del costruttore del dialogo
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Attention")
+            .setMessage("Warning: Your device does not have a step counter sensor. The step count might be approximate. Do you still want to enable the step counter?")
+            .setPositiveButton("Yes") { dialog, id ->
+                stepCounterOn = true
+                stepCounterWithAcc = true
+            }
+            .setNegativeButton("No") { dialog, id ->
+                stepCounterOn = false
+                stepCounterWithAcc = false
+            }
+
+        // Mostra il dialogo
+        val alert = builder.create()
+        alert.show()
+    }
     fun stopAccelerometerSensor(){
         accelerometerSensorHandler.unregisterListener()
         accelerometerSensorHandler.stopAccelerometer()
@@ -248,6 +275,9 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
             stepCounterOn = false
         }
     }
+
+
+
 
     // Change the button text and behavior to "Stop Activity"
     private fun changeButtonToStop() {
@@ -284,12 +314,14 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     // Handle accelerometer data updates
     override fun onAccelerometerDataReceived(data: String) {
-        /*
+
         requireActivity().runOnUiThread {
             accelText.text = data
         }
-        */
 
+        if (stepCounterWithAcc) {
+            registerStep(data)
+        }
         homeViewModel.dailyTime.value?.let { dailyTimeList ->
             val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
             val currentProgressDriving = dailyTimeList[1]?.toDouble() ?: 0.0
@@ -300,6 +332,14 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
             updateProgressBarStanding(currentProgressStanding)
         }
     }
+
+
+    fun registerStep(data: String) {
+       var step = stepCounterSensorHandler.registerStepWithAccelerometer(data)
+        onStepCounterDataReceived(step.toString())
+    }
+
+
 
     override fun onStepCounterDataReceived(data: String) {
         requireActivity().runOnUiThread {

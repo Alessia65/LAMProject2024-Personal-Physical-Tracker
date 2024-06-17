@@ -6,6 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
+import kotlin.math.sqrt
 
 class StepCounterSensorHandler(private val context: Context) : SensorEventListener {
 
@@ -15,7 +16,10 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
     private var running: Boolean = false
     private var totalSteps = 0f
     private var previousTotalSteps = 0f
+    private var magnitude = 0f
+    private var magnitudePreviousStep = 0f
     private var firstChange = true
+    private var thresholdMagnitudeDelta = 1.0f // Soglia di variazione della magnitudine per contare un passo
 
     // Metodo per registrare il listener dell'accelerometro
     fun registerStepCounterListener(listener: StepCounterListener) {
@@ -27,7 +31,7 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
     }
 
     // Metodo per avviare il sensore dell'accelerometro
-    fun startStepCounter() {
+    fun startStepCounter(): Boolean {
         firstChange = true
         val stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         if (stepCounterSensor!= null) {
@@ -37,6 +41,9 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
             }
             Log.d("Step Counter", "Sensor started")
             running = true
+            return true
+        } else {
+            return false
         }
 
     }
@@ -81,5 +88,35 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
     // Metodo richiamato quando cambia la precisione del sensore (non utilizzato)
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // Implementazione specifica, se necessaria
+    }
+
+    //TODO: migliorare approssimazione
+    fun registerStepWithAccelerometer(data: String): Long{
+        var split = data.split(";")
+        if (split.size >= 3) {
+            var x = split[0].toFloat()
+            var y = split[1].toFloat()
+            var z = split[2].toFloat()
+
+            magnitude = sqrt(x * x + y * y + z * z)
+
+            if (firstChange) {
+                magnitudePreviousStep = magnitude
+                firstChange = false
+            }
+
+            var magnitudeDelta = magnitude - magnitudePreviousStep
+            magnitudePreviousStep = magnitude
+
+            if (magnitudeDelta > thresholdMagnitudeDelta) {
+                totalSteps++
+            }
+
+            return totalSteps.toLong()
+
+        } else {
+            Log.e("Step Counter", "Invalid data format: $data")
+            return 0
+        }
     }
 }
