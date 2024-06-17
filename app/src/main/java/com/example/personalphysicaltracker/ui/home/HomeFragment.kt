@@ -131,7 +131,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
             dailyStepsList?.let{
                 val currentSteps = dailyStepsList ?: 0L
                 Log.d("VALORI ARRIVATI", "steps: $currentSteps")
-                stepsText.text = currentSteps.toString()
+                stepsText.text = "Daily steps: " + currentSteps.toString()
             }
         }
     }
@@ -191,6 +191,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
                 }
             }
         builder.create().show()
+
     }
 
     // Start the walking activity and change button to "Stop Activity"
@@ -200,6 +201,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         startStepCounterSensor()
         changeButtonToStop()
         isWalkingActivity = true
+        accelText.text = "Walking Activity Running"
     }
 
     // Start the driving activity and change button to "Stop Activity"
@@ -208,6 +210,8 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         startAccelerometerSensor()
         changeButtonToStop()
         isWalkingActivity = false
+        accelText.text = "Driving Activity Running"
+
     }
 
     // Start the standing activity and change button to "Stop Activity"
@@ -216,6 +220,8 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         startAccelerometerSensor()
         changeButtonToStop()
         isWalkingActivity = false
+        accelText.text = "Standing Activity Running"
+
     }
 
     fun startAccelerometerSensor(){
@@ -256,8 +262,6 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         stopAccelerometerSensor()
         stopStepCounterSensor()
         if (isWalkingActivity){
-            var temp = stepsText.getText().toString()
-            Log.d("AHHH", totalSteps.toString())
             homeViewModel.stopSelectedActivity(totalSteps, true)
         } else {
             homeViewModel.stopSelectedActivity(0, false)
@@ -280,9 +284,12 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     // Handle accelerometer data updates
     override fun onAccelerometerDataReceived(data: String) {
+        /*
         requireActivity().runOnUiThread {
             accelText.text = data
         }
+        */
+
         homeViewModel.dailyTime.value?.let { dailyTimeList ->
             val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
             val currentProgressDriving = dailyTimeList[1]?.toDouble() ?: 0.0
@@ -296,8 +303,10 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     override fun onStepCounterDataReceived(data: String) {
         requireActivity().runOnUiThread {
-            stepsText.text = "Steps: " + data
+            Log.d("Step counter", "Aggiornamento ottenuto")
+            stepsText.text = "Current steps: $data"
             totalSteps = data.toLong()
+
         }
     }
 

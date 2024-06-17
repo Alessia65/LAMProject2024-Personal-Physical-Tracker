@@ -10,8 +10,8 @@
     <ProgressBar
         android:id="@+id/progress_bar_standing"
         style="@style/CircularProgressBar_Standing"
-        android:layout_width="341dp"
-        android:layout_height="338dp"
+        android:layout_width="284dp"
+        android:layout_height="275dp"
         app:layout_constraintBottom_toBottomOf="@id/progress_bar_driving"
         app:layout_constraintEnd_toEndOf="@id/progress_bar_driving"
         app:layout_constraintHorizontal_bias="0.492"
@@ -58,8 +58,8 @@
     <ProgressBar
         android:id="@+id/progress_bar_driving"
         style="@style/CircularProgressBar_Driving"
-        android:layout_width="274dp"
-        android:layout_height="277dp"
+        android:layout_width="232dp"
+        android:layout_height="236dp"
         app:layout_constraintBottom_toBottomOf="@id/progress_bar_walking"
         app:layout_constraintEnd_toEndOf="@id/progress_bar_walking"
         app:layout_constraintStart_toStartOf="@id/progress_bar_walking"
@@ -70,25 +70,26 @@
         android:id="@+id/text_hour3"
         android:layout_width="29dp"
         android:layout_height="18dp"
-        android:layout_marginEnd="96dp"
         android:text="12h"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.747" />
+        app:layout_constraintBottom_toTopOf="@+id/graph_bottom_bar"
+        app:layout_constraintEnd_toEndOf="@+id/text_hour2"
+        app:layout_constraintHorizontal_bias="0.363"
+        app:layout_constraintStart_toEndOf="@+id/graph_left_bar"
+        app:layout_constraintTop_toBottomOf="@+id/graph_up_bar"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/text_hour4"
         android:layout_width="34dp"
         android:layout_height="23dp"
-        android:layout_marginEnd="144dp"
         android:text="18h"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.502" />
+        app:layout_constraintBottom_toBottomOf="@+id/text_hour3"
+        app:layout_constraintEnd_toEndOf="@+id/text_hour2"
+        app:layout_constraintHorizontal_bias="0.405"
+        app:layout_constraintStart_toStartOf="@+id/progress_bar_walking"
+        app:layout_constraintTop_toBottomOf="@+id/graph_up_bar" />
 
     <TextView
         android:id="@+id/text_hour2"
@@ -97,38 +98,24 @@
         android:layout_marginEnd="44dp"
         android:text="6h"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_walking"
+        app:layout_constraintBottom_toBottomOf="@+id/text_hour3"
         app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
-        app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.502" />
-
-    <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.029" />
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/graph_left_bar"
+        app:layout_constraintTop_toBottomOf="@+id/graph_up_bar" />
 
     <TextView
         android:id="@+id/text_hour1"
         android:layout_width="18dp"
         android:layout_height="23dp"
-        android:layout_marginEnd="104dp"
         android:text="0h"
         android:textAlignment="center"
-        app:layout_constraintBottom_toBottomOf="@+id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="@+id/progress_bar_walking"
+        app:layout_constraintBottom_toBottomOf="@+id/text_hour3"
+        app:layout_constraintEnd_toStartOf="@+id/graph_right_bar"
+        app:layout_constraintHorizontal_bias="0.59"
+        app:layout_constraintStart_toStartOf="@+id/text_hour4"
         app:layout_constraintTop_toTopOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.258" />
+        app:layout_constraintVertical_bias="0.448" />
 
     <ImageView
         android:id="@+id/graph_bottom_bar"
@@ -143,54 +130,52 @@
         app:layout_constraintVertical_bias="0.887" />
 
     <ImageView
-        android:id="@+id/icon_walking"
-        android:layout_width="34dp"
-        android:layout_height="35dp"
-        android:layout_marginBottom="16dp"
-        android:src="@drawable/icon_walking"
-        app:layout_constraintBottom_toBottomOf="@id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.668"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.15" />
-
-    <ImageView
         android:id="@+id/icon_driving"
         android:layout_width="57dp"
         android:layout_height="43dp"
-        android:layout_marginBottom="16dp"
         android:src="@drawable/icon_driving"
-        app:layout_constraintBottom_toBottomOf="@id/progress_bar_driving"
-        app:layout_constraintEnd_toEndOf="@id/progress_bar_driving"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.139" />
-
-    <ProgressBar
-        android:id="@+id/progress_bar_walking"
-        style="@style/CircularProgressBar_Walking"
-        android:layout_width="220dp"
-        android:layout_height="220dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/progress_bar_standing"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintHorizontal_bias="0.824"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.176" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <ImageView
         android:id="@+id/icon_standing"
         android:layout_width="34dp"
         android:layout_height="35dp"
         android:src="@drawable/icon_standing"
-        app:layout_constraintBottom_toTopOf="@+id/progress_bar_walking"
-        app:layout_constraintEnd_toEndOf="@id/progress_bar_standing"
-        app:layout_constraintHorizontal_bias="0.997"
+        app:layout_constraintBottom_toTopOf="@+id/progress_bar_driving"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/icon_driving"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.27" />
+
+    <ImageView
+        android:id="@+id/icon_walking"
+        android:layout_width="34dp"
+        android:layout_height="35dp"
+        android:src="@drawable/icon_walking"
+        app:layout_constraintBottom_toTopOf="@+id/progress_bar_standing"
+        app:layout_constraintEnd_toStartOf="@+id/icon_driving"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.709" />
+        app:layout_constraintVertical_bias="0.555" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar_walking"
+        style="@style/CircularProgressBar_Walking"
+        android:layout_width="184dp"
+        android:layout_height="187dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.176" />
 
     <Button
         android:id="@+id/button_startActivity"
@@ -202,27 +187,27 @@
         android:text="Start activity"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.661" />
+        app:layout_constraintVertical_bias="0.623" />
 
     <TextView
         android:id="@+id/acceleration_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="dati"
+        android:text="No activity running"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.485"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_startActivity"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.225" />
 
     <TextView
         android:id="@+id/text_walking_title"
-        android:layout_width="65dp"
-        android:layout_height="28dp"
+        android:layout_width="98dp"
+        android:layout_height="30dp"
+        android:background="@color/background_text_activity"
         android:elevation="4dp"
         android:fontFamily="@font/andika_new_basic"
         android:text="Walking"
@@ -235,8 +220,9 @@
 
     <TextView
         android:id="@+id/text_driving_title"
-        android:layout_width="65dp"
+        android:layout_width="98dp"
         android:layout_height="28dp"
+        android:background="@color/background_text_activity"
         android:elevation="4dp"
         android:fontFamily="@font/andika_new_basic"
         android:text="Driving"
@@ -249,8 +235,9 @@
 
     <TextView
         android:id="@+id/text_standing_title"
-        android:layout_width="65dp"
+        android:layout_width="98dp"
         android:layout_height="28dp"
+        android:background="@color/background_text_activity"
         android:elevation="4dp"
         android:fontFamily="@font/andika_new_basic"
         android:text="Standing"
@@ -264,8 +251,9 @@
 
     <TextView
         android:id="@+id/text_walking_hours"
-        android:layout_width="65dp"
-        android:layout_height="26dp"
+        android:layout_width="@dimen/text_activity_width"
+        android:layout_height="@dimen/text_activity_height"
+        android:background="@color/background_text_activity"
         android:elevation="4dp"
         android:text=""
         android:textAlignment="center"
@@ -277,8 +265,9 @@
 
     <TextView
         android:id="@+id/text_driving_hours"
-        android:layout_width="65dp"
-        android:layout_height="26dp"
+        android:layout_width="@dimen/text_activity_width"
+        android:layout_height="@dimen/text_activity_height"
+        android:background="@color/background_text_activity"
         android:elevation="4dp"
         android:text=""
         android:textAlignment="center"
@@ -290,8 +279,9 @@
 
     <TextView
         android:id="@+id/text_standing_hours"
-        android:layout_width="65dp"
-        android:layout_height="26dp"
+        android:layout_width="@dimen/text_activity_width"
+        android:layout_height="@dimen/text_activity_height"
+        android:background="@color/background_text_activity"
         android:elevation="4dp"
         android:text=""
         android:textAlignment="center"
@@ -302,60 +292,16 @@
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
         app:layout_constraintVertical_bias="1.0" />
 
-    <ImageView
-        android:id="@+id/img_background_walking"
-        android:layout_width="110dp"
-        android:layout_height="112dp"
-        android:src="@drawable/background_blue"
-        app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.156"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.236" />
-
-    <ImageView
-        android:id="@+id/img_background_driving"
-        android:layout_width="110dp"
-        android:layout_height="112dp"
-        android:src="@drawable/background_blue"
-        app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.236" />
-
-    <ImageView
-        android:id="@+id/img_background_standing"
-        android:layout_width="110dp"
-        android:layout_height="112dp"
-        android:src="@drawable/background_blue"
-        app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.863"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.236" />
-
-    <ImageView
-        android:id="@+id/img_blue_line"
-        android:layout_width="425dp"
-        android:layout_height="160dp"
-        android:layout_marginBottom="64dp"
-        android:src="@drawable/img_blue_line"
-        app:layout_constraintBottom_toBottomOf="@+id/button_startActivity"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
     <TextView
         android:id="@+id/text_steps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:text="Boooooh"
+        app:layout_constraintBottom_toTopOf="@+id/text_walking_hours"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.114"
+        app:layout_constraintHorizontal_bias="0.084"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/img_background_walking" />
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.622" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
