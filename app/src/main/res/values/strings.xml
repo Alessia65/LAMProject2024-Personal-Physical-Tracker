@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">PersonalPhysicalTracker</string>
     <string name="title_home">Today</string>
-    <string name="title_dashboard">Dashboard</string>
+    <string name="title_calendar">Calendar</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_week">WEEK</string>
 </resources>
