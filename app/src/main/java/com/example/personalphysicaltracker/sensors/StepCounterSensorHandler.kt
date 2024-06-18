@@ -8,7 +8,7 @@ import android.hardware.SensorManager
 import android.util.Log
 import kotlin.math.sqrt
 
-class StepCounterSensorHandler(private val context: Context) : SensorEventListener {
+class StepCounterSensorHandler(context: Context) : SensorEventListener {
 
     private var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var stepCounterListener: StepCounterListener? = null
@@ -19,7 +19,7 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
     private var magnitude = 0f
     private var magnitudePreviousStep = 0f
     private var firstChange = true
-    private var thresholdMagnitudeDelta = 1.0f // Soglia di variazione della magnitudine per contare un passo
+    private var thresholdMagnitudeDelta = 1.0f
     companion object {
 
         @Volatile
@@ -31,7 +31,6 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
             }
     }
 
-    // Metodo per registrare il listener dell'accelerometro
     fun registerStepCounterListener(listener: StepCounterListener) {
         stepCounterListener = listener
     }
@@ -40,26 +39,24 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
         sensorManager.unregisterListener(this)
     }
 
-    // Metodo per avviare il sensore dell'accelerometro
     fun startStepCounter(): Boolean {
         firstChange = true
         val stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
-        if (stepCounterSensor!= null) {
+        return if (stepCounterSensor!= null) {
             presenceOnDevice = true
             stepCounterSensor.let {
                 sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
             }
             Log.d("Step Counter", "Sensor started")
             running = true
-            return true
+            true
         } else {
-            return false
+            false
         }
 
 
     }
 
-    // Metodo per fermare il sensore dell'accelerometro
     fun stopStepCounter() {
         if (presenceOnDevice) {
             sensorManager.unregisterListener(this)
@@ -68,7 +65,6 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
         }
     }
 
-    // Metodo richiamato quando i dati del sensore cambiano
     override fun onSensorChanged(event: SensorEvent?) {
         Log.d("Step Counter", "Change on Sensor")
         if (presenceOnDevice) {
@@ -81,7 +77,7 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
 
                     if (firstChange){
                         firstChange = false
-                        previousTotalSteps = totalSteps //Altrimenti sono uguali ai passi fatti dall'ultimo riavvio del dispositivo
+                        previousTotalSteps = totalSteps
                         Log.d("Step Counter", "First Change, steps: $totalSteps")
                     }
 
@@ -96,18 +92,17 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
         }
     }
 
-    // Metodo richiamato quando cambia la precisione del sensore (non utilizzato)
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Implementazione specifica, se necessaria
+        // No necessary
     }
 
-    //TODO: migliorare approssimazione
+    //TODO: approximate better
     fun registerStepWithAccelerometer(data: String): Long{
-        var split = data.split(";")
+        val split = data.split(";")
         if (split.size >= 3) {
-            var x = split[0].toFloat()
-            var y = split[1].toFloat()
-            var z = split[2].toFloat()
+            val x = split[0].toFloat()
+            val y = split[1].toFloat()
+            val z = split[2].toFloat()
 
             magnitude = sqrt(x * x + y * y + z * z)
 
@@ -116,7 +111,7 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
                 firstChange = false
             }
 
-            var magnitudeDelta = magnitude - magnitudePreviousStep
+            val magnitudeDelta = magnitude - magnitudePreviousStep
             magnitudePreviousStep = magnitude
 
             if (magnitudeDelta > thresholdMagnitudeDelta) {

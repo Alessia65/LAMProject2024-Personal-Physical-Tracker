@@ -6,16 +6,13 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import kotlinx.coroutines.*
 
-//Chiamate che si possono fare al database
 
 @Dao
 interface TrackingDao {
 
-    //TODO: Fare le query che servono
 
-    //Insert per seconda tabella
+    //Insert for step_table
     @Query("INSERT INTO steps_table VALUES(:id, :steps)")
     suspend fun insertWalkingActivityEntity(id: Int, steps: Long)
 
@@ -46,6 +43,5 @@ interface TrackingDao {
     @Delete
     fun deleteList(activitiesList: List<ActivityEntity>)
 
-    //@Query("DELETE FROM todo_table WHERE id in (:idList)")
-    //fun deleteDone(idList: List<String>)
+
 }

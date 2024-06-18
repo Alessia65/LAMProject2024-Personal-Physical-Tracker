@@ -12,7 +12,7 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
-//Comunicazione tra HomeFragment e Altre classi
+// Communication ActivityViewModel and HomeFragment
 class HomeViewModel : ViewModel() {
 
     private lateinit var activityViewModel: ActivityViewModel
@@ -30,12 +30,12 @@ class HomeViewModel : ViewModel() {
 
 
     // Initialize the ViewModel with the necessary repository for database operations
-    fun initializeActivityViewModel(activity: FragmentActivity?, viewmodelstoreowner: ViewModelStoreOwner) {
+    fun initializeActivityViewModel(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner) {
 
         val application = requireNotNull(activity).application
         val repository = TrackingRepository(application)
         val viewModelFactory = ActivityViewModelFactory(repository)
-        activityViewModel = ViewModelProvider(viewmodelstoreowner, viewModelFactory).get(ActivityViewModel::class.java)
+        activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityViewModel::class.java]
 
         // Load daily data from the database at startup
         updateDailyTimeFromDatabase()
@@ -109,7 +109,7 @@ class HomeViewModel : ViewModel() {
         val totalKnownDuration = walkingDuration + drivingDuration + standingDuration
         val unknownTime = currentTimeSeconds - startOfDaySeconds - totalKnownDuration
 
-        return if (unknownTime > 0) unknownTime.toDouble() else 0.0
+        return if (unknownTime > 0) unknownTime else 0.0
     }
 
     // Start a selected activity
@@ -126,6 +126,9 @@ class HomeViewModel : ViewModel() {
             //Create Activity
             selectedActivity = activity
             selectedActivity.setActivityViewModelVar(activityViewModel)
+
+            val typeForLog = activity.getActivityTypeName()
+            Log.d("PHYSICAL ACTIVITY", "$typeForLog Activity Started")
         }
     }
 
@@ -180,32 +183,39 @@ class HomeViewModel : ViewModel() {
         if (isWalkingActivity){
             (selectedActivity as WalkingActivity).setActivitySteps(steps)
         }
+
+        val typeForLog = selectedActivity.getActivityTypeName()
+        Log.d("PHYSICAL ACTIVITY", "$typeForLog Activity Stopped")
         saveInDb()
         updateDailyValues()
+
     }
 
     private fun saveInDb(){
 
         viewModelScope.launch {
-            if (selectedActivity is WalkingActivity){
-                (selectedActivity as WalkingActivity).saveInDb()
-            } else if (selectedActivity is DrivingActivity){
-                (selectedActivity as DrivingActivity).saveInDb()
-            } else if (selectedActivity is StandingActivity){
-                (selectedActivity as StandingActivity).saveInDb()
-            } else {
-                selectedActivity.saveInDb()
+            when (selectedActivity) {
+                is WalkingActivity -> {
+                    (selectedActivity as WalkingActivity).saveInDb()
+                }
+
+                is DrivingActivity -> {
+                    (selectedActivity as DrivingActivity).saveInDb()
+                }
+
+                is StandingActivity -> {
+                    (selectedActivity as StandingActivity).saveInDb()
+                }
+
+                else -> {
+                    selectedActivity.saveInDb()
+                }
             }
         }
 
     }
     // Update the daily values based on the selected activity
     private fun updateDailyValues() {
-        /*
-        val d = selectedActivity.duration
-        Log.d("CHIUSURA ACTIVITY", "calcolo duration: $d")
-
-         */
         viewModelScope.launch {
             updateDailyTimeFromDatabase()
         }

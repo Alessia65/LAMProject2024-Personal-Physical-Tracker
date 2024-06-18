@@ -1,10 +1,6 @@
 package com.example.personalphysicaltracker.activities
 
-import android.content.Context
-import android.util.Log
-import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.database.ActivityEntity
-import kotlinx.coroutines.*
 
 class DrivingActivity: PhysicalActivity() {
 

@@ -1,18 +1,10 @@
 package com.example.personalphysicaltracker.database
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.personalphysicaltracker.activities.WalkingActivity
 
-//Classe per accedere al DB
 class ActivityViewModel(private val repository: TrackingRepository) : ViewModel() {
 
-
-    fun getAllActivities(): LiveData<List<ActivityEntity>> {
-        return repository.getAllActivities()
-    }
 
     fun insertActivityEntity (activityEntity: ActivityEntity) {
         repository.insertActivityEntity(activityEntity)

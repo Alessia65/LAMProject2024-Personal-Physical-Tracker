@@ -1,17 +1,9 @@
 package com.example.personalphysicaltracker
 
-import android.content.Context
 import android.content.pm.PackageManager
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -24,13 +16,12 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
-import kotlin.math.sqrt
 
 class MainActivity : AppCompatActivity(){
 
     private lateinit var binding: ActivityMainBinding
 
-    private val ACTIVITY_RECOGNITION_REQUEST_CODE: Int = 100
+    private val activityRecognitionRequestCode: Int = 100
 
 
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -43,7 +34,7 @@ class MainActivity : AppCompatActivity(){
         if (!isPermissionGranted()){
             requestPermissions()
         }
-        //Sensori
+        //Initialize Sensors -> DON'T DELETE
         var accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
         var stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
 
@@ -53,10 +44,7 @@ class MainActivity : AppCompatActivity(){
 
     private fun requestPermissions(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), ACTIVITY_RECOGNITION_REQUEST_CODE)
-            Log.d("API","Non sei scarso")
-        } else {
-            Log.d("API","sei scarso")
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), activityRecognitionRequestCode)
         }
     }
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -71,9 +59,9 @@ class MainActivity : AppCompatActivity(){
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when(requestCode){
-            ACTIVITY_RECOGNITION_REQUEST_CODE -> {
+            activityRecognitionRequestCode -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)){
-                    //Permission grant
+                    Log.d("PERMISSION", "Permission granted")
                 }
             }
         }

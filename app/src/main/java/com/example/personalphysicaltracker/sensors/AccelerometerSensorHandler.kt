@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.sensors
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -9,8 +10,7 @@ import android.util.Log
 import com.example.personalphysicaltracker.activities.ActivityType
 
 
-// Classe per la gestione dei sensori
-class AccelerometerSensorHandler(private val context: Context) : SensorEventListener {
+class AccelerometerSensorHandler(context: Context) : SensorEventListener {
 
     private var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var accelerometerListener: AccelerometerListener? = null
@@ -18,6 +18,7 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
 
     companion object {
 
+        @SuppressLint("StaticFieldLeak")
         @Volatile
         private var instance: AccelerometerSensorHandler? = null
 
@@ -27,7 +28,6 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
             }
     }
 
-    // Metodo per registrare il listener dell'accelerometro
     fun registerAccelerometerListener(listener: AccelerometerListener) {
         accelerometerListener = listener
     }
@@ -36,7 +36,6 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
         sensorManager.unregisterListener(this)
     }
 
-    // Metodo per avviare il sensore dell'accelerometro
     fun startAccelerometer(activityType: ActivityType) {
         this.activityType = activityType
         val accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
@@ -47,7 +46,6 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
 
     }
 
-    // Metodo per fermare il sensore dell'accelerometro
     fun stopAccelerometer() {
         activityType = null
         sensorManager.unregisterListener(this)
@@ -55,7 +53,6 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
 
     }
 
-    // Metodo richiamato quando i dati del sensore cambiano
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
             if (it.sensor.type == Sensor.TYPE_ACCELEROMETER) {
@@ -64,16 +61,14 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
                 val accelZ = it.values[2]
                 val message =
                         "${String.format("%.2f", accelX)};${String.format("%.2f", accelY)};${String.format("%.2f", accelZ)}"
-                // Notifica il listener dell'accelerometro con i nuovi dati
                 accelerometerListener?.onAccelerometerDataReceived(message)
             }
         }
     }
 
 
-    // Metodo richiamato quando cambia la precisione del sensore (non utilizzato in questo esempio)
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        // Implementazione specifica, se necessaria
+        // not necessary
     }
 
     fun isActive(): ActivityType?{

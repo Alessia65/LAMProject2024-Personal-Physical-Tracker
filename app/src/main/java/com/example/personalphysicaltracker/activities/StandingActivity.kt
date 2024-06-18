@@ -1,9 +1,7 @@
 package com.example.personalphysicaltracker.activities
 
-import android.content.Context
-import android.util.Log
+
 import com.example.personalphysicaltracker.database.ActivityEntity
-import kotlinx.coroutines.*
 
 class StandingActivity : PhysicalActivity() {
 
