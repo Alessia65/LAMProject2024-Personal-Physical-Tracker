@@ -1,11 +1,15 @@
 package com.example.personalphysicaltracker.ui.calendar
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.CalendarView
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +28,8 @@ class CalendarFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var calendarView: CalendarView
+    private lateinit var scrollView: ScrollView
+    private lateinit var linearLayoutScrollView: LinearLayout
 
     private lateinit var calendarViewModel: CalendarViewModel
     private lateinit var activities:  List<PhysicalActivity>
@@ -42,10 +48,7 @@ class CalendarFragment : Fragment() {
         // Bind views
         bindViews(root)
 
-        //Load dates
-        loadDates()
 
-        initializeEvents()
 
 
         return root
@@ -57,15 +60,11 @@ class CalendarFragment : Fragment() {
 
     }
 
-    private fun loadDates() {
-        activities = calendarViewModel.obtainDates()
-    }
 
-    private fun initializeEvents() {
-
-    }
 
     private fun bindViews(root: View) {
+        scrollView = root.findViewById(R.id.scroll_view)
+        linearLayoutScrollView = root.findViewById(R.id.linear_layout_scroll)
         calendarView = root.findViewById(R.id.view_calendar)
         calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
             val calendar = Calendar.getInstance()
@@ -89,11 +88,37 @@ class CalendarFragment : Fragment() {
         Log.d("Date", formattedDate)
         // Log activities to console
         Log.d("Size", activitiesForSelectedDate.size.toString())
-        for (activity in activitiesForSelectedDate) {
-            Log.d("Activity", "Activity for $formattedDate: ${activity.getActivityTypeName().toString()}, Start: ${activity.start}, End: ${activity.end}")
-        }
+        addInScrollBar(activitiesForSelectedDate, false) //filters
 
     }
+
+    private fun addInScrollBar(activitiesForSelectedDate: List<PhysicalActivity>, filters: Boolean) {
+        binding.scrollView.removeAllViews()
+        for (activity in activitiesForSelectedDate){
+                createButtonOnScrollView(activity)
+            }
+        binding.scrollView.addView(linearLayoutScrollView)
+    }
+
+    private fun createButtonOnScrollView(activity: PhysicalActivity) {
+
+        // Crea il nuovo pulsante
+        val textView = TextView(requireContext())
+        textView.text = "${activity.getActivityTypeName()}, ${activity.date}, ${activity.start}, ${activity.end}, ${activity.duration}"
+
+        // Imposta i parametri di layout del pulsante (esempio)
+        val layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        textView.layoutParams = layoutParams
+
+        // Aggiungi il pulsante alla ScrollView
+        binding.linearLayoutScroll.addView(textView)
+
+    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()

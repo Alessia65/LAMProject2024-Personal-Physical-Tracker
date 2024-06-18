@@ -14,39 +14,48 @@
         android:weekSeparatorLineColor="#9C7272"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.279" />
+        app:layout_constraintVertical_bias="0.187" />
 
     <Switch
         android:id="@+id/switch_calendar"
         android:layout_width="94dp"
         android:layout_height="51dp"
         android:text="@string/title_week"
-        app:layout_constraintBottom_toTopOf="@+id/calendarView"
+        app:layout_constraintBottom_toTopOf="@+id/view_calendar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.905"
+        app:layout_constraintHorizontal_bias="0.897"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.843"
+        app:layout_constraintVertical_bias="0.326"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <ScrollView
-        android:layout_width="409dp"
-        android:layout_height="281dp"
+        android:id="@+id/scroll_view"
+        android:layout_width="405dp"
+        android:layout_height="205dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/calendarView">
+        app:layout_constraintTop_toBottomOf="@+id/view_calendar"
+        app:layout_constraintVertical_bias="0.0">
 
-
-        <Button
-            android:id="@+id/button_as_text_activities"
+        <LinearLayout
+            android:id="@+id/linear_layout_scroll"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Activities:"
-            android:backgroundTint="@color/white"/>
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/text_view_initial"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:backgroundTint="#FFFFFF"
+                android:text="Activities:"
+                android:textColor="#000000" />
+        </LinearLayout>
     </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
