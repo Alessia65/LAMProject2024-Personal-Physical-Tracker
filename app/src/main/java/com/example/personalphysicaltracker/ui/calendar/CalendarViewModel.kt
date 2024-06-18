@@ -21,7 +21,7 @@ class CalendarViewModel : ViewModel() {
     private lateinit var activityViewModel: ActivityViewModel
 
 
-    lateinit var activitiesOnDb: List<PhysicalActivity>
+    var activitiesOnDb: List<PhysicalActivity> = emptyList()
 
     fun initializeActivityViewModel(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner) {
 
@@ -45,8 +45,8 @@ class CalendarViewModel : ViewModel() {
 
 
     //Method that send Dates
-    fun sendDates(){
-        obtainFromDb()
+    fun obtainDates(): List<PhysicalActivity>{
+        return activitiesOnDb
     }
 
     private fun obtainFromDb() {
