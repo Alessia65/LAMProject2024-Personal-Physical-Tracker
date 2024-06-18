@@ -22,6 +22,8 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
+import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
+import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 import kotlin.math.sqrt
 
 class MainActivity : AppCompatActivity(){
@@ -40,14 +42,14 @@ class MainActivity : AppCompatActivity(){
 
         if (!isPermissionGranted()){
             requestPermissions()
-            Log.d("API", "Richiesta")
-        } else {
-            Log.d("API", "Richiesta 2")
         }
+        //Sensori
+        var accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
+        var stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
+
         initializeNavigation()
 
     }
-
 
     private fun requestPermissions(){
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
@@ -76,8 +78,6 @@ class MainActivity : AppCompatActivity(){
             }
         }
     }
-
-
 
 
     private fun initializeNavigation(){

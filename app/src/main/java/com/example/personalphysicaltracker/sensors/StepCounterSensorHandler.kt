@@ -20,6 +20,16 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
     private var magnitudePreviousStep = 0f
     private var firstChange = true
     private var thresholdMagnitudeDelta = 1.0f // Soglia di variazione della magnitudine per contare un passo
+    companion object {
+
+        @Volatile
+        private var instance: StepCounterSensorHandler? = null
+
+        fun getInstance(context: Context) =
+            instance ?: synchronized(this) {
+                instance ?: StepCounterSensorHandler(context).also { instance = it }
+            }
+    }
 
     // Metodo per registrare il listener dell'accelerometro
     fun registerStepCounterListener(listener: StepCounterListener) {
@@ -45,6 +55,7 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
         } else {
             return false
         }
+
 
     }
 
@@ -118,5 +129,10 @@ class StepCounterSensorHandler(private val context: Context) : SensorEventListen
             Log.e("Step Counter", "Invalid data format: $data")
             return 0
         }
+
+    }
+
+    fun isActive(): Boolean{
+        return running
     }
 }

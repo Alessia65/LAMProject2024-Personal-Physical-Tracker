@@ -1,22 +1,42 @@
-package com.example.personalphysicaltracker.ui.home
+package com.example.personalphysicaltracker
 
+import android.content.Context
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.*
-import com.example.personalphysicaltracker.activities.*
-import com.example.personalphysicaltracker.database.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.viewModelScope
+import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.activities.PhysicalActivity
+import com.example.personalphysicaltracker.activities.StandingActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
+import com.example.personalphysicaltracker.database.ActivityEntity
+import com.example.personalphysicaltracker.database.ActivityViewModel
+import com.example.personalphysicaltracker.database.ActivityViewModelFactory
+import com.example.personalphysicaltracker.database.TrackingRepository
+import com.example.personalphysicaltracker.sensors.AccelerometerListener
+import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
+import com.example.personalphysicaltracker.sensors.StepCounterListener
+import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
-//Comunicazione tra HomeFragment e Altre classi
-class HomeViewModel : ViewModel() {
+class handerCommon  {
 
+/*
+    : AccelerometerListener, StepCounterListener
     private lateinit var activityViewModel: ActivityViewModel
     private lateinit var selectedActivity: PhysicalActivity
+    private lateinit var accelerometerSensorHandler: AccelerometerSensorHandler
+    private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
 
 
     private var date: String = ""
@@ -28,17 +48,36 @@ class HomeViewModel : ViewModel() {
     val dailySteps: LiveData<Long>
         get() = _dailySteps
 
+    private var stepCounterWithAcc = false
+    private var stepCounterOn: Boolean = false
+    private var accelerometerOn: Boolean = false
+    private var isWalkingActivity = false
+    private var totalSteps= 0L
 
+
+    fun requestSensorActive(): Boolean{
+        if (stepCounterOn || accelerometerOn || stepCounterWithAcc){
+            return true
+        } else {
+            return false
+        }
+    }
     // Initialize the ViewModel with the necessary repository for database operations
     fun initializeActivityViewModel(activity: FragmentActivity?, viewmodelstoreowner: ViewModelStoreOwner) {
 
         val application = requireNotNull(activity).application
         val repository = TrackingRepository(application)
         val viewModelFactory = ActivityViewModelFactory(repository)
-        activityViewModel = ViewModelProvider(viewmodelstoreowner, viewModelFactory).get(ActivityViewModel::class.java)
+        activityViewModel = ViewModelProvider(viewmodelstoreowner, viewModelFactory).get(
+            ActivityViewModel::class.java)
 
         // Load daily data from the database at startup
         updateDailyTimeFromDatabase()
+    }
+
+    fun initializeSensors(context: Context){
+        accelerometerSensorHandler = AccelerometerSensorHandler(context)
+        stepCounterSensorHandler = StepCounterSensorHandler(context)
     }
 
     // Get the sum of the duration for a specific activity type for the current day
@@ -117,7 +156,9 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
 
             val lastActivity = getLastActivity()
-            val currentTime = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
+            val currentTime = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(
+                Date()
+            )
 
             if (lastActivity != null && isGapBetweenActivities(lastActivity.timeFinish, currentTime)) {
                 saveUnknownActivity(lastActivity.timeFinish, currentTime)
@@ -229,5 +270,78 @@ class HomeViewModel : ViewModel() {
         return (endTime - startTime).toDouble() / 1000
     }
 
+    fun startAccelerometerSensor(){
+        accelerometerSensorHandler.registerAccelerometerListener(this)
+        accelerometerSensorHandler.startAccelerometer()
+        accelerometerOn = true
+    }
 
+    fun startStepCounterSensor(): Boolean{
+        stepCounterSensorHandler.registerStepCounterListener(this)
+        var presenceStepCounterSensor = stepCounterSensorHandler.startStepCounter()
+
+        if (presenceStepCounterSensor){
+            stepCounterOn = true
+        }
+        return presenceStepCounterSensor
+    }
+
+    fun stopAccelerometerSensor(){
+        accelerometerSensorHandler.unregisterListener()
+        accelerometerSensorHandler.stopAccelerometer()
+        accelerometerOn = false
+    }
+
+    fun stopStepCounterSensor(){
+        if (stepCounterOn) {
+            stepCounterSensorHandler.unregisterListener()
+            stepCounterSensorHandler.stopStepCounter()
+            stepCounterOn = false
+        }
+    }
+
+    fun setAttributes(stepCounterOnTemp: Boolean, stepCounterWithAccTemp: Boolean){
+        stepCounterOn = stepCounterOnTemp
+        stepCounterWithAcc = stepCounterWithAccTemp
+    }
+
+    override fun onAccelerometerDataReceived(data: String) {
+
+
+
+        if (stepCounterWithAcc) {
+            registerStep(data)
+        }
+        /*
+        homeViewModel.dailyTime.value?.let { dailyTimeList ->
+            val currentProgressWalking = dailyTimeList[0]?.toDouble() ?: 0.0
+            val currentProgressDriving = dailyTimeList[1]?.toDouble() ?: 0.0
+            val currentProgressStanding = dailyTimeList[2]?.toDouble() ?: 0.0
+            //Log.d("CHIUSURA ACTIVITY", "valori correnti: $currentProgressWalking, $currentProgressDriving, $currentProgressStanding")
+            updateProgressBarWalking(currentProgressWalking)
+            updateProgressBarDriving(currentProgressDriving)
+            updateProgressBarStanding(currentProgressStanding)
+        }
+
+         */
+    }
+
+    fun registerStep(data: String) {
+        var step = stepCounterSensorHandler.registerStepWithAccelerometer(data)
+        onStepCounterDataReceived(step.toString())
+    }
+
+    override fun onStepCounterDataReceived(data: String) {
+        /*
+        requireActivity().runOnUiThread {
+            Log.d("Step counter", "Aggiornamento ottenuto")
+            stepsText.text = "Current steps: $data"
+            totalSteps = data.toLong()
+
+        }
+
+         */
+    }
+
+ */
 }

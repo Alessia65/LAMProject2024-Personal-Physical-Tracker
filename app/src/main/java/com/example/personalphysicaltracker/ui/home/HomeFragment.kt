@@ -29,11 +29,9 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     /*
 
-    Entity Steps
-    SaveInDb in WalkingActivity
-    Attività in Activity View Model
-
-     */
+        Fare nei SensorHandler un metodo che contiene l'attività attualmente on
+        Controllare che salva bene le Activity
+    */
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
@@ -64,13 +62,16 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        accelerometerSensorHandler = AccelerometerSensorHandler(requireContext())
-        stepCounterSensorHandler = StepCounterSensorHandler(requireContext())
-        // Initialize ViewModel
+        accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(requireContext())
+        stepCounterSensorHandler = StepCounterSensorHandler.getInstance(requireContext())
+
         initializeViewModel()
 
         // Bind views
         bindViews(root)
+
+        // Initialize ViewModel
+
 
 
         // Set max values for progress bars
@@ -82,6 +83,14 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
         // Initialize buttons
         initializeButtons(root as ConstraintLayout)
+
+        if(stepCounterSensorHandler.isActive() || !accelerometerSensorHandler.isActive().equals("")){
+            changeButtonToStop()
+            accelText.text =  accelerometerSensorHandler.isActive() + " Activity Running"
+        } else {
+            accelText.text = "No activity running"
+        }
+
 
         return root
     }
@@ -200,7 +209,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Start the walking activity and change button to "Stop Activity"
     private fun startWalkingActivity() {
         homeViewModel.startSelectedActivity(WalkingActivity())
-        startAccelerometerSensor()
+        startAccelerometerSensor("Walking")
         startStepCounterSensor()
         changeButtonToStop()
         isWalkingActivity = true
@@ -210,7 +219,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Start the driving activity and change button to "Stop Activity"
     private fun startDrivingActivity() {
         homeViewModel.startSelectedActivity(DrivingActivity())
-        startAccelerometerSensor()
+        startAccelerometerSensor("Driving")
         changeButtonToStop()
         isWalkingActivity = false
         accelText.text = "Driving Activity Running"
@@ -220,16 +229,16 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Start the standing activity and change button to "Stop Activity"
     private fun startStandingActivity() {
         homeViewModel.startSelectedActivity(StandingActivity())
-        startAccelerometerSensor()
+        startAccelerometerSensor("Standing")
         changeButtonToStop()
         isWalkingActivity = false
         accelText.text = "Standing Activity Running"
 
     }
 
-    fun startAccelerometerSensor(){
+    fun startAccelerometerSensor(activityType: String){
         accelerometerSensorHandler.registerAccelerometerListener(this)
-        accelerometerSensorHandler.startAccelerometer()
+        accelerometerSensorHandler.startAccelerometer(activityType)
     }
 
     fun startStepCounterSensor(){
@@ -335,7 +344,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
 
     fun registerStep(data: String) {
-       var step = stepCounterSensorHandler.registerStepWithAccelerometer(data)
+        var step = stepCounterSensorHandler.registerStepWithAccelerometer(data)
         onStepCounterDataReceived(step.toString())
     }
 
@@ -357,13 +366,13 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     override fun onPause() {
         super.onPause()
-        stopAccelerometerSensor()
-        stopStepCounterSensor()
+        //stopAccelerometerSensor()
+        //stopStepCounterSensor()
     }
     // Clean up bindings and stop the activity on view destruction
     override fun onDestroyView() {
         super.onDestroyView()
-        stopAccelerometerSensor()
+        //stopAccelerometerSensor()
         _binding = null
     }
 

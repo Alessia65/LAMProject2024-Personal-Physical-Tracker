@@ -13,6 +13,18 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
 
     private var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var accelerometerListener: AccelerometerListener? = null
+    private var activityType: String = ""
+
+    companion object {
+
+        @Volatile
+        private var instance: AccelerometerSensorHandler? = null
+
+        fun getInstance(context: Context) =
+            instance ?: synchronized(this) {
+                instance ?: AccelerometerSensorHandler(context).also { instance = it }
+            }
+    }
 
     // Metodo per registrare il listener dell'accelerometro
     fun registerAccelerometerListener(listener: AccelerometerListener) {
@@ -24,18 +36,22 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
     }
 
     // Metodo per avviare il sensore dell'accelerometro
-    fun startAccelerometer() {
+    fun startAccelerometer(activityType: String) {
+        this.activityType = activityType
         val accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         accelerometerSensor.let {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
         Log.d("Accelerometer", "Sensor started")
+
     }
 
     // Metodo per fermare il sensore dell'accelerometro
     fun stopAccelerometer() {
+        activityType = ""
         sensorManager.unregisterListener(this)
         Log.d("Accelerometer", "Sensor stopped")
+
     }
 
     // Metodo richiamato quando i dati del sensore cambiano
@@ -57,5 +73,9 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
     // Metodo richiamato quando cambia la precisione del sensore (non utilizzato in questo esempio)
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // Implementazione specifica, se necessaria
+    }
+
+    fun isActive(): String{
+        return activityType
     }
 }
