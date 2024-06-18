@@ -6,11 +6,14 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.personalphysicaltracker.activities.WalkingActivity
 
 
 @Dao
 interface TrackingDao {
 
+    @Query("SELECT * FROM steps_table WHERE walkingActivityId = :id")
+    suspend fun getWalkingActivityById(id: Int): WalkingActivityEntity
 
     //Insert for step_table
     @Query("INSERT INTO steps_table VALUES(:id, :steps)")
@@ -28,7 +31,10 @@ interface TrackingDao {
     suspend fun getLastActivity(): ActivityEntity?
 
     @Query("SELECT * FROM activities_table")
-    fun getListOfActivities(): LiveData<List<ActivityEntity>>
+    fun getListOfActivities(): List<ActivityEntity>
+
+    @Query("SELECT * FROM steps_table")
+    fun getListOfWalkingActivities(): List<WalkingActivityEntity>
 
     @Query("SELECT SUM(duration) FROM activities_table WHERE activity_type = :activityType")
     fun getTotalDurationByActivityType(activityType: String): Double

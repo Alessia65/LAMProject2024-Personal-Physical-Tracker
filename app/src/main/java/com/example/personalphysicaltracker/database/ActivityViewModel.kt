@@ -2,6 +2,10 @@ package com.example.personalphysicaltracker.database
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.activities.PhysicalActivity
+import com.example.personalphysicaltracker.activities.StandingActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
 
 class ActivityViewModel(private val repository: TrackingRepository) : ViewModel() {
 
@@ -29,6 +33,82 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
 
     suspend fun getTotalStepsFromToday(date:String): Long{
         return repository.getTotalStepsFromToday(date)
+    }
+
+    suspend fun getListOfActivities(): List<ActivityEntity> {
+        return repository.getListOfActivities()
+    }
+
+    suspend fun getListOfPhysicalActivities(): List<PhysicalActivity> {
+        val activityEntities: List<ActivityEntity> = getListOfActivities()
+        val physicalActivities = mutableListOf<PhysicalActivity>()
+        for (activityEntity in activityEntities) {
+            when (activityEntity.activityType) {
+                "WALKING" -> {
+                    physicalActivities.add(createWalkingActivity(activityEntity))
+                }
+                "DRIVING" -> {
+                    physicalActivities.add(createDrivingActivity(activityEntity))
+                }
+                "STANDING" -> {
+                    physicalActivities.add(createStandingActivity(activityEntity))
+                }
+                else -> {
+                    physicalActivities.add(createPhysicalActivity(activityEntity))
+                }
+            }
+        }
+        return physicalActivities
+    }
+
+    suspend private fun createWalkingActivity(activityEntity: ActivityEntity): WalkingActivity {
+        val activity = WalkingActivity()
+        activity.date = activityEntity.date
+        activity.start = activityEntity.timeStart
+        activity.end = activityEntity.timeFinish
+        activity.duration = activityEntity.duration
+
+        //Calculate steps:
+        val id = activityEntity.id
+        var steps = 0L
+        if (getWalkingActivityById(id)!=null) {
+            steps = getWalkingActivityById(id).steps
+        }
+        activity.setActivitySteps(steps)
+        return activity
+    }
+
+    private fun createDrivingActivity(activityEntity: ActivityEntity): DrivingActivity {
+        val activity = DrivingActivity()
+        activity.date = activityEntity.date
+        activity.start = activityEntity.timeStart
+        activity.end = activityEntity.timeFinish
+        activity.duration = activityEntity.duration
+
+        return activity
+    }
+
+    private fun createStandingActivity(activityEntity: ActivityEntity): StandingActivity {
+        val activity = StandingActivity()
+        activity.date = activityEntity.date
+        activity.start = activityEntity.timeStart
+        activity.end = activityEntity.timeFinish
+        activity.duration = activityEntity.duration
+
+        return activity
+    }
+
+    private fun createPhysicalActivity(activityEntity: ActivityEntity): PhysicalActivity {
+        val activity = PhysicalActivity()
+        activity.date = activityEntity.date
+        activity.start = activityEntity.timeStart
+        activity.end = activityEntity.timeFinish
+        activity.duration = activityEntity.duration
+
+        return activity
+    }
+    suspend private fun getWalkingActivityById(id: Int): WalkingActivityEntity{
+        return repository.getWalkingActivityById(id)
     }
 }
 
