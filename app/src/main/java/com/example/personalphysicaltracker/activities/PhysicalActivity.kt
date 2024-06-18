@@ -17,20 +17,23 @@ open class PhysicalActivity : PhysicalActivityInterface {
     public lateinit var end: String
     public var duration: Double = 0.0
     protected lateinit var activityViewModel: ActivityViewModel
+    protected var activityType: ActivityType
 
-
-    fun setActivityViewModelVar(actViewModel: ActivityViewModel){
+    init{
+        activityType = ActivityType.UNKNOWN
+    }
+    override fun setActivityViewModelVar(actViewModel: ActivityViewModel){
         this.activityViewModel = actViewModel
     }
-    override fun getActivityName(): String {
-        return "Generic Activity"
+    override fun getActivityTypeName(): ActivityType {
+        return activityType
     }
 
-    fun setFinishTime(){
+    override fun setFinishTime(){
         end = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
     }
 
-    fun calculateDuration(): Double{
+    override fun calculateDuration(): Double{
         if (start != null && end != null) {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
             val startTime = dateFormat.parse(start)?.time ?: 0L
@@ -41,9 +44,9 @@ open class PhysicalActivity : PhysicalActivityInterface {
         return 0.0
     }
 
-    open suspend fun saveInDb(){
+    override suspend fun saveInDb(){
         val activityEntity = ActivityEntity(
-            activityType = "Unknown",
+            activityType = "UNKNOWN",
             date = date,
             timeStart = start,
             timeFinish = end,
@@ -51,5 +54,7 @@ open class PhysicalActivity : PhysicalActivityInterface {
         )
         activityViewModel.insertActivityEntity(activityEntity)
     }
+
+
 
 }

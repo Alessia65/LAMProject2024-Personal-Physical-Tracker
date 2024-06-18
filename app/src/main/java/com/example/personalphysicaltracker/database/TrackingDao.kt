@@ -19,10 +19,10 @@ interface TrackingDao {
     @Query("INSERT INTO steps_table VALUES(:id, :steps)")
     suspend fun insertWalkingActivityEntity(id: Int, steps: Long)
 
-    @Query("SELECT SUM(steps) FROM steps_table JOIN activities_table ON steps_table.walkingActivityId = activities_table.id WHERE activities_table.date = :date AND activities_table.activity_type = 'Walking'")
+    @Query("SELECT SUM(steps) FROM steps_table JOIN activities_table ON steps_table.walkingActivityId = activities_table.id WHERE activities_table.date = :date AND activities_table.activity_type = 'WALKING'")
     suspend fun getTotalStepsFromToday(date:String): Long
 
-    @Query("SELECT id FROM activities_table WHERE activity_type='Walking' ORDER BY id DESC LIMIT 1")
+    @Query("SELECT id FROM activities_table WHERE activity_type='WALKING' ORDER BY id DESC LIMIT 1")
     suspend fun getLastWalkingId(): Int
     @Query("SELECT SUM(duration) FROM activities_table WHERE activity_type = :activityType AND date = :day")
     suspend fun getTotalDurationByActivityTypeInDay(day:String, activityType:String): Double

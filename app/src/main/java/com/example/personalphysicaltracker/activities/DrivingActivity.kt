@@ -8,14 +8,13 @@ import kotlinx.coroutines.*
 
 class DrivingActivity: PhysicalActivity() {
 
-
-    override fun getActivityName(): String {
-        return "Driving"
+    init{
+        activityType = ActivityType.DRIVING
     }
 
     override suspend fun saveInDb(){
         val activityEntity = ActivityEntity(
-            activityType = "Driving",
+            activityType = "DRIVING",
             date = date,
             timeStart = start,
             timeFinish = end,

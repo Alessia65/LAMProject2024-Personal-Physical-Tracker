@@ -6,6 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
+import com.example.personalphysicaltracker.activities.ActivityType
 
 
 // Classe per la gestione dei sensori
@@ -13,7 +14,7 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
 
     private var sensorManager: SensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
     private var accelerometerListener: AccelerometerListener? = null
-    private var activityType: String = ""
+    private var activityType: ActivityType? = null
 
     companion object {
 
@@ -36,7 +37,7 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
     }
 
     // Metodo per avviare il sensore dell'accelerometro
-    fun startAccelerometer(activityType: String) {
+    fun startAccelerometer(activityType: ActivityType) {
         this.activityType = activityType
         val accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         accelerometerSensor.let {
@@ -48,7 +49,7 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
 
     // Metodo per fermare il sensore dell'accelerometro
     fun stopAccelerometer() {
-        activityType = ""
+        activityType = null
         sensorManager.unregisterListener(this)
         Log.d("Accelerometer", "Sensor stopped")
 
@@ -75,7 +76,7 @@ class AccelerometerSensorHandler(private val context: Context) : SensorEventList
         // Implementazione specifica, se necessaria
     }
 
-    fun isActive(): String{
+    fun isActive(): ActivityType?{
         return activityType
     }
 }

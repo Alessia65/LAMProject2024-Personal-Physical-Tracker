@@ -12,8 +12,8 @@ class WalkingActivity : PhysicalActivity() {
     private var steps: Long = 0
 
 
-    override fun getActivityName(): String {
-        return "Walking"
+    init{
+        activityType = ActivityType.WALKING
     }
 
     fun setActivitySteps(s: Long){
@@ -22,7 +22,7 @@ class WalkingActivity : PhysicalActivity() {
 
     override suspend fun saveInDb() {
         val activityEntity = ActivityEntity(
-            activityType = "Walking",
+            activityType = "WALKING",
             date = date,
             timeStart = start,
             timeFinish = end,

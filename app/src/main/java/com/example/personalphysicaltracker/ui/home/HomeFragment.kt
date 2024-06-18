@@ -13,6 +13,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.R
+import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
@@ -22,7 +23,6 @@ import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterListener
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 import kotlin.math.roundToInt
-import kotlin.math.sqrt
 
 
 class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
@@ -84,9 +84,9 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         // Initialize buttons
         initializeButtons(root as ConstraintLayout)
 
-        if(stepCounterSensorHandler.isActive() || !accelerometerSensorHandler.isActive().equals("")){
+        if(stepCounterSensorHandler.isActive() || accelerometerSensorHandler.isActive()!=null){
             changeButtonToStop()
-            accelText.text =  accelerometerSensorHandler.isActive() + " Activity Running"
+            accelText.text =  accelerometerSensorHandler.isActive().toString() + " Activity Running"
         } else {
             accelText.text = "No activity running"
         }
@@ -209,7 +209,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Start the walking activity and change button to "Stop Activity"
     private fun startWalkingActivity() {
         homeViewModel.startSelectedActivity(WalkingActivity())
-        startAccelerometerSensor("Walking")
+        startAccelerometerSensor(ActivityType.WALKING)
         startStepCounterSensor()
         changeButtonToStop()
         isWalkingActivity = true
@@ -219,7 +219,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Start the driving activity and change button to "Stop Activity"
     private fun startDrivingActivity() {
         homeViewModel.startSelectedActivity(DrivingActivity())
-        startAccelerometerSensor("Driving")
+        startAccelerometerSensor(ActivityType.DRIVING)
         changeButtonToStop()
         isWalkingActivity = false
         accelText.text = "Driving Activity Running"
@@ -229,14 +229,14 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Start the standing activity and change button to "Stop Activity"
     private fun startStandingActivity() {
         homeViewModel.startSelectedActivity(StandingActivity())
-        startAccelerometerSensor("Standing")
+        startAccelerometerSensor(ActivityType.STANDING)
         changeButtonToStop()
         isWalkingActivity = false
         accelText.text = "Standing Activity Running"
 
     }
 
-    fun startAccelerometerSensor(activityType: String){
+    fun startAccelerometerSensor(activityType: ActivityType){
         accelerometerSensorHandler.registerAccelerometerListener(this)
         accelerometerSensorHandler.startAccelerometer(activityType)
     }

@@ -42,14 +42,14 @@ class HomeViewModel : ViewModel() {
     }
 
     // Get the sum of the duration for a specific activity type for the current day
-    private suspend fun getTotalDurationByActivityTypeToday(activityType: String): Double {
+    private suspend fun getTotalDurationByActivityTypeToday(activityType: ActivityType): Double {
         val today = getCurrentDay()
         var duration = 0.0
 
         try {
             // Execute the query in the IO thread to get the duration
             duration = withContext(Dispatchers.IO) {
-                activityViewModel.getTotalDurationByActivityTypeInDay(today, activityType)
+                activityViewModel.getTotalDurationByActivityTypeInDay(today, activityType.toString())
             }
         } catch (e: Exception) {
             // Exception handling, such as logging or other types of handling
@@ -80,9 +80,9 @@ class HomeViewModel : ViewModel() {
     private fun updateDailyTimeFromDatabase() {
         date = getCurrentDay()
         viewModelScope.launch {
-            val walkingDuration = getTotalDurationByActivityTypeToday("Walking")
-            val drivingDuration = getTotalDurationByActivityTypeToday("Driving")
-            val standingDuration = getTotalDurationByActivityTypeToday("Standing")
+            val walkingDuration = getTotalDurationByActivityTypeToday(ActivityType.WALKING)
+            val drivingDuration = getTotalDurationByActivityTypeToday(ActivityType.DRIVING)
+            val standingDuration = getTotalDurationByActivityTypeToday(ActivityType.STANDING)
             val unknownDuration = getUnknownDuration(walkingDuration, drivingDuration, standingDuration)
 
             // Update the LiveData with the daily data
@@ -154,7 +154,7 @@ class HomeViewModel : ViewModel() {
     private fun saveUnknownActivity(lastEndTime: String, currentTime: String) {
         val duration = calculateDuration(lastEndTime, currentTime)
         val unknownActivity = ActivityEntity(
-            activityType = "Unknown",
+            activityType = "UNKNOWN",
             date = date,
             timeStart = lastEndTime,
             timeFinish = currentTime,
@@ -185,20 +185,15 @@ class HomeViewModel : ViewModel() {
     }
 
     private fun saveInDb(){
-        Log.d("INSERIMENTO", "Sto per inserire")
 
         viewModelScope.launch {
             if (selectedActivity is WalkingActivity){
-                Log.d("INSERIMENTO", "Sto per inserire W")
                 (selectedActivity as WalkingActivity).saveInDb()
             } else if (selectedActivity is DrivingActivity){
-                Log.d("INSERIMENTO", "Sto per inserire D")
                 (selectedActivity as DrivingActivity).saveInDb()
             } else if (selectedActivity is StandingActivity){
-                Log.d("INSERIMENTO", "Sto per inserire S")
                 (selectedActivity as StandingActivity).saveInDb()
             } else {
-                Log.d("INSERIMENTO", "Sto per inserire UNKNOWN")
                 selectedActivity.saveInDb()
             }
         }

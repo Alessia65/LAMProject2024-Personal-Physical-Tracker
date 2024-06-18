@@ -8,13 +8,12 @@ import kotlinx.coroutines.*
 class StandingActivity : PhysicalActivity() {
 
 
-    override fun getActivityName(): String {
-        return "Standing"
+    init{
+        activityType = ActivityType.STANDING
     }
-
     override suspend fun saveInDb(){
         val activityEntity = ActivityEntity(
-            activityType = "Standing",
+            activityType = "STANDING",
             date = date,
             timeStart = start,
             timeFinish = end,
