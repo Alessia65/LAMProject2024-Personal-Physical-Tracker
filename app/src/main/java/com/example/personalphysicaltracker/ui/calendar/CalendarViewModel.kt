@@ -52,7 +52,9 @@ class CalendarViewModel : ViewModel() {
     private fun updateFromDatabase(): List<PhysicalActivity> {
         viewModelScope.launch(Dispatchers.IO) {
             activitiesOnDb = activityViewModel.getListOfPhysicalActivities()
-
+            for (a in activitiesOnDb){
+                Log.d("DB", a.getActivityTypeName().toString() + ", " + a.start + ", " + a.end + ", " + a.date + ", " + a.duration)
+            }
         }
         return activitiesOnDb
     }
@@ -65,20 +67,13 @@ class CalendarViewModel : ViewModel() {
         return activitiesOnDb
     }
 
-    /**
-     * Saves the list of activities to be sent or displayed in another fragment.
-     */
-    /*
-    fun saveActivitiesForTransaction(activities: List<PhysicalActivity>) {
-        activitiesToSend = activities
-    }
 
-     */
 
     /**
      * Retrieves the list of activities saved for transaction (to be sent or displayed in another fragment).
      */
     fun obtainActivitiesForTransaction(): List<PhysicalActivity> {
+        updateFromDatabase()
         return activitiesToSend
     }
 
@@ -128,5 +123,9 @@ class CalendarViewModel : ViewModel() {
                 activity.getActivityTypeName().toString() == filter
             }
         }
+    }
+
+    fun clearFilters() {
+        selectedFilters.clear()
     }
 }

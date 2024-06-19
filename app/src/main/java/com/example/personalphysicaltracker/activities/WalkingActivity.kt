@@ -12,6 +12,9 @@ class WalkingActivity : PhysicalActivity() {
         activityType = ActivityType.WALKING
     }
 
+    fun getSteps(): Long{
+        return steps
+    }
     fun setActivitySteps(s: Long){
         steps = s
     }
