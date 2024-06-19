@@ -22,6 +22,8 @@ class CalendarViewModel : ViewModel() {
 
     // List to hold activities to be sent or displayed in another fragment
     var activitiesToSend: List<PhysicalActivity> = emptyList()
+    private val selectedFilters: MutableList<String> = mutableListOf()
+
 
     /**
      * Initializes the ActivityViewModel using the provided FragmentActivity.
@@ -47,17 +49,12 @@ class CalendarViewModel : ViewModel() {
      * Fetches the latest data from the database using the ActivityViewModel.
      * Runs in the IO dispatcher to perform database operations.
      */
-    private fun updateFromDatabase() {
+    private fun updateFromDatabase(): List<PhysicalActivity> {
         viewModelScope.launch(Dispatchers.IO) {
             activitiesOnDb = activityViewModel.getListOfPhysicalActivities()
 
-            // Uncomment to log activities fetched from the database
-            /*
-            for (activity in activitiesOnDb) {
-                Log.d("ACTIVITIES", "${activity.getActivityTypeName()}, ${activity.date}, ${activity.start}, ${activity.end}, ${activity.duration}")
-            }
-            */
         }
+        return activitiesOnDb
     }
 
     /**
@@ -96,7 +93,40 @@ class CalendarViewModel : ViewModel() {
             it.date >= startDate && it.date <= endDate
 
         }
+
+         // Applica tutti i filtri selezionati
+         activitiesToSend = applyFilters(activitiesToSend)
          Log.d("ACTIVITIES FILTERED", activitiesToSend.size.toString())
 
      }
+
+
+
+    fun addFilter(activityType: String): List<PhysicalActivity> {
+        // Aggiungi il filtro solo se non è già presente
+        if (!selectedFilters.contains(activityType)) {
+            selectedFilters.add(activityType)
+        }
+        return applyFilters(activitiesToSend)
+    }
+
+    fun removeFilter(activityType: String): List<PhysicalActivity> {
+        // Rimuovi il filtro se è presente
+        selectedFilters.remove(activityType)
+        return applyFilters(activitiesToSend)
+    }
+
+    private fun applyFilters(activities: List<PhysicalActivity>): List<PhysicalActivity> {
+        // Se non ci sono filtri selezionati, restituisci tutte le attività
+        if (selectedFilters.isEmpty()) {
+            return activities
+        }
+
+        // Filtra le attività in base ai filtri selezionati
+        return activities.filter { activity ->
+            selectedFilters.any { filter ->
+                activity.getActivityTypeName().toString() == filter
+            }
+        }
+    }
 }

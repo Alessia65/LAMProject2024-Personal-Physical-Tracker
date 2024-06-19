@@ -13,6 +13,8 @@ import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.databinding.FragmentActivitiesDoneBinding
 import android.util.Log
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 
 class ActivitiesDoneFragment : Fragment() {
 
@@ -22,6 +24,7 @@ class ActivitiesDoneFragment : Fragment() {
     private lateinit var calendarViewModel: CalendarViewModel
     private lateinit var scrollView: ScrollView
     private lateinit var linearLayoutScrollView: LinearLayout
+    private lateinit var chipGroup: ChipGroup
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,23 +33,52 @@ class ActivitiesDoneFragment : Fragment() {
         // Inflate the layout for this fragment
         _binding = FragmentActivitiesDoneBinding.inflate(inflater, container, false)
 
-        // Initialize views from binding
-        scrollView = binding.root.findViewById(R.id.scroll_view)
-        linearLayoutScrollView = binding.root.findViewById(R.id.linear_layout_scroll)
+        initializeViews()
+        initializeViewModels()
+        obtainDates()
 
-        // Initialize ViewModel using the Activity as ViewModelStoreOwner
-        calendarViewModel = ViewModelProvider(requireActivity()).get(CalendarViewModel::class.java)
 
-        // Retrieve activities saved in the ViewModel
+
+
+        return binding.root
+    }
+
+    private fun obtainDates() {
         activities = calendarViewModel.obtainActivitiesForTransaction()
         Log.d("ACTIVITIES OBTAINED", activities.size.toString())
 
         // Populate ScrollView with activities
         addInScrollBar()
-
-        return binding.root
     }
 
+    private fun initializeViewModels() {
+        // Initialize ViewModel using the Activity as ViewModelStoreOwner
+        calendarViewModel = ViewModelProvider(requireActivity()).get(CalendarViewModel::class.java)
+    }
+
+
+    // Initialize views from binding
+    private fun initializeViews(){
+        scrollView = binding.root.findViewById(R.id.scroll_view)
+        linearLayoutScrollView = binding.root.findViewById(R.id.linear_layout_scroll)
+        chipGroup = binding.root.findViewById(R.id.chip_group)
+        for (i in 0 until chipGroup.childCount) {
+            val chip = chipGroup.getChildAt(i) as Chip
+            chip.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    // Aggiungi il filtro selezionato
+                    activities = calendarViewModel.addFilter(chip.text.toString())
+                } else {
+                    // Rimuovi il filtro selezionato
+                    activities = calendarViewModel.removeFilter(chip.text.toString())
+                }
+                // Popola ScrollView con le attività filtrate
+                addInScrollBar()
+            }
+        }
+
+
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -57,14 +89,17 @@ class ActivitiesDoneFragment : Fragment() {
     private fun addInScrollBar() {
         // Clear previous views in the ScrollView
         binding.scrollView.removeAllViews()
+        binding.linearLayoutScroll.removeAllViews()
 
-        // Add each activity to the ScrollView
-        for (activity in activities){
-            addInScrollView(activity)
+        if (activities.isNotEmpty()) {
+            // Add each activity to the ScrollView
+            for (activity in activities) {
+                addInScrollView(activity)
+            }
+
+            // Add linearLayoutScrollView to the ScrollView
+            binding.scrollView.addView(linearLayoutScrollView)
         }
-
-        // Add linearLayoutScrollView to the ScrollView
-        binding.scrollView.addView(linearLayoutScrollView)
     }
 
     private fun addInScrollView(activity: PhysicalActivity) {
