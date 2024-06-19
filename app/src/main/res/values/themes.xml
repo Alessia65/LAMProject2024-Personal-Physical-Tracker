@@ -26,4 +26,7 @@
         <item name="android:indeterminateOnly">false</item>
         <item name="android:progressDrawable">@drawable/circle_graph_standing</item>
     </style>
+    <style name="ThemeCalendar" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="android:windowFullscreen">false</item>
+    </style>
 </resources>

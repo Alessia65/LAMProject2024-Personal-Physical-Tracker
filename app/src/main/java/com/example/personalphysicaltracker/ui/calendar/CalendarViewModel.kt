@@ -71,9 +71,12 @@ class CalendarViewModel : ViewModel() {
     /**
      * Saves the list of activities to be sent or displayed in another fragment.
      */
+    /*
     fun saveActivitiesForTransaction(activities: List<PhysicalActivity>) {
         activitiesToSend = activities
     }
+
+     */
 
     /**
      * Retrieves the list of activities saved for transaction (to be sent or displayed in another fragment).
@@ -81,4 +84,19 @@ class CalendarViewModel : ViewModel() {
     fun obtainActivitiesForTransaction(): List<PhysicalActivity> {
         return activitiesToSend
     }
+
+     fun handleSelectedDateRange(startDate: String, endDate: String) {
+         activitiesToSend = obtainDates()
+        Log.d("ACTIVITIES FROM DB", activitiesToSend.size.toString())
+
+         Log.d("STARTDATE", startDate)
+         Log.d("ENDDATE", endDate)
+        // Filter activities based on selected date range
+         activitiesToSend =  activitiesToSend.filter {
+            it.date >= startDate && it.date <= endDate
+
+        }
+         Log.d("ACTIVITIES FILTERED", activitiesToSend.size.toString())
+
+     }
 }

@@ -2,6 +2,7 @@ package com.example.personalphysicaltracker.ui.home
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +13,11 @@ import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
@@ -22,6 +25,12 @@ import com.example.personalphysicaltracker.sensors.AccelerometerListener
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterListener
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
+import com.example.personalphysicaltracker.ui.calendar.CalendarViewModel
+import com.google.android.material.datepicker.MaterialDatePicker
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import java.util.TimeZone
 import kotlin.math.roundToInt
 
 
@@ -44,13 +53,15 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     private lateinit var drivingHours: TextView
     private lateinit var standingHours: TextView
     private lateinit var stepsText: TextView
+    private lateinit var buttonSeeHistory: Button
 
     private var stepCounterOn: Boolean = false
     private var isWalkingActivity = false
     private var totalSteps= 0L
     private var stepCounterWithAcc = false
 
-    
+    private lateinit var calendarViewModel: CalendarViewModel
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,7 +79,6 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         bindViews(root)
 
         // Initialize ViewModel
-
 
 
         // Set max values for progress bars
@@ -96,6 +106,9 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     private fun initializeViewModel() {
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         homeViewModel.initializeActivityViewModel(this.activity, this)
+
+        calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+        calendarViewModel.initializeActivityViewModel(requireActivity())
     }
 
     // Bind views to their respective IDs
@@ -152,6 +165,10 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         buttonStartActivity = root.findViewById(R.id.button_startActivity)
         buttonStartActivity.setOnClickListener {
             showActivitySelectionDialog()
+        }
+        buttonSeeHistory = root.findViewById(R.id.button_history)
+        buttonSeeHistory.setOnClickListener {
+            showDateRangePicker()
         }
     }
 
@@ -356,7 +373,53 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
 
 
+    /**
+     * Show the Material Date Range Picker dialog.
+     */
+    private fun showDateRangePicker() {
+        val picker = MaterialDatePicker.Builder.dateRangePicker()
+            .setTheme(R.style.ThemeCalendar)
+            .setTitleText("Select range")
+            .build()
 
+        picker.show(requireActivity().supportFragmentManager, "DATE_RANGE_PICKER")
+
+        picker.addOnPositiveButtonClickListener {
+            val startDate = it.first
+            val endDate = it.second
+            if (startDate != null && endDate != null) {
+                val formattedStartDate = convertTimeToDate(startDate)
+                val formattedEndDate = convertTimeToDate(endDate)
+                Log.d("DATE_RANGE_SELECTED", "$formattedStartDate - $formattedEndDate")
+
+                calendarViewModel.handleSelectedDateRange(formattedStartDate, formattedEndDate)
+
+                // Navigate to ActivitiesDoneFragment
+                changeFragment()
+            }
+        }
+
+        picker.addOnNegativeButtonClickListener {
+            picker.dismiss()
+        }
+    }
+
+    private fun convertTimeToDate(time: Long): String {
+        val utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+        utc.timeInMillis = time
+        val format = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return format.format(utc.time)
+    }
+
+
+
+    private fun changeFragment() {
+        //calendarViewModel.saveActivitiesForTransaction(activities)
+
+        // Navigate to ActivitiesDoneFragment using NavController
+        val navController = findNavController()
+        navController.navigate(R.id.activitiesDoneFragment)
+    }
 
     // Clean up bindings and stop the activity on view destruction
     override fun onDestroyView() {

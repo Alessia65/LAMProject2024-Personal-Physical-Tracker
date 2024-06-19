@@ -7,32 +7,15 @@
     tools:context=".ui.calendar.CalendarFragment"
     android:id="@+id/fragment_calendar">
 
-    <CalendarView
-        android:id="@+id/view_calendar"
+
+    <Button
+        android:id="@+id/button_range"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:focusedMonthDateColor="#7C4C4C"
-        android:weekSeparatorLineColor="#9C7272"
+        android:text="Select Range"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.187" />
-
-    <Switch
-        android:id="@+id/switch_calendar"
-        android:layout_width="94dp"
-        android:layout_height="51dp"
-        android:text="@string/title_week"
-        app:layout_constraintBottom_toTopOf="@+id/view_calendar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.897"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.326"
-        tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

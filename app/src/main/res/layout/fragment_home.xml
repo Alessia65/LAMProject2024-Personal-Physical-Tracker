@@ -189,7 +189,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_walking"
-        app:layout_constraintVertical_bias="0.623" />
+        app:layout_constraintVertical_bias="0.501" />
 
     <TextView
         android:id="@+id/acceleration_text"
@@ -201,7 +201,22 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/button_startActivity"
-        app:layout_constraintVertical_bias="0.225" />
+        app:layout_constraintVertical_bias="0.2" />
+
+    <TextView
+        android:id="@+id/text_driving_hours"
+        android:layout_width="@dimen/text_activity_width"
+        android:layout_height="@dimen/text_activity_height"
+        android:background="@color/background_text_activity"
+        android:elevation="4dp"
+        android:text=""
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/text_driving_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/text_walking_title"
@@ -214,24 +229,37 @@
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
         app:layout_constraintEnd_toStartOf="@+id/text_driving_title"
+        app:layout_constraintHorizontal_bias="0.508"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.613" />
+        app:layout_constraintVertical_bias="0.807" />
 
     <TextView
-        android:id="@+id/text_driving_title"
-        android:layout_width="98dp"
-        android:layout_height="28dp"
-        android:background="@color/background_text_activity"
-        android:elevation="4dp"
-        android:fontFamily="@font/andika_new_basic"
-        android:text="Driving"
-        android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
+        android:id="@+id/text_steps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Boooooh"
+        app:layout_constraintBottom_toTopOf="@+id/text_walking_hours"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.084"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.613" />
+        app:layout_constraintVertical_bias="0.82" />
+
+    <TextView
+        android:id="@+id/text_walking_hours"
+        android:layout_width="@dimen/text_activity_width"
+        android:layout_height="@dimen/text_activity_height"
+        android:background="@color/background_text_activity"
+        android:elevation="4dp"
+        android:text=""
+        android:textAlignment="center"
+        app:layout_constraintBottom_toTopOf="@+id/text_walking_title"
+        app:layout_constraintEnd_toStartOf="@+id/text_driving_hours"
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/text_standing_title"
@@ -244,38 +272,26 @@
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.555"
+        app:layout_constraintHorizontal_bias="0.551"
         app:layout_constraintStart_toEndOf="@+id/text_driving_title"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.613" />
+        app:layout_constraintVertical_bias="0.801" />
 
     <TextView
-        android:id="@+id/text_walking_hours"
-        android:layout_width="@dimen/text_activity_width"
-        android:layout_height="@dimen/text_activity_height"
+        android:id="@+id/text_driving_title"
+        android:layout_width="98dp"
+        android:layout_height="28dp"
         android:background="@color/background_text_activity"
         android:elevation="4dp"
-        android:text=""
+        android:fontFamily="@font/andika_new_basic"
+        android:text="Driving"
         android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/text_walking_title"
-        app:layout_constraintEnd_toStartOf="@+id/text_driving_hours"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <TextView
-        android:id="@+id/text_driving_hours"
-        android:layout_width="@dimen/text_activity_width"
-        android:layout_height="@dimen/text_activity_height"
-        android:background="@color/background_text_activity"
-        android:elevation="4dp"
-        android:text=""
-        android:textAlignment="center"
-        app:layout_constraintBottom_toTopOf="@+id/text_driving_title"
+        app:layout_constraintBottom_toTopOf="@+id/button_startActivity"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.801" />
 
     <TextView
         android:id="@+id/text_standing_hours"
@@ -287,21 +303,21 @@
         android:textAlignment="center"
         app:layout_constraintBottom_toTopOf="@+id/text_standing_title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.555"
+        app:layout_constraintHorizontal_bias="0.551"
         app:layout_constraintStart_toEndOf="@+id/text_driving_hours"
         app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
         app:layout_constraintVertical_bias="1.0" />
 
-    <TextView
-        android:id="@+id/text_steps"
+    <Button
+        android:id="@+id/button_history"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Boooooh"
-        app:layout_constraintBottom_toTopOf="@+id/text_walking_hours"
+        android:backgroundTint="#FFFFFF"
+        android:text="See your history"
+        android:textColor="#000000"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.084"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
-        app:layout_constraintVertical_bias="0.622" />
+        app:layout_constraintTop_toBottomOf="@+id/acceleration_text" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
