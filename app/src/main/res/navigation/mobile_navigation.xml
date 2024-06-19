@@ -22,4 +22,10 @@
         android:name="com.example.personalphysicaltracker.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/activitiesDoneFragment"
+        android:name="com.example.personalphysicaltracker.ui.calendar.ActivitiesDoneFragment"
+        android:label="@string/title_activities_done"
+        tools:layout="@layout/fragment_activities_done" />
 </navigation>

@@ -17,39 +17,55 @@ import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 
-class MainActivity : AppCompatActivity(){
+class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     private val activityRecognitionRequestCode: Int = 100
 
-
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialize view binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (!isPermissionGranted()){
+        // Request permissions if not granted
+        if (!isPermissionGranted()) {
             requestPermissions()
         }
-        //Initialize Sensors -> DON'T DELETE
-        var accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
-        var stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
 
+        // Initialize Sensors -> DON'T DELETE
+        val accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
+        val stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
+
+        // Initialize navigation components
         initializeNavigation()
-
     }
 
-    private fun requestPermissions(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION), activityRecognitionRequestCode)
+    // Handle click on Up button in ActionBar
+    override fun onSupportNavigateUp(): Boolean {
+        val navController = findNavController(R.id.nav_host_fragment_activity_main)
+        return navController.navigateUp() || super.onSupportNavigateUp()
+    }
+
+    private fun requestPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION),
+                activityRecognitionRequestCode
+            )
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun isPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.ACTIVITY_RECOGNITION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onRequestPermissionsResult(
@@ -58,30 +74,31 @@ class MainActivity : AppCompatActivity(){
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
+        when (requestCode) {
             activityRecognitionRequestCode -> {
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)){
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     Log.d("PERMISSION", "Permission granted")
                 }
             }
         }
     }
 
-
-    private fun initializeNavigation(){
+    private fun initializeNavigation() {
         val navView: BottomNavigationView = binding.navView
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
+
+        // Define top-level destinations for AppBarConfiguration
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.navigation_home, R.id.navigation_calendar, R.id.navigation_notifications
             )
         )
 
-
+        // Setup ActionBar with NavController and AppBarConfiguration
         setupActionBarWithNavController(navController, appBarConfiguration)
+
+        // Setup BottomNavigationView with NavController
         navView.setupWithNavController(navController)
     }
 }

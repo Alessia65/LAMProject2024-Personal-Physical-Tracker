@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.calendar.CalendarFragment">
+    tools:context=".ui.calendar.CalendarFragment"
+    android:id="@+id/fragment_calendar">
 
     <CalendarView
         android:id="@+id/view_calendar"
@@ -32,32 +33,6 @@
         app:layout_constraintVertical_bias="0.326"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-    <ScrollView
-        android:id="@+id/scroll_view"
-        android:layout_width="375dp"
-        android:layout_height="189dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_calendar"
-        app:layout_constraintVertical_bias="0.098">
 
-        <LinearLayout
-            android:id="@+id/linear_layout_scroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/text_view_initial"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="Activities:"
-                android:textColor="#000000"
-                android:maxLines="1"
-                android:ellipsize="end" />
-        </LinearLayout>
-    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
