@@ -4,13 +4,24 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import com.example.personalphysicaltracker.R
+import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.databinding.FragmentActivitiesDoneBinding
+import android.util.Log
 
 class ActivitiesDoneFragment : Fragment() {
 
     private var _binding: FragmentActivitiesDoneBinding? = null
     private val binding get() = _binding!!
+    private lateinit var activities: List<PhysicalActivity>
+    private lateinit var calendarViewModel: CalendarViewModel
+    private lateinit var scrollView: ScrollView
+    private lateinit var linearLayoutScrollView: LinearLayout
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -18,6 +29,21 @@ class ActivitiesDoneFragment : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         _binding = FragmentActivitiesDoneBinding.inflate(inflater, container, false)
+
+        // Initialize views from binding
+        scrollView = binding.root.findViewById(R.id.scroll_view)
+        linearLayoutScrollView = binding.root.findViewById(R.id.linear_layout_scroll)
+
+        // Initialize ViewModel using the Activity as ViewModelStoreOwner
+        calendarViewModel = ViewModelProvider(requireActivity()).get(CalendarViewModel::class.java)
+
+        // Retrieve activities saved in the ViewModel
+        activities = calendarViewModel.obtainActivitiesForTransaction()
+        Log.d("ACTIVITIES OBTAINED", activities.size.toString())
+
+        // Populate ScrollView with activities
+        addInScrollBar()
+
         return binding.root
     }
 
@@ -27,61 +53,34 @@ class ActivitiesDoneFragment : Fragment() {
         // Clean up view binding
         _binding = null
     }
-}
 
-
-
-/*
-    private fun handleSelectedDate(formattedDate: String) {
-        activities = calendarViewModel.obtainDates()
-
-        // Filter activities based on selected date
-        val activitiesForSelectedDate = activities.filter { (it.date) == formattedDate }
-        Log.d("Date", formattedDate)
-        // Log activities to console
-        Log.d("Size", activitiesForSelectedDate.size.toString())
-        addInScrollBar(activitiesForSelectedDate, false) //filters
-
-    }
-
-    private fun addInScrollBar(activitiesForSelectedDate: List<PhysicalActivity>, filters: Boolean) {
+    private fun addInScrollBar() {
+        // Clear previous views in the ScrollView
         binding.scrollView.removeAllViews()
-        for (activity in activitiesForSelectedDate){
-            createButtonOnScrollView(activity)
+
+        // Add each activity to the ScrollView
+        for (activity in activities){
+            addInScrollView(activity)
         }
+
+        // Add linearLayoutScrollView to the ScrollView
         binding.scrollView.addView(linearLayoutScrollView)
     }
 
-    private fun createButtonOnScrollView(activity: PhysicalActivity) {
+    private fun addInScrollView(activity: PhysicalActivity) {
 
-        // Crea il nuovo pulsante
+        // Create a new TextView for each activity
         val textView = TextView(requireContext())
         textView.text = "${activity.getActivityTypeName()}, ${activity.date}, ${activity.start}, ${activity.end}, ${activity.duration}"
 
-        // Imposta i parametri di layout del pulsante (esempio)
+        // Set layout parameters for the TextView
         val layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
         textView.layoutParams = layoutParams
 
-        // Aggiungi il pulsante alla ScrollView
+        // Add the TextView to the LinearLayout within ScrollView
         binding.linearLayoutScroll.addView(textView)
-
     }
-
-     */
-
-    /*
-        calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            val selectedDate = calendar.time
-
-            // Format date if needed
-            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val formattedDate = dateFormat.format(selectedDate)
-
-            // Handle selected date
-            handleSelectedDate(formattedDate)
-        } */
+}
