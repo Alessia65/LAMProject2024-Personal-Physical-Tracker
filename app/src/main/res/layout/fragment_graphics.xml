@@ -9,9 +9,12 @@
     <TextView
         android:id="@+id/text_date"
         android:layout_width="match_parent"
-        android:layout_height="88dp"
+        android:layout_height="34dp"
+        android:clickable="true"
+        android:fontFamily="@font/andika_new_basic"
         android:text="DATA"
-        android:clickable="true" />
+        android:textAlignment="center"
+        android:textSize="20dp" />
 
     <!-- Layout orizzontale per i grafici -->
     <LinearLayout
@@ -26,11 +29,7 @@
             android:layout_width="79dp"
             android:layout_height="199dp"
             android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
+            android:layout_margin="0dp"
             android:layout_weight="1" />
 
 
@@ -39,7 +38,7 @@
             android:id="@+id/line_chart"
             android:layout_width="78dp"
             android:layout_height="202dp"
-            android:layout_margin="8dp"
+            android:layout_margin="0dp"
             android:layout_weight="1" />
 
     </LinearLayout>

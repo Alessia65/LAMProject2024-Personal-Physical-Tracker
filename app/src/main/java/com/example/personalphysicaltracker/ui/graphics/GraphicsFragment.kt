@@ -11,12 +11,14 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
-import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.databinding.FragmentGraphicsBinding
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.PercentFormatter
 import com.google.android.material.datepicker.MaterialDatePicker
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class GraphicsFragment : Fragment() {
 
@@ -49,11 +51,25 @@ class GraphicsFragment : Fragment() {
 
     private fun initializeViews(root: View) {
         textDate = root.findViewById(R.id.text_date)
+        // Ottieni la data corrente
+
+        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+
+        // Imposta il testo della TextView alla data corrente
+        textDate.text = currentDate
         textDate.setOnClickListener {
             showDateRangePicker()
         }
 
         pieChart = root.findViewById(R.id.pie_chart)
+        showTodayPieChart(currentDate)
+    }
+
+    private fun showTodayPieChart(currentDate: String) {
+        val daysNumber = 1
+        updateActivitiesInRange(currentDate, currentDate)
+        sumDurations()
+        populatePieChart(daysNumber)
     }
 
     private fun showDateRangePicker() {
@@ -73,6 +89,9 @@ class GraphicsFragment : Fragment() {
                 Log.d("DATE_RANGE_SELECTED", "$formattedStartDate - $formattedEndDate")
                 val daysNumber = graphicsViewModel.calculateRange(formattedStartDate, formattedEndDate)
                 Log.d("NUMBER_OF_DAYS", "Number of days selected: $daysNumber")
+
+                setTextDay(formattedStartDate,formattedEndDate)
+
                 updateActivitiesInRange(formattedStartDate, formattedEndDate)
                 sumDurations()
                 populatePieChart(daysNumber)
@@ -81,6 +100,15 @@ class GraphicsFragment : Fragment() {
 
         picker.addOnNegativeButtonClickListener {
             picker.dismiss()
+        }
+    }
+
+    private fun setTextDay(formattedStartDate: String, formattedEndDate: String) {
+        if (formattedStartDate.equals(formattedEndDate)){
+            textDate.text = formattedStartDate
+        } else {
+            textDate.text = formattedStartDate + " / " + formattedEndDate
+
         }
     }
 
