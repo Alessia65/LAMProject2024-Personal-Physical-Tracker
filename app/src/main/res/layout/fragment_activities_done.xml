@@ -13,7 +13,7 @@
         android:id="@+id/chip_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="44dp"
+        android:layout_marginTop="4dp"
         app:chipSpacingHorizontal="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -22,60 +22,42 @@
 
 
         <com.google.android.material.chip.Chip
+            style="@style/ChipStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/ChipStyle"
             android:text="@string/text_walking" />
 
         <com.google.android.material.chip.Chip
+            style="@style/ChipStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/ChipStyle"
             android:text="@string/text_driving" />
 
         <com.google.android.material.chip.Chip
+            style="@style/ChipStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/ChipStyle"
             android:text="@string/text_standing" />
 
         <com.google.android.material.chip.Chip
+            style="@style/ChipStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            style="@style/ChipStyle"
             android:text="@string/text_unknown" />
 
 
     </com.google.android.material.chip.ChipGroup>
 
-    <ScrollView
-        android:id="@+id/scroll_view"
-        android:layout_width="350dp"
-        android:layout_height="547dp"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="413dp"
+        android:layout_height="518dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.491"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/chip_group"
-        app:layout_constraintVertical_bias="0.604">
+        app:layout_constraintTop_toBottomOf="@id/chip_group"
+        app:layout_constraintVertical_bias="0.0" />
 
-        <LinearLayout
-            android:id="@+id/linear_layout_scroll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/text_view_initial"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:ellipsize="end"
-                android:maxLines="1"
-                android:padding="8dp"
-                android:text="Activities:"
-                android:textColor="#000000" />
-        </LinearLayout>
-
-    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

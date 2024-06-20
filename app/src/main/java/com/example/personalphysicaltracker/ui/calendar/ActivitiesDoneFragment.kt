@@ -18,6 +18,8 @@ import android.widget.ScrollView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.PhysicalActivity
@@ -29,69 +31,86 @@ class ActivitiesDoneFragment : Fragment() {
 
     private var _binding: FragmentActivitiesDoneBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var activities: List<PhysicalActivity>
     private lateinit var calendarViewModel: CalendarViewModel
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: ActivityAdapter
+
+
     private lateinit var scrollView: ScrollView
     private lateinit var linearLayoutScrollView: LinearLayout
     private lateinit var chipGroup: ChipGroup
 
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View {
-        // Inflate the layout for this fragment
-        _binding = FragmentActivitiesDoneBinding.inflate(inflater, container, false)
-
-        initializeViews()
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_activities_done, container, false)
+        initializeViews(view)
         initializeViewModels()
         obtainDates()
-
-
-
-
-        return binding.root
+        return view
     }
+
 
     private fun obtainDates() {
         activities = calendarViewModel.obtainActivitiesForTransaction()
         Log.d("ACTIVITIES OBTAINED", activities.size.toString())
+        updateRecyclerView()
 
         // Populate ScrollView with activities
-        addInScrollBar()
+        //addInScrollBar()
     }
 
     private fun initializeViewModels() {
         // Initialize ViewModel using the Activity as ViewModelStoreOwner
-        calendarViewModel = ViewModelProvider(requireActivity()).get(CalendarViewModel::class.java)
+        calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
     }
 
 
     // Initialize views from binding
-    private fun initializeViews(){
-        scrollView = binding.root.findViewById(R.id.scroll_view)
-        linearLayoutScrollView = binding.root.findViewById(R.id.linear_layout_scroll)
+    private fun initializeViews(view: View) {
+        chipGroup = view.findViewById(R.id.chip_group)
+        recyclerView = view.findViewById(R.id.recycler_view)
 
-        chipGroup = binding.root.findViewById(R.id.chip_group)
+        // Setup RecyclerView
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        adapter = ActivityAdapter()
+        recyclerView.adapter = adapter
+
+        // Set chip click listeners
         for (i in 0 until chipGroup.childCount) {
             val chip = chipGroup.getChildAt(i) as Chip
-            chip.setOnCheckedChangeListener { _, isChecked ->
-                if (isChecked) {
-                    // Aggiungi il filtro selezionato
-                    activities = calendarViewModel.addFilter(chip.text.toString())
-                } else {
-                    // Rimuovi il filtro selezionato
-                    activities = calendarViewModel.removeFilter(chip.text.toString())
-                }
-                // Popola ScrollView con le attività filtrate
-                addInScrollBar()
-            }
+            chip.setOnClickListener(chipClickListener)
         }
+    }
 
 
+    private fun updateRecyclerView() {
+        adapter.submitList(activities)
+    }
+
+
+    private val chipClickListener = View.OnClickListener { view ->
+        if (view is Chip) {
+            val checked = view.isChecked
+            val activityType = view.text.toString()
+            if (checked) {
+                activities = calendarViewModel.addFilter(activityType)
+            } else {
+                activities = calendarViewModel.removeFilter(activityType)
+            }
+            updateRecyclerView()
+        }
     }
 
 
 
+    /*
     private fun addInScrollBar() {
         // Clear previous views in the ScrollView
         binding.scrollView.removeAllViews()
@@ -151,6 +170,8 @@ class ActivitiesDoneFragment : Fragment() {
         spannableString.append("\n")
         return spannableString
     }
+
+     */
 
     override fun onDestroyView() {
         super.onDestroyView()
