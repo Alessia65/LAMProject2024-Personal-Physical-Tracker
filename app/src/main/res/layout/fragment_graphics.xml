@@ -29,6 +29,8 @@
             android:layout_width="79dp"
             android:layout_height="199dp"
             android:layout_marginStart="8dp"
+            android:clickable="true"
+            android:focusable="true"
             android:layout_margin="0dp"
             android:layout_weight="1" />
 

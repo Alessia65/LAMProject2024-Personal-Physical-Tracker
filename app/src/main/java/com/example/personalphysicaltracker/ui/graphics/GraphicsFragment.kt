@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
@@ -15,6 +16,8 @@ import com.example.personalphysicaltracker.databinding.FragmentGraphicsBinding
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.PercentFormatter
+import com.github.mikephil.charting.listener.ChartTouchListener
+import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -33,13 +36,14 @@ class GraphicsFragment : Fragment() {
     private var sumWalking = 0.0f
     private var sumDriving = 0.0f
     private var sumStanding = 0.0f
+    private var sumsPieChart: Array<Float> = emptyArray()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        graphicsViewModel = ViewModelProvider(this).get(GraphicsViewModel::class.java)
+        graphicsViewModel = ViewModelProvider(requireActivity()).get(GraphicsViewModel::class.java)
         graphicsViewModel.initializeActivityViewModel(this.activity, this)
 
         _binding = FragmentGraphicsBinding.inflate(inflater, container, false)
@@ -62,8 +66,67 @@ class GraphicsFragment : Fragment() {
         }
 
         pieChart = root.findViewById(R.id.pie_chart)
+        setupPieChart()
         showTodayPieChart(currentDate)
+
     }
+
+    private fun setupPieChart() {
+        pieChart.setUsePercentValues(true)
+        pieChart.description.isEnabled = false
+        pieChart.isRotationEnabled = false
+        pieChart.isHighlightPerTapEnabled = false // Deprecated, use isHighlightPerTapEnabled
+
+        // Listener per gestire il tap sul grafico
+        pieChart.setOnChartGestureListener(object : OnChartGestureListener {
+            override fun onChartGestureStart(
+                me: MotionEvent?,
+                lastPerformedGesture: ChartTouchListener.ChartGesture?
+            ) {
+                // Non necessario implementare
+            }
+
+            override fun onChartGestureEnd(
+                me: MotionEvent?,
+                lastPerformedGesture: ChartTouchListener.ChartGesture?
+            ) {
+                // Non necessario implementare
+            }
+
+            override fun onChartLongPressed(me: MotionEvent?) {
+                // Non necessario implementare
+            }
+
+            override fun onChartDoubleTapped(me: MotionEvent?) {
+                // Non necessario implementare
+            }
+
+            override fun onChartSingleTapped(me: MotionEvent?) {
+                // Mostra il dialog del PieChart
+                graphicsViewModel.saveDatesForDialog(sumsPieChart)
+                val dialog = PieChartDialogFragment()
+                dialog.show(parentFragmentManager, "PieChartDialogFragment")
+            }
+
+            override fun onChartFling(
+                me1: MotionEvent?,
+                me2: MotionEvent?,
+                velocityX: Float,
+                velocityY: Float
+            ) {
+                // Non necessario implementare
+            }
+
+            override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
+                // Non necessario implementare
+            }
+
+            override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
+                // Non necessario implementare
+            }
+        })
+    }
+
 
     private fun showTodayPieChart(currentDate: String) {
         val daysNumber = 1
@@ -129,8 +192,12 @@ class GraphicsFragment : Fragment() {
         entries.add(PieEntry((sumDriving/3600), ""))
         entries.add(PieEntry((sumStanding/3600), ""))
 
+
         var restOfTime = (24 * days) - (sumWalking/3600) - (sumDriving/3600) - (sumStanding/3600)
         entries.add(PieEntry(restOfTime, ""))
+
+        sumsPieChart = arrayOf((sumWalking/3600), (sumDriving/3600), (sumStanding/3600), restOfTime)
+
 
         val dataSet = PieDataSet(entries, "Activities")
         dataSet.colors = listOf(Color.GREEN, Color.BLUE, Color.RED, Color.GRAY)
@@ -145,6 +212,8 @@ class GraphicsFragment : Fragment() {
 
         pieChart.data = data
         pieChart.invalidate()
+
+
     }
 
     override fun onDestroyView() {

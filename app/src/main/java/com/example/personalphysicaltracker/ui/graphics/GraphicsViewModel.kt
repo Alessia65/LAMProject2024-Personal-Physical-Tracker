@@ -25,6 +25,8 @@ class GraphicsViewModel : ViewModel() {
     private lateinit var activityViewModel: ActivityViewModel
 
     var activitiesOnDb: List<PhysicalActivity> = emptyList() //Da non modificare
+    var sumsPieChart: Array<Float> = emptyArray()
+
 
     fun initializeActivityViewModel(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner) {
         val application = requireNotNull(activity).application
@@ -81,6 +83,17 @@ class GraphicsViewModel : ViewModel() {
             }
         }
         return sum
+    }
+
+    fun saveDatesForDialog(sums: Array<Float>){
+        sumsPieChart = sums
+        for (s in sumsPieChart){
+            Log.d("SUM",s.toString())
+        }
+    }
+
+    fun obtainDatesForDialog(): Array<Float>{
+        return sumsPieChart
     }
 
     //TODO: caso in cui un'attività è a ridosso, la data viene inserita come data in cui finisce l'attività dovrei farla dividere giornalemnte
