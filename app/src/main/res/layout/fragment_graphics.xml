@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:backgroundTint="#FEFEFE"
+    android:orientation="vertical">
+
+    <!-- Titolo DATA -->
+    <TextView
+        android:id="@+id/text_date"
+        android:layout_width="match_parent"
+        android:layout_height="88dp"
+        android:text="DATA" />
+
+    <!-- Layout orizzontale per i grafici -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:orientation="horizontal">
+
+        <!-- Grafico a torta -->
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pie_chart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:layout_weight="1" />
+
+        <!-- LineChart -->
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/line_chart"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="8dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
+
+    <!-- Layout verticale per icona e pulsante -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="105dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/image_walking"
+            android:layout_width="113dp"
+            android:layout_height="105dp"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:src="@drawable/icon_walking" />
+
+        <Button
+            android:id="@+id/button_walking"
+            android:layout_width="198dp"
+            android:layout_height="match_parent"
+            android:backgroundTint="#FFFFFF"
+            android:text="WALKING"
+            android:textColor="#000000" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="105dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/image_driving"
+            android:layout_width="113dp"
+            android:layout_height="105dp"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:src="@drawable/icon_driving" />
+
+        <Button
+            android:id="@+id/button_driving"
+            android:layout_width="198dp"
+            android:layout_height="match_parent"
+            android:backgroundTint="#FFFFFF"
+            android:text="DRIVING"
+            android:textColor="#000000" />
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="105dp"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/image_STANDING"
+            android:layout_width="113dp"
+            android:layout_height="105dp"
+            android:layout_gravity="center"
+            android:padding="16dp"
+            android:src="@drawable/icon_standing" />
+
+        <Button
+            android:id="@+id/button_standing"
+            android:layout_width="198dp"
+            android:layout_height="match_parent"
+            android:backgroundTint="#FFFFFF"
+            android:text="STANDING"
+            android:textColor="#000000" />
+
+
+    </LinearLayout>
+
+</LinearLayout>

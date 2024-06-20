@@ -57,6 +57,7 @@ dependencies {
     implementation("androidx.activity:activity-compose")
     implementation("androidx.compose.foundation:foundation")
     implementation("androidx.compose.material:material")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
