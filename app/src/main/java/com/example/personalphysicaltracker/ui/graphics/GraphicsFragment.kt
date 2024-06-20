@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.ui.graphics
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,22 +13,24 @@ import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.databinding.FragmentGraphicsBinding
+import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.data.*
+import com.github.mikephil.charting.formatter.PercentFormatter
 import com.google.android.material.datepicker.MaterialDatePicker
 
 class GraphicsFragment : Fragment() {
 
     private var _binding: FragmentGraphicsBinding? = null
-
-
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var graphicsViewModel: GraphicsViewModel
 
-
     private lateinit var textDate: TextView
+    private lateinit var pieChart: PieChart
 
     private lateinit var physicalActivities: List<PhysicalActivity>
+    private var sumWalking = 0.0f
+    private var sumDriving = 0.0f
+    private var sumStanding = 0.0f
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,7 +39,6 @@ class GraphicsFragment : Fragment() {
     ): View {
         graphicsViewModel = ViewModelProvider(this).get(GraphicsViewModel::class.java)
         graphicsViewModel.initializeActivityViewModel(this.activity, this)
-
 
         _binding = FragmentGraphicsBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -47,9 +49,11 @@ class GraphicsFragment : Fragment() {
 
     private fun initializeViews(root: View) {
         textDate = root.findViewById(R.id.text_date)
-        textDate.setOnClickListener{
+        textDate.setOnClickListener {
             showDateRangePicker()
         }
+
+        pieChart = root.findViewById(R.id.pie_chart)
     }
 
     private fun showDateRangePicker() {
@@ -70,10 +74,10 @@ class GraphicsFragment : Fragment() {
                 val daysNumber = graphicsViewModel.calculateRange(formattedStartDate, formattedEndDate)
                 Log.d("NUMBER_OF_DAYS", "Number of days selected: $daysNumber")
                 updateActivitiesInRange(formattedStartDate, formattedEndDate)
+                sumDurations()
+                populatePieChart(daysNumber)
             }
         }
-
-
 
         picker.addOnNegativeButtonClickListener {
             picker.dismiss()
@@ -82,11 +86,38 @@ class GraphicsFragment : Fragment() {
 
     private fun updateActivitiesInRange(formattedStartDate: String, formattedEndDate: String) {
         physicalActivities = graphicsViewModel.sendActivitiesInRange(formattedStartDate, formattedEndDate)
-        for (a in physicalActivities){
-            Log.d("DB", a.getActivityTypeName().toString() + ", " + a.start + ", " + a.end + ", " + a.date + ", " + a.duration)
-        }
     }
 
+    private fun sumDurations() {
+        val sums = graphicsViewModel.sumDurationOf(physicalActivities)
+        sumWalking = sums[0].toFloat()
+        sumDriving = sums[1].toFloat()
+        sumStanding = sums[2].toFloat()
+    }
+
+    private fun populatePieChart(days: Int){
+        val entries = ArrayList<PieEntry>()
+        entries.add(PieEntry((sumWalking/3600), ""))
+        entries.add(PieEntry((sumDriving/3600), ""))
+        entries.add(PieEntry((sumStanding/3600), ""))
+
+        var restOfTime = (24 * days) - (sumWalking/3600) - (sumDriving/3600) - (sumStanding/3600)
+        entries.add(PieEntry(restOfTime, ""))
+
+        val dataSet = PieDataSet(entries, "Activities")
+        dataSet.colors = listOf(Color.GREEN, Color.BLUE, Color.RED, Color.GRAY)
+        dataSet.valueTextSize = 12f
+
+        val data = PieData(dataSet)
+        data.setValueFormatter(PercentFormatter(pieChart))
+        data.setValueTextSize(11f)
+        data.setValueTextColor(Color.WHITE)
+        pieChart.legend.isEnabled = false
+        pieChart.description.isEnabled = false
+
+        pieChart.data = data
+        pieChart.invalidate()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
+import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.database.ActivityViewModelFactory
@@ -67,6 +68,19 @@ class GraphicsViewModel : ViewModel() {
         return activitiesOnDb.filter { activity ->
             activity.date >= formattedStartDate && activity.date <= formattedEndDate
         }
+    }
+
+    fun sumDurationOf(activities: List<PhysicalActivity>): Array<Double> {
+        var sum: Array<Double> = arrayOf(0.0, 0.0, 0.0)
+        for (a in activities) {
+            when (a.getActivityTypeName()) {
+                ActivityType.WALKING -> sum[0] += a.duration
+                ActivityType.DRIVING -> sum[1] += a.duration
+                ActivityType.STANDING -> sum[2] += a.duration
+                else -> { /* handle other activity types if needed */ }
+            }
+        }
+        return sum
     }
 
     //TODO: caso in cui un'attività è a ridosso, la data viene inserita come data in cui finisce l'attività dovrei farla dividere giornalemnte

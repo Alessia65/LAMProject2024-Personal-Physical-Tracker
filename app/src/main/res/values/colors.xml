@@ -14,5 +14,6 @@
     <color name="green_500">#FF4CAF50</color>
     <color name="red_200">#FFEF9A9A</color>
     <color name="red_500">#FFF44336</color>
+    <color name="grey_500">#9E9E9E</color>
     <color name="background_text_activity">#FFFACD</color>
 </resources>

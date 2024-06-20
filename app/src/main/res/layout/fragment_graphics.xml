@@ -16,25 +16,109 @@
     <!-- Layout orizzontale per i grafici -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="220dp"
         android:orientation="horizontal">
+
 
         <!-- Grafico a torta -->
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pie_chart"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_margin="8dp"
+            android:layout_width="79dp"
+            android:layout_height="199dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
             android:layout_weight="1" />
+
 
         <!-- LineChart -->
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/line_chart"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_width="78dp"
+            android:layout_height="202dp"
             android:layout_margin="8dp"
             android:layout_weight="1" />
 
+    </LinearLayout>
+
+    <!-- Legenda sotto il grafico a torta -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/pie_chart"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <!-- Prima riga della legenda -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/ic_circle"
+                android:drawableTint="@color/green_500"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="Walking"
+                android:textAlignment="center"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/ic_circle"
+                android:drawableTint="@color/blue_500"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="Driving"
+                android:textAlignment="center"
+                android:textColor="@color/black" />
+        </LinearLayout>
+
+        <!-- Seconda riga della legenda -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/ic_circle"
+                android:drawableTint="@color/red_500"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="Standing"
+                android:textAlignment="center"
+                android:textColor="@color/black" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="3dp"
+                android:layout_weight="1"
+                android:drawableLeft="@drawable/ic_circle"
+                android:drawableTint="@color/grey_500"
+                android:gravity="center"
+                android:padding="4dp"
+                android:text="Nothing"
+                android:textAlignment="center"
+                android:textColor="@color/black" />
+        </LinearLayout>
     </LinearLayout>
 
     <!-- Layout verticale per icona e pulsante -->
@@ -58,8 +142,6 @@
             android:backgroundTint="#FFFFFF"
             android:text="@string/text_walking"
             android:textColor="#000000" />
-
-
     </LinearLayout>
 
     <LinearLayout
@@ -82,10 +164,7 @@
             android:backgroundTint="#FFFFFF"
             android:text="@string/text_driving"
             android:textColor="#000000" />
-
-
     </LinearLayout>
-
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -107,8 +186,5 @@
             android:backgroundTint="#FFFFFF"
             android:text="@string/text_standing"
             android:textColor="#000000" />
-
-
     </LinearLayout>
-
 </LinearLayout>
