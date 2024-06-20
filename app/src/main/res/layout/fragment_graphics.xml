@@ -10,7 +10,8 @@
         android:id="@+id/text_date"
         android:layout_width="match_parent"
         android:layout_height="88dp"
-        android:text="DATA" />
+        android:text="DATA"
+        android:clickable="true" />
 
     <!-- Layout orizzontale per i grafici -->
     <LinearLayout
@@ -55,7 +56,7 @@
             android:layout_width="198dp"
             android:layout_height="match_parent"
             android:backgroundTint="#FFFFFF"
-            android:text="WALKING"
+            android:text="@string/text_walking"
             android:textColor="#000000" />
 
 
@@ -79,7 +80,7 @@
             android:layout_width="198dp"
             android:layout_height="match_parent"
             android:backgroundTint="#FFFFFF"
-            android:text="DRIVING"
+            android:text="@string/text_driving"
             android:textColor="#000000" />
 
 
@@ -104,7 +105,7 @@
             android:layout_width="198dp"
             android:layout_height="match_parent"
             android:backgroundTint="#FFFFFF"
-            android:text="STANDING"
+            android:text="@string/text_standing"
             android:textColor="#000000" />
 
 

@@ -157,8 +157,6 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     }
 
 
-    //TODO: Observe Step
-
 
     // Initialize buttons and set their click listeners
     private fun initializeButtons(root: ConstraintLayout) {
