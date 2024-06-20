@@ -1,191 +1,226 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:backgroundTint="#FEFEFE"
-    android:orientation="vertical">
+    android:backgroundTint="#FEFEFE">
 
-    <!-- Titolo DATA -->
-    <TextView
-        android:id="@+id/text_date"
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="34dp"
-        android:clickable="true"
-        android:fontFamily="@font/andika_new_basic"
-        android:text="DATA"
-        android:textAlignment="center"
-        android:textSize="20dp" />
+        android:layout_height="wrap_content">
 
-    <!-- Layout orizzontale per i grafici -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:orientation="horizontal">
-
-
-        <!-- Grafico a torta -->
-        <com.github.mikephil.charting.charts.PieChart
-            android:id="@+id/pie_chart"
-            android:layout_width="79dp"
-            android:layout_height="199dp"
-            android:layout_marginStart="8dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_margin="0dp"
-            android:layout_weight="1" />
-
-
-        <!-- LineChart -->
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/line_chart"
-            android:layout_width="78dp"
-            android:layout_height="202dp"
-            android:layout_margin="0dp"
-            android:layout_weight="1" />
-
-    </LinearLayout>
-
-    <!-- Legenda sotto il grafico a torta -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/pie_chart"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <!-- Prima riga della legenda -->
-        <LinearLayout
-            android:layout_width="match_parent"
+        <!-- Titolo DATA -->
+        <TextView
+            android:id="@+id/text_date"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/andika_new_basic"
+            android:text="DATA"
+            android:textAlignment="center"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!-- Layout orizzontale per i grafici -->
+        <LinearLayout
+            android:id="@+id/chart_layout"
+            android:layout_width="0dp"
+            android:layout_height="220dp"
             android:orientation="horizontal"
-            android:weightSum="2">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/text_date">
 
-            <TextView
+            <!-- Grafico a torta -->
+            <com.github.mikephil.charting.charts.PieChart
+                android:id="@+id/pie_chart"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:drawableLeft="@drawable/ic_circle"
-                android:drawableTint="@color/green_500"
-                android:gravity="center"
-                android:padding="4dp"
-                android:text="Walking"
-                android:textAlignment="center"
-                android:textColor="@color/black" />
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="4dp"
+                android:clickable="true"
+                android:focusable="true" />
 
-            <TextView
+            <!-- LineChart -->
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/line_chart"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_margin="3dp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:drawableLeft="@drawable/ic_circle"
-                android:drawableTint="@color/blue_500"
-                android:gravity="center"
-                android:padding="4dp"
-                android:text="Driving"
-                android:textAlignment="center"
-                android:textColor="@color/black" />
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="8dp" />
         </LinearLayout>
 
-        <!-- Seconda riga della legenda -->
+        <!-- Legenda sotto il grafico a torta -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/legend_layout"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:gravity="center"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/chart_layout"
+            app:layout_constraintVertical_bias="0.0">
 
-            <TextView
-                android:layout_width="0dp"
+            <!-- Prima riga della legenda -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:layout_weight="1"
-                android:drawableLeft="@drawable/ic_circle"
-                android:drawableTint="@color/red_500"
-                android:gravity="center"
-                android:padding="4dp"
-                android:text="Standing"
-                android:textAlignment="center"
-                android:textColor="@color/black" />
+                android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="0dp"
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/ic_circle"
+                    android:drawableTint="@color/green_500"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:text="Walking"
+                    android:textAlignment="center"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/ic_circle"
+                    android:drawableTint="@color/blue_500"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:text="Driving"
+                    android:textAlignment="center"
+                    android:textColor="@color/black" />
+            </LinearLayout>
+
+            <!-- Seconda riga della legenda -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="3dp"
-                android:layout_weight="1"
-                android:drawableLeft="@drawable/ic_circle"
-                android:drawableTint="@color/grey_500"
-                android:gravity="center"
-                android:padding="4dp"
-                android:text="Nothing"
-                android:textAlignment="center"
-                android:textColor="@color/black" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/ic_circle"
+                    android:drawableTint="@color/red_500"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:text="Standing"
+                    android:textAlignment="center"
+                    android:textColor="@color/black" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:drawableLeft="@drawable/ic_circle"
+                    android:drawableTint="@color/grey_500"
+                    android:gravity="center"
+                    android:padding="4dp"
+                    android:text="Nothing"
+                    android:textAlignment="center"
+                    android:textColor="@color/black" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
 
-    <!-- Layout verticale per icona e pulsante -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="105dp"
-        android:orientation="horizontal">
+        <!-- LinearLayout verticale per le icone -->
+        <LinearLayout
+            android:id="@+id/linear_layout_icons"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/legend_layout"
+            app:layout_constraintVertical_bias="0.0">
 
-        <ImageView
-            android:id="@+id/image_walking"
-            android:layout_width="113dp"
-            android:layout_height="105dp"
-            android:layout_gravity="center"
-            android:padding="16dp"
-            android:src="@drawable/icon_walking" />
+            <!-- Primo LinearLayout orizzontale -->
+            <LinearLayout
+                android:id="@+id/linear_layout_walking"
+                android:layout_width="match_parent"
+                android:layout_height="105dp"
+                android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button_walking"
-            android:layout_width="198dp"
-            android:layout_height="match_parent"
-            android:backgroundTint="#FFFFFF"
-            android:text="@string/text_walking"
-            android:textColor="#000000" />
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/image_walking"
+                    android:layout_width="113dp"
+                    android:layout_height="105dp"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:src="@drawable/icon_walking" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="105dp"
-        android:orientation="horizontal">
+                <Button
+                    android:id="@+id/button_walking"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:backgroundTint="#FFFFFF"
+                    android:text="Walking"
+                    android:textColor="#000000" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/image_driving"
-            android:layout_width="113dp"
-            android:layout_height="105dp"
-            android:layout_gravity="center"
-            android:padding="16dp"
-            android:src="@drawable/icon_driving" />
+            <!-- Secondo LinearLayout orizzontale -->
+            <LinearLayout
+                android:id="@+id/linear_layout_driving"
+                android:layout_width="match_parent"
+                android:layout_height="105dp"
+                android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button_driving"
-            android:layout_width="198dp"
-            android:layout_height="match_parent"
-            android:backgroundTint="#FFFFFF"
-            android:text="@string/text_driving"
-            android:textColor="#000000" />
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/image_driving"
+                    android:layout_width="113dp"
+                    android:layout_height="105dp"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:src="@drawable/icon_driving" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="105dp"
-        android:orientation="horizontal">
+                <Button
+                    android:id="@+id/button_driving"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:backgroundTint="#FFFFFF"
+                    android:text="Driving"
+                    android:textColor="#000000" />
+            </LinearLayout>
 
-        <ImageView
-            android:id="@+id/image_STANDING"
-            android:layout_width="113dp"
-            android:layout_height="105dp"
-            android:layout_gravity="center"
-            android:padding="16dp"
-            android:src="@drawable/icon_standing" />
+            <!-- Terzo LinearLayout orizzontale -->
+            <LinearLayout
+                android:id="@+id/linear_layout_standing"
+                android:layout_width="match_parent"
+                android:layout_height="105dp"
+                android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/button_standing"
-            android:layout_width="198dp"
-            android:layout_height="match_parent"
-            android:backgroundTint="#FFFFFF"
-            android:text="@string/text_standing"
-            android:textColor="#000000" />
-    </LinearLayout>
-</LinearLayout>
+                <ImageView
+                    android:id="@+id/image_STANDING"
+                    android:layout_width="113dp"
+                    android:layout_height="105dp"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:src="@drawable/icon_standing" />
+
+                <Button
+                    android:id="@+id/button_standing"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:backgroundTint="#FFFFFF"
+                    android:text="Standing"
+                    android:textColor="#000000" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

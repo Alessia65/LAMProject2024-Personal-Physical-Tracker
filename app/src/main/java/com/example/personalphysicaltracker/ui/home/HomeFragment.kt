@@ -336,9 +336,12 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Handle accelerometer data updates
     override fun onAccelerometerDataReceived(data: String) {
 
+        /*
         requireActivity().runOnUiThread {
             accelText.text = data
         }
+
+         */
 
         if (stepCounterWithAcc) {
             registerStep(data)
