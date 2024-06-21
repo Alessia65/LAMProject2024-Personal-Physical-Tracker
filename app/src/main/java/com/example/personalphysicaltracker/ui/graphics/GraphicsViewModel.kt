@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.PhysicalActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
@@ -94,6 +95,22 @@ class GraphicsViewModel : ViewModel() {
 
     fun obtainDatesForDialog(): Array<Float>{
         return sumsPieChart
+    }
+
+    fun handleSelectedDateRangeWalking(startDate: String, endDate: String): List<WalkingActivity> {
+        var walkingActivities: List<WalkingActivity> = emptyList()
+
+        // Filter activities based on selected date range
+        activitiesOnDb =  activitiesOnDb.filter {
+            it.date >= startDate && it.date <= endDate &&
+                    it.getActivityTypeName() == ActivityType.WALKING
+
+        }
+
+        // Applica tutti i filtri selezionati
+
+        walkingActivities = activitiesOnDb as List<WalkingActivity>
+        return walkingActivities
     }
 
     //TODO: caso in cui un'attività è a ridosso, la data viene inserita come data in cui finisce l'attività dovrei farla dividere giornalemnte
