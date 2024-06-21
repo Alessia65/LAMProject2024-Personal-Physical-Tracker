@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.databinding.FragmentGraphicsBinding
@@ -31,6 +33,10 @@ class GraphicsFragment : Fragment() {
 
     private lateinit var textDate: TextView
     private lateinit var pieChart: PieChart
+    private lateinit var buttonWalking: Button
+    private lateinit var buttonDriving: Button
+    private lateinit var buttonStanding: Button
+
 
     private lateinit var physicalActivities: List<PhysicalActivity>
     private var sumWalking = 0.0f
@@ -69,8 +75,19 @@ class GraphicsFragment : Fragment() {
         setupPieChart()
         showTodayPieChart(currentDate)
 
-    }
+        buttonWalking = root.findViewById(R.id.button_walking)
+        buttonWalking.setOnClickListener{
+            changeFragment()
 
+            }
+        }
+
+
+    private fun changeFragment() {
+        // Naviga verso ActivitiesDoneFragment utilizzando NavController
+        val navController = findNavController()
+        navController.navigate(R.id.walkingGraphicsFragment)
+    }
     private fun setupPieChart() {
         pieChart.setUsePercentValues(true)
         pieChart.description.isEnabled = false

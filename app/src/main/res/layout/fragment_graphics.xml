@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:backgroundTint="#FEFEFE">
+    android:backgroundTint="#FEFEFE"
+    android:id="@+id/fragment_graphics">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -26,8 +28,8 @@
         <!-- Layout orizzontale per i grafici -->
         <LinearLayout
             android:id="@+id/chart_layout"
-            android:layout_width="0dp"
-            android:layout_height="220dp"
+            android:layout_width="396dp"
+            android:layout_height="276dp"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -36,36 +38,33 @@
             <!-- Grafico a torta -->
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pie_chart"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_width="304dp"
+                android:layout_height="261dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="4dp"
+                android:layout_weight="1"
                 android:clickable="true"
                 android:focusable="true" />
 
             <!-- LineChart -->
-            <com.github.mikephil.charting.charts.LineChart
-                android:id="@+id/line_chart"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="8dp" />
         </LinearLayout>
 
         <!-- Legenda sotto il grafico a torta -->
+
+        <!-- LinearLayout verticale per le icone -->
+
         <LinearLayout
             android:id="@+id/legend_layout"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_width="417dp"
+            android:layout_height="78dp"
             android:gravity="center"
             android:orientation="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/chart_layout"
-            app:layout_constraintVertical_bias="0.0">
+            app:layout_constraintVertical_bias="0.033">
 
             <!-- Prima riga della legenda -->
             <LinearLayout
@@ -134,7 +133,6 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- LinearLayout verticale per le icone -->
         <LinearLayout
             android:id="@+id/linear_layout_icons"
             android:layout_width="0dp"
@@ -155,19 +153,20 @@
 
                 <ImageView
                     android:id="@+id/image_walking"
-                    android:layout_width="113dp"
-                    android:layout_height="105dp"
+                    android:layout_width="75dp"
+                    android:layout_height="62dp"
                     android:layout_gravity="center"
                     android:padding="16dp"
                     android:src="@drawable/icon_walking" />
 
                 <Button
                     android:id="@+id/button_walking"
-                    android:layout_width="0dp"
+                    android:layout_width="318dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:backgroundTint="#FFFFFF"
                     android:text="Walking"
+                    android:textAlignment="textStart"
                     android:textColor="#000000" />
             </LinearLayout>
 
@@ -180,8 +179,8 @@
 
                 <ImageView
                     android:id="@+id/image_driving"
-                    android:layout_width="113dp"
-                    android:layout_height="105dp"
+                    android:layout_width="72dp"
+                    android:layout_height="65dp"
                     android:layout_gravity="center"
                     android:padding="16dp"
                     android:src="@drawable/icon_driving" />
@@ -193,6 +192,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#FFFFFF"
                     android:text="Driving"
+                    android:textAlignment="textStart"
                     android:textColor="#000000" />
             </LinearLayout>
 
@@ -205,8 +205,8 @@
 
                 <ImageView
                     android:id="@+id/image_STANDING"
-                    android:layout_width="113dp"
-                    android:layout_height="105dp"
+                    android:layout_width="75dp"
+                    android:layout_height="73dp"
                     android:layout_gravity="center"
                     android:padding="16dp"
                     android:src="@drawable/icon_standing" />
@@ -218,6 +218,7 @@
                     android:layout_weight="1"
                     android:backgroundTint="#FFFFFF"
                     android:text="Standing"
+                    android:textAlignment="textStart"
                     android:textColor="#000000" />
             </LinearLayout>
         </LinearLayout>

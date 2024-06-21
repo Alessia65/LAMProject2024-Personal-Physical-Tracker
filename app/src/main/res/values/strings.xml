@@ -9,4 +9,5 @@
     <string name="text_driving">DRIVING</string>
     <string name="text_standing">STANDING</string>
     <string name="text_unknown">UNKNOWN</string>
+    <string name="title_walking_graphics">Walking</string>
 </resources>

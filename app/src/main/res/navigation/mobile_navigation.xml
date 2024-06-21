@@ -28,4 +28,10 @@
         android:name="com.example.personalphysicaltracker.ui.calendar.ActivitiesDoneFragment"
         android:label="@string/title_activities_done"
         tools:layout="@layout/fragment_activities_done" />
+
+    <fragment
+        android:id="@+id/walkingGraphicsFragment"
+        android:name="com.example.personalphysicaltracker.ui.graphics.WalkingGraphicsFragment"
+        android:label="@string/title_walking_graphics"
+        tools:layout="@layout/fragment_graphics_walking" />
 </navigation>
