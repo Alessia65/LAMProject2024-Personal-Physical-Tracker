@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.graphics
+package com.example.personalphysicaltracker.ui.charts
 
 import android.graphics.Color
 import android.os.Bundle
@@ -14,7 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
-import com.example.personalphysicaltracker.databinding.FragmentGraphicsBinding
+import com.example.personalphysicaltracker.databinding.FragmentChartsBinding
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.PercentFormatter
@@ -25,11 +25,11 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class GraphicsFragment : Fragment() {
+class ChartsFragment : Fragment() {
 
-    private var _binding: FragmentGraphicsBinding? = null
+    private var _binding: FragmentChartsBinding? = null
     private val binding get() = _binding!!
-    private lateinit var graphicsViewModel: GraphicsViewModel
+    private lateinit var chartsViewModel: ChartsViewModel
 
     private lateinit var textDate: TextView
     private lateinit var pieChart: PieChart
@@ -49,10 +49,10 @@ class GraphicsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        graphicsViewModel = ViewModelProvider(requireActivity()).get(GraphicsViewModel::class.java)
-        graphicsViewModel.initializeActivityViewModel(this.activity, this)
+        chartsViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
+        chartsViewModel.initializeActivityViewModel(this.activity, this)
 
-        _binding = FragmentGraphicsBinding.inflate(inflater, container, false)
+        _binding = FragmentChartsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         initializeViews(root)
@@ -86,7 +86,7 @@ class GraphicsFragment : Fragment() {
     private fun changeFragment() {
         // Naviga verso ActivitiesDoneFragment utilizzando NavController
         val navController = findNavController()
-        navController.navigate(R.id.walkingGraphicsFragment)
+        navController.navigate(R.id.walkingChartsFragment)
     }
     private fun setupPieChart() {
         pieChart.setUsePercentValues(true)
@@ -120,7 +120,7 @@ class GraphicsFragment : Fragment() {
 
             override fun onChartSingleTapped(me: MotionEvent?) {
                 // Mostra il dialog del PieChart
-                graphicsViewModel.saveDatesForDialog(sumsPieChart)
+                chartsViewModel.saveDatesForDialog(sumsPieChart)
                 val dialog = PieChartDialogFragment()
                 dialog.show(parentFragmentManager, "PieChartDialogFragment")
             }
@@ -164,10 +164,10 @@ class GraphicsFragment : Fragment() {
             val startDate = it.first
             val endDate = it.second
             if (startDate != null && endDate != null) {
-                val formattedStartDate = graphicsViewModel.convertTimeToDate(startDate)
-                val formattedEndDate = graphicsViewModel.convertTimeToDate(endDate)
+                val formattedStartDate = chartsViewModel.convertTimeToDate(startDate)
+                val formattedEndDate = chartsViewModel.convertTimeToDate(endDate)
                 Log.d("DATE_RANGE_SELECTED", "$formattedStartDate - $formattedEndDate")
-                val daysNumber = graphicsViewModel.calculateRange(formattedStartDate, formattedEndDate)
+                val daysNumber = chartsViewModel.calculateRange(formattedStartDate, formattedEndDate)
                 Log.d("NUMBER_OF_DAYS", "Number of days selected: $daysNumber")
 
                 setTextDay(formattedStartDate,formattedEndDate)
@@ -193,11 +193,11 @@ class GraphicsFragment : Fragment() {
     }
 
     private fun updateActivitiesInRange(formattedStartDate: String, formattedEndDate: String) {
-        physicalActivities = graphicsViewModel.sendActivitiesInRange(formattedStartDate, formattedEndDate)
+        physicalActivities = chartsViewModel.sendActivitiesInRange(formattedStartDate, formattedEndDate)
     }
 
     private fun sumDurations() {
-        val sums = graphicsViewModel.sumDurationOf(physicalActivities)
+        val sums = chartsViewModel.sumDurationOf(physicalActivities)
         sumWalking = sums[0].toFloat()
         sumDriving = sums[1].toFloat()
         sumStanding = sums[2].toFloat()

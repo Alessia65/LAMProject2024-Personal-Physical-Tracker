@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.graphics
+package com.example.personalphysicaltracker.ui.charts
 
 import android.graphics.Color
 import android.os.Bundle
@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.databinding.DialogPieChartBinding
-import com.example.personalphysicaltracker.ui.calendar.CalendarViewModel
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
@@ -20,7 +19,7 @@ class PieChartDialogFragment : DialogFragment() {
     private val binding get() = _binding!!
 
     private lateinit var pieChart: PieChart
-    private lateinit var graphicsViewModel: GraphicsViewModel
+    private lateinit var chartsViewModel: ChartsViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,7 +28,7 @@ class PieChartDialogFragment : DialogFragment() {
         _binding = DialogPieChartBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        graphicsViewModel = ViewModelProvider(requireActivity()).get(GraphicsViewModel::class.java)
+        chartsViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
 
         pieChart = binding.dialogPieChart
         setupPieChart()
@@ -52,7 +51,7 @@ class PieChartDialogFragment : DialogFragment() {
     private fun setupPieChart() {
         // Popola il PieChart con i dati desiderati
         val entries = ArrayList<PieEntry>()
-        val dates = graphicsViewModel.obtainDatesForDialog()
+        val dates = chartsViewModel.obtainDatesForDialog()
 
         entries.add(PieEntry(dates[0], "Walking"))
         entries.add(PieEntry(dates[1], "Driving"))

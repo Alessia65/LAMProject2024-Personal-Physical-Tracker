@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="#FEFEFE"
-    android:id="@+id/fragment_graphics">
+    android:id="@+id/fragment_charts">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.graphics
+package com.example.personalphysicaltracker.ui.charts
 
 import android.os.Bundle
 import android.util.Log
@@ -6,30 +6,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.WalkingActivity
-import com.example.personalphysicaltracker.databinding.FragmentGraphicsWalkingBinding
+import com.example.personalphysicaltracker.databinding.FragmentChartsWalkingBinding
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
-import javax.xml.datatype.DatatypeConstants.MONTHS
 
 
-class WalkingGraphicsFragment : Fragment() {
+class WalkingChartsFragment : Fragment() {
 
-    private var _binding: FragmentGraphicsWalkingBinding? = null
+    private var _binding: FragmentChartsWalkingBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var selectDay: TextView
     private lateinit var textRange: TextView
 
-    private lateinit var graphicsViewModel: GraphicsViewModel
+    private lateinit var chartViewModel: ChartsViewModel
     private var walkingActivitiesToShow: List<WalkingActivity> = emptyList()
 
 
@@ -38,10 +34,10 @@ class WalkingGraphicsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        _binding = FragmentGraphicsWalkingBinding.inflate(inflater, container, false)
+        _binding = FragmentChartsWalkingBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        graphicsViewModel = ViewModelProvider(requireActivity()).get(GraphicsViewModel::class.java)
+        chartViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
 
 
         initializeViews()
@@ -86,7 +82,7 @@ class WalkingGraphicsFragment : Fragment() {
 
                 //Log.d("DATE_RANGE_SELECTED", "$formattedStartDate - $formattedEndDate")
 
-                walkingActivitiesToShow = graphicsViewModel.handleSelectedDateRangeWalking(startFormattedDate, endDate)
+                walkingActivitiesToShow = chartViewModel.handleSelectedDateRangeWalking(startFormattedDate, endDate)
 
                 for (w in walkingActivitiesToShow){
                     Log.d("WA", w.getActivityTypeName().toString() + " , " + w.date + " , " + w.duration + " , " + w.getSteps())

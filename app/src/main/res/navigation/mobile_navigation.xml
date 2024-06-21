@@ -18,10 +18,10 @@
         tools:layout="@layout/fragment_calendar" />
 
     <fragment
-        android:id="@+id/navigation_graphics"
-        android:name="com.example.personalphysicaltracker.ui.graphics.GraphicsFragment"
-        android:label="@string/title_graphics"
-        tools:layout="@layout/fragment_graphics" />
+        android:id="@+id/navigation_charts"
+        android:name="com.example.personalphysicaltracker.ui.charts.ChartsFragment"
+        android:label="@string/title_charts"
+        tools:layout="@layout/fragment_charts" />
 
     <fragment
         android:id="@+id/activitiesDoneFragment"
@@ -30,8 +30,8 @@
         tools:layout="@layout/fragment_activities_done" />
 
     <fragment
-        android:id="@+id/walkingGraphicsFragment"
-        android:name="com.example.personalphysicaltracker.ui.graphics.WalkingGraphicsFragment"
-        android:label="@string/title_walking_graphics"
-        tools:layout="@layout/fragment_graphics_walking" />
+        android:id="@+id/walkingChartsFragment"
+        android:name="com.example.personalphysicaltracker.ui.charts.WalkingChartsFragment"
+        android:label="@string/title_walking_charts"
+        tools:layout="@layout/fragment_charts_walking" />
 </navigation>

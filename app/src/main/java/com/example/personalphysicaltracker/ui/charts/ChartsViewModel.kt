@@ -1,9 +1,7 @@
-package com.example.personalphysicaltracker.ui.graphics
+package com.example.personalphysicaltracker.ui.charts
 
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
@@ -21,7 +19,7 @@ import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
 
-class GraphicsViewModel : ViewModel() {
+class ChartsViewModel : ViewModel() {
 
     private lateinit var activityViewModel: ActivityViewModel
 

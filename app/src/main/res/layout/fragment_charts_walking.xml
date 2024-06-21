@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.graphics.WalkingGraphicsFragment"
-    android:id="@+id/fragment_graphics_walking">
+    tools:context=".ui.charts.WalkingChartsFragment"
+    android:id="@+id/fragment_charts_walking">
 
 
 
