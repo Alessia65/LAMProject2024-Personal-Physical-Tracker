@@ -2,6 +2,7 @@ package com.example.personalphysicaltracker.ui.charts
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,6 +25,7 @@ class WalkingChartsFragment : Fragment() {
     private lateinit var selectDay: TextView
     private lateinit var selectWeek: TextView
     private lateinit var selectMonth: TextView
+    private lateinit var selectYear: TextView
     private lateinit var textRange: TextView
     private lateinit var barChart: BarChart
     private var walkingActivitiesToShow: List<WalkingActivity> = emptyList()
@@ -62,7 +64,34 @@ class WalkingChartsFragment : Fragment() {
             showMonthPickerDialog()
         }
 
+        selectYear = binding.root.findViewById(R.id.select_year)
+        selectYear.setOnClickListener {
+            showYearDialog()
+        }
+
         barChart = binding.root.findViewById(R.id.barChart)
+    }
+
+    private fun showYearDialog() {
+        val years = chartViewModel.getYearsToShow()
+
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setTitle("Pick a year")
+            .setItems(years) { dialog, item ->
+                val selectedYear = years[item]
+
+                textRange.text = selectedYear
+
+                walkingActivitiesToShow = chartViewModel.handleSelectedYear(selectedYear, ActivityType.WALKING) as List<WalkingActivity>
+                for (w in walkingActivitiesToShow){
+                    Log.d("OK", w.date + ", " + w.getActivityTypeName().toString() + ", " + w.duration)
+                }
+                barChart = chartViewModel.showYearActivities(walkingActivitiesToShow, barChart)
+                barChart.invalidate()
+            }
+
+        val alert: AlertDialog = builder.create()
+        alert.show()
     }
 
     private fun showMonthPickerDialog() {

@@ -9,7 +9,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.PhysicalActivity
-import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
@@ -42,6 +41,7 @@ class ChartsViewModel : ViewModel() {
     private var numberMonth: Int = -1
     private var numberMonthString: String = ""
     private var days = 0
+    private var currentYear = Calendar.getInstance().get(Calendar.YEAR)
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
 
@@ -197,7 +197,7 @@ class ChartsViewModel : ViewModel() {
 
         barChart.description.text = "Daily Hours"
 
-        return configureBarChart(barChart, barData, emptyArray(), false, false)
+        return configureBarChart(barChart, barData, emptyArray(), false, false, false)
 
     }
 
@@ -230,7 +230,7 @@ class ChartsViewModel : ViewModel() {
 
         barChart.description.text = "Daily Hours in Week"
 
-        return configureBarChart(barChart, barData, referenceDates, true, false)
+        return configureBarChart(barChart, barData, referenceDates, true, false, false)
 
 
     }
@@ -240,7 +240,8 @@ class ChartsViewModel : ViewModel() {
         barData: BarData,
         referenceDates: Array<String>,
         isWeeklyChart: Boolean,
-        isMonthChart: Boolean
+        isMonthChart: Boolean,
+        isYearChart: Boolean
     ) : BarChart {
 
         // Configure BarChart
@@ -269,7 +270,13 @@ class ChartsViewModel : ViewModel() {
                 }
 
                 valueFormatter =
-                    IndexAxisValueFormatter(dates ?: arrayOf()) // Set day names as X axis labels
+                    IndexAxisValueFormatter(dates ?: arrayOf())
+
+            } else if (isYearChart){
+                val months = Array(12) { (it+1).toString() }
+
+                valueFormatter =
+                    IndexAxisValueFormatter(months ?: arrayOf())
 
             }
             position = XAxis.XAxisPosition.BOTTOM
@@ -369,9 +376,56 @@ class ChartsViewModel : ViewModel() {
         val barData = configureBarData(entries)
 
         barChart.description.text = "Daily Hours in Month"
-        return configureBarChart(barChart, barData, referenceDates, false, true)
+        return configureBarChart(barChart, barData, referenceDates, false, true, false)
     }
 
+    fun getYearsToShow(): Array<String> {
+        val yearsToShow = (currentYear downTo currentYear - 9).map { it.toString() }.toTypedArray()
+        return yearsToShow
+    }
+
+
+
+
+    fun handleSelectedYear(selectedYear: String, activityType: ActivityType): List<PhysicalActivity> {
+        Log.d("PROVA", activitiesOnDb.get(0).date.substring(0,4) + ", " + selectedYear)
+
+        val physicalActivities = activitiesOnDb.filter { activity ->
+            activity.date.substring(0,4) == selectedYear &&
+                    activity.getActivityTypeName() == activityType
+        }
+        return physicalActivities
+    }
+
+    fun showYearActivities(activitiesToShow: List<PhysicalActivity>, barChart: BarChart): BarChart {
+        val entries = ArrayList<BarEntry>()
+
+        val sums = Array(12) { 0.0 }
+
+        // Calculate sums per day
+        for (activities in activitiesToShow) {
+            val durationInHour = activities.duration / 3600.0
+            for (i in 1 until 13) {
+                var currentMonth = i.toString()
+                if (i <= 9){
+                    currentMonth = "0" + i
+                }
+                if (activities.date.substring(0, 4) == currentYear.toString() && activities.date.substring(5,7) == currentMonth) {
+                    sums[i-1] += durationInHour
+                }
+            }
+        }
+
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
+
+        val barData = configureBarData(entries)
+
+        barChart.description.text = "Month Hours in Year"
+        return configureBarChart(barChart, barData, emptyArray(), false, false, true)
+    }
 
     //TODO: caso in cui un'attività è a ridosso, la data viene inserita come data in cui finisce l'attività dovrei farla dividere giornalemnte
 }
