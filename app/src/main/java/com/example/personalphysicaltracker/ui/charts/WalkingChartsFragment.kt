@@ -126,6 +126,17 @@ class WalkingChartsFragment : Fragment() {
         }
 
         // Create BarDataSet and configure
+
+        val barData = configureBarData(entries)
+
+        barChart.description.text = "Hours of walking"
+
+        configureBarChart(barChart, barData)
+
+
+    }
+
+    private fun configureBarData(entries: ArrayList<BarEntry>): BarData {
         val barDataSet = BarDataSet(entries, "")
         barDataSet.color = ColorTemplate.MATERIAL_COLORS[0]
         barDataSet.valueTextColor = Color.BLACK
@@ -137,10 +148,14 @@ class WalkingChartsFragment : Fragment() {
         barData.barWidth = 1.1f // Width of individual bars
         barData.isHighlightEnabled = false // Disable bar highlights
 
+        return barData
+    }
+
+    private fun configureBarChart(barChart: BarChart, barData: BarData) {
+
         // Configure BarChart
         barChart.setFitBars(true)
         barChart.data = barData
-        barChart.description.text = "Hours of walking"
 
         // Animate BarChart
         barChart.animateY(2000)
