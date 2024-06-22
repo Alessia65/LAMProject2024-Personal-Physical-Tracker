@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.ui.charts
 
+import android.graphics.Color
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
@@ -12,10 +13,18 @@ import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
+import com.github.mikephil.charting.charts.BarChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.github.mikephil.charting.utils.ColorTemplate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 
@@ -25,6 +34,15 @@ class ChartsViewModel : ViewModel() {
 
     var activitiesOnDb: List<PhysicalActivity> = emptyList() //Da non modificare
     var sumsPieChart: Array<Float> = emptyArray()
+    private lateinit var startDate: String
+    private lateinit var startSelectedDate: Date
+    private lateinit var endDate: String
+    private lateinit var actualType: String
+    private lateinit var calendar: Calendar
+    private var numberMonth: Int = -1
+    private var numberMonthString: String = ""
+    private var days = 0
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
 
     fun initializeActivityViewModel(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner) {
@@ -93,34 +111,265 @@ class ChartsViewModel : ViewModel() {
         return sumsPieChart
     }
 
-    fun handleSelectedDateRangeWalking(startDate: String, endDate: String): List<WalkingActivity> {
+    fun handleSelectedDateRange(activityType: ActivityType): List<PhysicalActivity> {
         // Filtra le attività in base all'intervallo di date selezionato
-        val walkingActivities = activitiesOnDb.filter { activity ->
-            activity.date >= startDate && activity.date <= endDate &&
-                    activity.getActivityTypeName() == ActivityType.WALKING
+        val physicalActivities = activitiesOnDb.filter { activity ->
+            activity.date >= startDate.toString() && activity.date <= endDate &&
+                    activity.getActivityTypeName() == activityType
         }
 
 
-        return walkingActivities as List<WalkingActivity>
+        return physicalActivities
     }
 
-    fun handleSelectedMonthWalking(numberMonth: Int): List<WalkingActivity> {
+    fun handleSelectedMonth(activityType: ActivityType): List<PhysicalActivity> {
         var month = if (numberMonth <= 9){
             "0" + numberMonth
         } else {
             numberMonth.toString()
         }
 
-        val walkingActivities = activitiesOnDb.filter { activity ->
+        val physicalActivities = activitiesOnDb.filter { activity ->
             activity.date.substring(5,7) == month &&
-                    activity.getActivityTypeName() == ActivityType.WALKING
+                    activity.getActivityTypeName() == activityType
         }
 
+        return physicalActivities
 
-        return walkingActivities as List<WalkingActivity>
+    }
+
+    fun printDate(startSelectedDate: Date, type: String): String{
+        startDate = ""
+        endDate = ""
+        actualType = type
+        this.startSelectedDate = startSelectedDate
+
+        calendar = Calendar.getInstance()
+        calendar.time = startSelectedDate
+
+        val startFormattedDate = sdf.format(startSelectedDate)
+        startDate = startFormattedDate
+
+        if (type == "DAY") {
+            endDate = startFormattedDate
+            return startFormattedDate
+        } else  { // if (type == "WEEK")
+            calendar.add(Calendar.DAY_OF_MONTH, 6) // Add 6 days
+            endDate = sdf.format(calendar.time)
+            return "$startFormattedDate / $endDate"
+        }
+
+    }
+
+    fun showActivities(activitiesToShow: List<PhysicalActivity>, barChart: BarChart): BarChart {
+
+        if (actualType == "DAY"){
+            return showDailyActivities(activitiesToShow, barChart)
+        } else{ // if (actualType == "WEEK")
+            return showWeeklyActivities(activitiesToShow, barChart)
+        }
+    }
+
+    private fun showDailyActivities(
+        activitiesToShow: List<PhysicalActivity>,
+        barChart: BarChart
+    ): BarChart {
+        val entries = ArrayList<BarEntry>()
+        val sums = Array(24) { 0.0 }
+
+        // Calculate sums per hour
+        for (activities in activitiesToShow) {
+            val hourStart = activities.start.substring(11, 13).toInt()
+            val hourEnd = activities.end.substring(11, 13).toInt()
+            val durationInHour = activities.duration / 3600.0
+
+            for (i in hourStart until hourEnd) {
+                sums[i] += durationInHour
+            }
+        }
+
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
+
+        val barData = configureBarData(entries)
+
+        barChart.description.text = "Daily Hours"
+
+        return configureBarChart(barChart, barData, emptyArray(), false, false)
+
+    }
+
+
+    private fun showWeeklyActivities(
+        activitiesToShow: List<PhysicalActivity>,
+        barChart: BarChart
+    ) : BarChart{
+        var referenceDates = getWeeklyDates()
+
+        val entries = ArrayList<BarEntry>()
+        val sums = Array(7) { 0.0 }
+
+        // Calculate sums per day
+        for (activities in activitiesToShow) {
+            val durationInHour = activities.duration / 3600.0
+            for (i in 0 until referenceDates.size) {
+                if (activities.date == referenceDates[i]) {
+                    sums[i] += durationInHour
+                }
+            }
+        }
+
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
+
+        val barData = configureBarData(entries)
+
+        barChart.description.text = "Daily Hours in Week"
+
+        return configureBarChart(barChart, barData, referenceDates, true, false)
+
+
+    }
+
+    private fun configureBarChart(
+        barChart: BarChart,
+        barData: BarData,
+        referenceDates: Array<String>,
+        isWeeklyChart: Boolean,
+        isMonthChart: Boolean
+    ) : BarChart {
+
+        // Configure BarChart
+        barChart.setFitBars(true)
+        barChart.data = barData
+
+        // Animate BarChart
+        barChart.animateY(2000)
+
+        // Configure X axis
+        barChart.xAxis.apply {
+            setDrawAxisLine(false) // Disable X axis line
+            setDrawGridLines(false) // Disable X axis grid lines
+            if (isMonthChart || isWeeklyChart) {
+                lateinit var dates: Array<String>
+                if (isWeeklyChart) { // Weekly view
+                    dates = Array(7) { "" }
+                    for (i in 0 until referenceDates.size) {
+                        dates[i] = referenceDates[i].substring(6)
+                    }
+                } else { // Monthly view
+                    dates = Array(referenceDates.size) { "" }
+                    for (i in 0 until referenceDates.size) {
+                        dates[i] = referenceDates[i]
+                    }
+                }
+
+                valueFormatter =
+                    IndexAxisValueFormatter(dates ?: arrayOf()) // Set day names as X axis labels
+
+            }
+            position = XAxis.XAxisPosition.BOTTOM
+        }
+
+        // Configure left Y axis
+        barChart.axisLeft.apply {
+            setDrawAxisLine(false) // Disable left Y axis line
+            setDrawGridLines(false) // Disable left Y axis grid lines
+        }
+
+        // Configure right Y axis
+        barChart.axisRight.apply {
+            setDrawAxisLine(false) // Disable right Y axis line
+            setDrawGridLines(false) // Disable right Y axis grid lines
+        }
+
+        return barChart
+    }
+
+    private fun configureBarData(entries: ArrayList<BarEntry>): BarData {
+        val barDataSet = BarDataSet(entries, "")
+        barDataSet.color = ColorTemplate.MATERIAL_COLORS[0]
+        barDataSet.valueTextColor = Color.BLACK
+        barDataSet.barBorderWidth = 0f
+        barDataSet.setDrawValues(false) // Disable values above bars
+
+        // Create BarData and configure
+        val barData = BarData(barDataSet)
+        barData.barWidth = 1.1f // Width of individual bars
+        barData.isHighlightEnabled = false // Disable bar highlights
+
+        return barData
+    }
+
+    private fun getWeeklyDates(): Array<String> {
+        calendar.time = startSelectedDate
+        var referenceDates = Array(7) {
+            val currentDate = calendar.time
+            val formattedDate = sdf.format(currentDate)
+            calendar.add(Calendar.DAY_OF_MONTH, 1) // Add one day for next iteration
+            formattedDate
+        }
+        return referenceDates
+    }
 
 
 
+    fun setMonthDates(month: String, numberSendMonth: Int) {
+        // Get current year
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
+        days = 0
+        when (numberSendMonth) {
+            4, 6, 9, 11 -> days = 30 // 30 days: April, June, September, November
+            2 -> days = if (isLeapYear(currentYear)) 29 else 28 // 28 or 29 days: February
+            else -> days = 31 // 31 days: others
+        }
+        numberMonthString = ""
+
+        if (numberSendMonth <= 9) {
+            numberMonthString = "0" + numberSendMonth.toString()
+        }
+        this.numberMonth = numberSendMonth
+
+    }
+
+    fun isLeapYear(year: Int): Boolean {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+    }
+
+    fun showMonthActivities(activitiesToShow: List<PhysicalActivity>, barChart: BarChart): BarChart {
+        val entries = ArrayList<BarEntry>()
+
+        val sums = Array(days) { 0.0 }
+        val referenceDates = Array(days) { i ->
+            if (i <= 8) {
+                "0" + (i + 1)
+            } else (i + 1).toString()
+        }
+
+        // Calculate sums per day
+        for (activities in activitiesToShow) {
+            val durationInHour = activities.duration / 3600.0
+            for (i in 0 until days) {
+                if (activities.date.substring(5, 7) == numberMonthString && activities.date.substring(8) == i.toString()) {
+                    sums[i] += durationInHour
+                }
+            }
+        }
+
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
+
+        val barData = configureBarData(entries)
+
+        barChart.description.text = "Daily Hours in Month"
+        return configureBarChart(barChart, barData, referenceDates, false, true)
     }
 
 
