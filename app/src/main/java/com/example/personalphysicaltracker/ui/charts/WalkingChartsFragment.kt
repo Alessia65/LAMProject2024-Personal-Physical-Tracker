@@ -26,7 +26,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-
 class WalkingChartsFragment : Fragment() {
 
     private var _binding: FragmentChartsWalkingBinding? = null
@@ -86,7 +85,7 @@ class WalkingChartsFragment : Fragment() {
         builder.setTitle("Pick a month")
             .setItems(monthNames) { dialog, item ->
                 val selectedMonth = monthNames[item]
-                val selectedMonthPosition = item + 1 // Numero del mese
+                val selectedMonthPosition = item + 1 // Month number
 
                 updateDataForSelectedMonth(selectedMonth, selectedMonthPosition)
             }
@@ -95,69 +94,62 @@ class WalkingChartsFragment : Fragment() {
         alert.show()
     }
 
-    // Funzione per verificare se un anno è bisestile
-    fun isLeapYear(year: Int): Boolean { //Modo piu semplice con oggetto "Year" ma non adatto per l'API
-        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0) //Un anno è bisestile se è divisibile per 4. Tuttavia, se è divisibile per 100, non è un anno bisestile, a meno che non sia anche divisibile per 400.
+    // Function to check if a year is a leap year
+    fun isLeapYear(year: Int): Boolean {
+        return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
     }
 
     private fun updateDataForSelectedMonth(month: String, numberMonth: Int) {
-        ////Log.d("VALUES", "month: $month, number: $numberMonth")
         walkingActivitiesToShow = chartViewModel.handleSelectedMonthWalking(numberMonth)
         textRange.text = month
 
-        // Ottieni l'anno corrente
+        // Get current year
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
 
         var days = 0
         when (numberMonth) {
-            4, 6, 9, 11 -> days = 30 // 30 giorni: novembre, aprile, giugno, settembre
-            2 -> days = if (isLeapYear(currentYear)) 29 else 28 // 28 o 29 giorni: febbraio
-            else -> days = 31 // 31 giorni: altri
+            4, 6, 9, 11 -> days = 30 // 30 days: April, June, September, November
+            2 -> days = if (isLeapYear(currentYear)) 29 else 28 // 28 or 29 days: February
+            else -> days = 31 // 31 days: others
         }
         var numberMonthString = ""
-        if (numberMonth <= 9 ){
+        if (numberMonth <= 9) {
             numberMonthString = "0" + numberMonth.toString()
         }
 
-        showMonthActivies(days, numberMonthString)
+        showMonthActivities(days, numberMonthString)
     }
 
 
-    private fun showMonthActivies(days: Int, numberMonth: String) {
+    private fun showMonthActivities(days: Int, numberMonth: String) {
         val entries = ArrayList<BarEntry>()
 
         val sums = Array(days) { 0.0 }
-        val referenceDates = Array(days) { i -> if (i <= 8) { "0" + (i + 1) } else (i + 1).toString() }
-
+        val referenceDates = Array(days) { i ->
+            if (i <= 8) {
+                "0" + (i + 1)
+            } else (i + 1).toString()
+        }
 
         // Calculate sums per day
         for (w in walkingActivitiesToShow) {
-
             val durationInHour = w.duration / 3600.0
             for (i in 0 until days) {
-                if (w.date.substring(5, 7) == numberMonth) {
-                    if (w.date.substring(8) == i.toString()) {
-                        sums[i] += durationInHour
-                    }
-
+                if (w.date.substring(5, 7) == numberMonth && w.date.substring(8) == i.toString()) {
+                    sums[i] += durationInHour
                 }
             }
-
-            //Log.d("WA MONTH", "start: ${w.start}, end: ${w.end}, duration: ${w.duration}")
         }
-            // Create BarEntry objects
-            for (i in sums.indices) {
-                entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
-            }
 
-            val barData = configureBarData(entries)
-            for (e in entries){
-                Log.d("ENTRIES MONTH", "entries: " + e)
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
 
-            }
+        val barData = configureBarData(entries)
 
-            barChart.description.text = "Hours of walking"
-            configureBarChart(barChart, barData, referenceDates, false, true)
+        barChart.description.text = "Daily Hours in Month"
+        configureBarChart(barChart, barData, referenceDates, false, true)
 
     }
 
@@ -186,7 +178,7 @@ class WalkingChartsFragment : Fragment() {
                 endDate = startFormattedDate
                 textRange.text = startFormattedDate
             } else if (type == "WEEK") {
-                calendar.add(Calendar.DAY_OF_MONTH, 6) // Aggiunge 6 giorni
+                calendar.add(Calendar.DAY_OF_MONTH, 6) // Add 6 days
                 endDate = sdf.format(calendar.time)
                 textRange.text = "$startFormattedDate / $endDate"
             }
@@ -195,9 +187,6 @@ class WalkingChartsFragment : Fragment() {
                 walkingActivitiesToShow =
                     chartViewModel.handleSelectedDateRangeWalking(startFormattedDate, endDate)
 
-                for (w in walkingActivitiesToShow){
-                    //Log.d("VALUES IN RANGE", w.date + ", " + w.duration + ", " +  w.getActivityTypeName().toString())
-                }
                 if (type == "DAY") {
                     showsDailyActivities()
                 } else if (type == "WEEK") {
@@ -206,13 +195,10 @@ class WalkingChartsFragment : Fragment() {
                     var referenceDates = Array(7) {
                         val currentDate = calendar.time
                         val formattedDate = sdf.format(currentDate)
-                        calendar.add(Calendar.DAY_OF_MONTH, 1) // Aggiungi un giorno per la prossima iterazione
-                        formattedDate // Restituisce la data formattata
+                        calendar.add(Calendar.DAY_OF_MONTH, 1) // Add one day for next iteration
+                        formattedDate
                     }
 
-                    for (date in referenceDates) {
-                        //Log.d("DATES", date)
-                    }
                     showsWeeklyActivities(referenceDates)
                 }
             }
@@ -227,33 +213,27 @@ class WalkingChartsFragment : Fragment() {
         val entries = ArrayList<BarEntry>()
         val sums = Array(7) { 0.0 }
 
-            // Calculate sums per day
-            for (w in walkingActivitiesToShow) {
-
-                val durationInHour = w.duration / 3600.0
-                for (i in 0 until referenceDates.size) {
-                    if (w.date == referenceDates[i]) {
-                        sums[i] += durationInHour
-                    }
+        // Calculate sums per day
+        for (w in walkingActivitiesToShow) {
+            val durationInHour = w.duration / 3600.0
+            for (i in 0 until referenceDates.size) {
+                if (w.date == referenceDates[i]) {
+                    sums[i] += durationInHour
                 }
             }
-                //Log.d("WA WEEK", "start: ${w.start}, end: ${w.end}, duration: ${w.duration}")
+        }
 
-                // Create BarEntry objects
-                for (i in sums.indices) {
-                    entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
-                }
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
 
-                val barData = configureBarData(entries)
-                for (e in entries) {
-                    Log.d("ENTRIES WEEK", "entries: " + e)
+        val barData = configureBarData(entries)
 
-                }
-                barChart.description.text = "Hours of walking"
-                configureBarChart(barChart, barData, referenceDates, true, false)
-            }
+        barChart.description.text = "Daily Hours in Week"
 
-
+        configureBarChart(barChart, barData, referenceDates, true, false)
+    }
 
     // Show daily activities in bar chart
     private fun showsDailyActivities() {
@@ -269,7 +249,6 @@ class WalkingChartsFragment : Fragment() {
             for (i in hourStart until hourEnd) {
                 sums[i] += durationInHour
             }
-            //Log.d("WA", "start: ${w.start}, end: ${w.end}, duration: ${w.duration}")
         }
 
         // Create BarEntry objects
@@ -277,16 +256,14 @@ class WalkingChartsFragment : Fragment() {
             entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
         }
 
-        // Create BarDataSet and configure
-
         val barData = configureBarData(entries)
 
-        barChart.description.text = "Hours of walking"
+        barChart.description.text = "Daily Hours"
 
         configureBarChart(barChart, barData, emptyArray(), false, false)
 
-
     }
+
     private fun configureBarData(entries: ArrayList<BarEntry>): BarData {
         val barDataSet = BarDataSet(entries, "")
         barDataSet.color = ColorTemplate.MATERIAL_COLORS[0]
@@ -302,7 +279,13 @@ class WalkingChartsFragment : Fragment() {
         return barData
     }
 
-    private fun configureBarChart(barChart: BarChart, barData: BarData, referenceDates: Array<String>, isWeeklyChart: Boolean, isMonthChart: Boolean) {
+    private fun configureBarChart(
+        barChart: BarChart,
+        barData: BarData,
+        referenceDates: Array<String>,
+        isWeeklyChart: Boolean,
+        isMonthChart: Boolean
+    ) {
 
         // Configure BarChart
         barChart.setFitBars(true)
@@ -315,21 +298,22 @@ class WalkingChartsFragment : Fragment() {
         barChart.xAxis.apply {
             setDrawAxisLine(false) // Disable X axis line
             setDrawGridLines(false) // Disable X axis grid lines
-            if (isMonthChart || isWeeklyChart){
+            if (isMonthChart || isWeeklyChart) {
                 lateinit var dates: Array<String>
-                if (isWeeklyChart){ //Visualizzazione settimanale
+                if (isWeeklyChart) { // Weekly view
                     dates = Array(7) { "" }
-                    for (i in 0 until referenceDates.size){
+                    for (i in 0 until referenceDates.size) {
                         dates[i] = referenceDates[i].substring(6)
                     }
-                } else { //Visualizzazione mensile
+                } else { // Monthly view
                     dates = Array(referenceDates.size) { "" }
-                    for (i in 0 until referenceDates.size){
+                    for (i in 0 until referenceDates.size) {
                         dates[i] = referenceDates[i]
                     }
                 }
 
-                valueFormatter = IndexAxisValueFormatter(dates ?: arrayOf()) // Set day names as X axis labels
+                valueFormatter =
+                    IndexAxisValueFormatter(dates ?: arrayOf()) // Set day names as X axis labels
 
             }
             position = XAxis.XAxisPosition.BOTTOM
@@ -347,8 +331,6 @@ class WalkingChartsFragment : Fragment() {
             setDrawGridLines(false) // Disable right Y axis grid lines
         }
     }
-
-
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -86,9 +86,7 @@ class ChartsViewModel : ViewModel() {
 
     fun saveDatesForDialog(sums: Array<Float>){
         sumsPieChart = sums
-        for (s in sumsPieChart){
-            Log.d("SUM",s.toString())
-        }
+
     }
 
     fun obtainDatesForDialog(): Array<Float>{
@@ -102,18 +100,6 @@ class ChartsViewModel : ViewModel() {
                     activity.getActivityTypeName() == ActivityType.WALKING
         }
 
-        if (walkingActivities.isNotEmpty()){
-            for(w in walkingActivities){
-                Log.d("STampa W", w.date + ", " + w.duration)
-            }
-        } else if (walkingActivities.isEmpty()){
-            Log.d("STampa W", "EMPTY")
-        } else if (walkingActivities == null){
-            Log.d("STampa W", "NULL")
-        } else {
-            Log.d("STampa W", "BOH")
-
-        }
 
         return walkingActivities as List<WalkingActivity>
     }
@@ -128,19 +114,6 @@ class ChartsViewModel : ViewModel() {
         val walkingActivities = activitiesOnDb.filter { activity ->
             activity.date.substring(5,7) == month &&
                     activity.getActivityTypeName() == ActivityType.WALKING
-        }
-
-        if (walkingActivities.isNotEmpty()){
-            for(w in walkingActivities){
-                Log.d("STampa M", w.date + ", " + w.duration)
-            }
-        } else if (walkingActivities.isEmpty()){
-            Log.d("STampa M", "EMPTY")
-        } else if (walkingActivities == null){
-            Log.d("STampa M ", "NULL")
-        } else {
-            Log.d("STampa M", "BOH")
-
         }
 
 
