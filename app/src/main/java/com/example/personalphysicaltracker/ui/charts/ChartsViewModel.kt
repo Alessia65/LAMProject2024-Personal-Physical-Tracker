@@ -96,20 +96,15 @@ class ChartsViewModel : ViewModel() {
     }
 
     fun handleSelectedDateRangeWalking(startDate: String, endDate: String): List<WalkingActivity> {
-        var walkingActivities: List<WalkingActivity> = emptyList()
-
-        // Filter activities based on selected date range
-        activitiesOnDb =  activitiesOnDb.filter {
-            it.date >= startDate && it.date <= endDate &&
-                    it.getActivityTypeName() == ActivityType.WALKING
-
+        // Filtra le attività in base all'intervallo di date selezionato
+        val walkingActivities = activitiesOnDb.filter { activity ->
+            activity.date >= startDate && activity.date <= endDate &&
+                    activity.getActivityTypeName() == ActivityType.WALKING
         }
 
-        // Applica tutti i filtri selezionati
-
-        walkingActivities = activitiesOnDb as List<WalkingActivity>
-        return walkingActivities
+        return walkingActivities as List<WalkingActivity>
     }
+
 
     //TODO: caso in cui un'attività è a ridosso, la data viene inserita come data in cui finisce l'attività dovrei farla dividere giornalemnte
 }
