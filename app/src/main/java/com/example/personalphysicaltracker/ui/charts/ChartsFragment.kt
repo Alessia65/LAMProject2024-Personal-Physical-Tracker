@@ -75,19 +75,25 @@ class ChartsFragment : Fragment() {
         setupPieChart()
         showTodayPieChart(currentDate)
 
+        val navController = findNavController()
+
         buttonWalking = root.findViewById(R.id.button_walking)
         buttonWalking.setOnClickListener{
-            changeFragment()
+            navController.navigate(R.id.walkingChartsFragment)
+        }
 
-            }
+        buttonDriving = root.findViewById(R.id.button_driving)
+        buttonDriving.setOnClickListener{
+            navController.navigate(R.id.drivingChartsFragment)
+        }
+
+        buttonStanding = root.findViewById(R.id.button_standing)
+        buttonStanding.setOnClickListener{
+            navController.navigate(R.id.standingChartsFragment)
+        }
         }
 
 
-    private fun changeFragment() {
-        // Naviga verso ActivitiesDoneFragment utilizzando NavController
-        val navController = findNavController()
-        navController.navigate(R.id.walkingChartsFragment)
-    }
     private fun setupPieChart() {
         pieChart.setUsePercentValues(true)
         pieChart.description.isEnabled = false

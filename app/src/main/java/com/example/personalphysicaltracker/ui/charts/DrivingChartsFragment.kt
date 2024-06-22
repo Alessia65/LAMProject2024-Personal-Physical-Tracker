@@ -11,15 +11,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
-import com.example.personalphysicaltracker.activities.WalkingActivity
-import com.example.personalphysicaltracker.databinding.FragmentChartsWalkingBinding
+import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.databinding.FragmentChartsDrivingBinding
 import com.github.mikephil.charting.charts.BarChart
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.util.Date
 
-class WalkingChartsFragment : Fragment() {
+class DrivingChartsFragment : Fragment() {
 
-    private var _binding: FragmentChartsWalkingBinding? = null
+    private var _binding: FragmentChartsDrivingBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var selectDay: TextView
@@ -28,7 +28,7 @@ class WalkingChartsFragment : Fragment() {
     private lateinit var selectYear: TextView
     private lateinit var textRange: TextView
     private lateinit var barChart: BarChart
-    private var walkingActivitiesToShow: List<WalkingActivity> = emptyList()
+    private var drivingActivitiesToShow: List<DrivingActivity> = emptyList()
 
     // ViewModel initialization
     private lateinit var chartViewModel: ChartsViewModel
@@ -37,7 +37,7 @@ class WalkingChartsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentChartsWalkingBinding.inflate(inflater, container, false)
+        _binding = FragmentChartsDrivingBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
         // Initialize ViewModel
@@ -50,26 +50,26 @@ class WalkingChartsFragment : Fragment() {
     // Initialize views and set click listeners
     private fun initializeViews() {
         textRange = binding.root.findViewById(R.id.text_range)
-        selectDay = binding.root.findViewById(R.id.select_day_walking)
+        selectDay = binding.root.findViewById(R.id.select_day_driving)
         selectDay.setOnClickListener {
             showDatePickerDialog("DAY")
         }
-        selectWeek = binding.root.findViewById(R.id.select_week_walking)
+        selectWeek = binding.root.findViewById(R.id.select_week_driving)
         selectWeek.setOnClickListener {
             showDatePickerDialog("WEEK")
         }
 
-        selectMonth = binding.root.findViewById(R.id.select_month_walking)
+        selectMonth = binding.root.findViewById(R.id.select_month_driving)
         selectMonth.setOnClickListener {
             showMonthPickerDialog()
         }
 
-        selectYear = binding.root.findViewById(R.id.select_year_walking)
+        selectYear = binding.root.findViewById(R.id.select_year_driving)
         selectYear.setOnClickListener {
             showYearDialog()
         }
 
-        barChart = binding.root.findViewById(R.id.barChartWalking)
+        barChart = binding.root.findViewById(R.id.barChartDriving)
     }
 
     private fun showYearDialog() {
@@ -82,11 +82,8 @@ class WalkingChartsFragment : Fragment() {
 
                 textRange.text = selectedYear
 
-                walkingActivitiesToShow = chartViewModel.handleSelectedYear(selectedYear, ActivityType.WALKING) as List<WalkingActivity>
-                for (w in walkingActivitiesToShow){
-                    Log.d("OK", w.date + ", " + w.getActivityTypeName().toString() + ", " + w.duration)
-                }
-                barChart = chartViewModel.showYearActivities(walkingActivitiesToShow, barChart)
+                drivingActivitiesToShow = chartViewModel.handleSelectedYear(selectedYear, ActivityType.DRIVING) as List<DrivingActivity>
+                barChart = chartViewModel.showYearActivities(drivingActivitiesToShow, barChart)
                 barChart.invalidate()
             }
 
@@ -108,8 +105,8 @@ class WalkingChartsFragment : Fragment() {
 
                 textRange.text = selectedMonth
                 chartViewModel.setMonthDates(selectedMonth, selectedMonthPosition)
-                walkingActivitiesToShow = chartViewModel.handleSelectedMonth(ActivityType.WALKING) as List<WalkingActivity>
-                barChart = chartViewModel.showMonthActivities(walkingActivitiesToShow, barChart)
+                drivingActivitiesToShow = chartViewModel.handleSelectedMonth(ActivityType.DRIVING) as List<DrivingActivity>
+                barChart = chartViewModel.showMonthActivities(drivingActivitiesToShow, barChart)
                 barChart.invalidate()
             }
 
@@ -132,9 +129,9 @@ class WalkingChartsFragment : Fragment() {
             textRange.setText(chartViewModel.printDate(startSelectedDate, type))
 
 
-            walkingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.WALKING) as List<WalkingActivity>
+            drivingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.DRIVING) as List<DrivingActivity>
 
-            barChart = chartViewModel.showActivities(walkingActivitiesToShow, barChart)
+            barChart = chartViewModel.showActivities(drivingActivitiesToShow, barChart)
             barChart.invalidate()
 
         }

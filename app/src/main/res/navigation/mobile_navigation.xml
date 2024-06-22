@@ -32,6 +32,18 @@
     <fragment
         android:id="@+id/walkingChartsFragment"
         android:name="com.example.personalphysicaltracker.ui.charts.WalkingChartsFragment"
-        android:label="@string/title_walking_charts"
+        android:label="@string/text_walking"
+        tools:layout="@layout/fragment_charts_walking" />
+
+    <fragment
+        android:id="@+id/drivingChartsFragment"
+        android:name="com.example.personalphysicaltracker.ui.charts.DrivingChartsFragment"
+        android:label="@string/text_driving"
+        tools:layout="@layout/fragment_charts_walking" />
+
+    <fragment
+        android:id="@+id/standingChartsFragment"
+        android:name="com.example.personalphysicaltracker.ui.charts.StandingChartsFragment"
+        android:label="@string/text_standing"
         tools:layout="@layout/fragment_charts_walking" />
 </navigation>

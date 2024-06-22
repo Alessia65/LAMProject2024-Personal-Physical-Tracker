@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.charts.WalkingChartsFragment"
-    android:id="@+id/fragment_charts_walking">
+    tools:context=".ui.charts.StandingChartsFragment"
+    android:id="@+id/fragment_charts_standing">
 
 
 
     <TextView
-        android:id="@+id/select_day_walking"
+        android:id="@+id/select_day_standing"
         android:layout_width="103dp"
         android:layout_height="30dp"
         android:text="Day"
@@ -25,7 +25,7 @@
         app:layout_constraintVertical_bias="0.562" />
 
     <TextView
-        android:id="@+id/select_week_walking"
+        android:id="@+id/select_week_standing"
         android:layout_width="104dp"
         android:layout_height="30dp"
         android:text="Week"
@@ -35,12 +35,12 @@
         app:layout_constraintBottom_toTopOf="@+id/text_range"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/select_day_walking"
+        app:layout_constraintStart_toEndOf="@+id/select_day_standing"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.562" />
 
     <TextView
-        android:id="@+id/select_month_walking"
+        android:id="@+id/select_month_standing"
         android:layout_width="100dp"
         android:layout_height="30dp"
         android:text="Month"
@@ -50,12 +50,12 @@
         app:layout_constraintBottom_toTopOf="@+id/text_range"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/select_week_walking"
+        app:layout_constraintStart_toEndOf="@+id/select_week_standing"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.556" />
 
     <TextView
-        android:id="@+id/select_year_walking"
+        android:id="@+id/select_year_standing"
         android:layout_width="102dp"
         android:layout_height="31dp"
         android:layout_marginTop="44dp"
@@ -65,7 +65,7 @@
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/select_month_walking"
+        app:layout_constraintStart_toEndOf="@+id/select_month_standing"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -83,7 +83,7 @@
         app:layout_constraintVertical_bias="0.157" />
 
     <com.github.mikephil.charting.charts.BarChart
-        android:id="@+id/barChartWalking"
+        android:id="@+id/barChartStanding"
         android:layout_width="406dp"
         android:layout_height="264dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -95,14 +95,5 @@
 
     </com.github.mikephil.charting.charts.BarChart>
 
-    <com.github.mikephil.charting.charts.BarChart
-        android:layout_width="406dp"
-        android:layout_height="264dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/barChartWalking">
 
-    </com.github.mikephil.charting.charts.BarChart>
 </androidx.constraintlayout.widget.ConstraintLayout>
