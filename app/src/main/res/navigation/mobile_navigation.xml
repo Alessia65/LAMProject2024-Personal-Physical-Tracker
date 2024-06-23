@@ -12,10 +12,10 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_calendar"
-        android:name="com.example.personalphysicaltracker.ui.calendar.CalendarFragment"
-        android:label="@string/title_calendar"
-        tools:layout="@layout/fragment_calendar" />
+        android:id="@+id/navigation_settings"
+        android:name="com.example.personalphysicaltracker.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
 
     <fragment
         android:id="@+id/navigation_charts"
@@ -25,7 +25,7 @@
 
     <fragment
         android:id="@+id/activitiesDoneFragment"
-        android:name="com.example.personalphysicaltracker.ui.calendar.ActivitiesDoneFragment"
+        android:name="com.example.personalphysicaltracker.ui.history.ActivitiesDoneFragment"
         android:label="@string/title_activities_done"
         tools:layout="@layout/fragment_activities_done" />
 

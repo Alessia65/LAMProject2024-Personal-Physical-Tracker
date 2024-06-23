@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.calendar
+package com.example.personalphysicaltracker.ui.history
 
 import android.util.Log
 import androidx.fragment.app.FragmentActivity

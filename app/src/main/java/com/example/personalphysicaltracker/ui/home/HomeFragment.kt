@@ -17,7 +17,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.DrivingActivity
-import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
@@ -25,7 +24,7 @@ import com.example.personalphysicaltracker.sensors.AccelerometerListener
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterListener
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
-import com.example.personalphysicaltracker.ui.calendar.CalendarViewModel
+import com.example.personalphysicaltracker.ui.history.CalendarViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.text.SimpleDateFormat
 import java.util.Calendar

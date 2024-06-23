@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.calendar
+package com.example.personalphysicaltracker.ui.history
 
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -6,7 +6,6 @@ import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.personalphysicaltracker.R

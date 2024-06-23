@@ -12,8 +12,8 @@
         android:title="@string/title_charts" />
     
     <item
-        android:id="@+id/navigation_calendar"
+        android:id="@+id/navigation_settings"
         android:icon="@drawable/ic_calendar_black"
-        android:title="@string/title_calendar" />
+        android:title="@string/title_settings" />
 
 </menu>
