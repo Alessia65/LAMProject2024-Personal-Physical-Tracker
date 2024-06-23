@@ -13,16 +13,9 @@ import android.widget.NumberPicker
 import android.widget.Switch
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.R
-import com.example.personalphysicaltracker.activities.ActivityType
-import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentSettingsBinding
 import com.example.personalphysicaltracker.notifications.DailyReminderReceiver
-import com.example.personalphysicaltracker.notifications.StepsReminderReceiver
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -77,7 +70,7 @@ class SettingsFragment : Fragment() {
                 showTimePickerDialog()
             } else {
                 // Cancel daily notification when daily reminder switch is turned off
-                cancelDailyNotification()
+                settingsViewModel.cancelDailyNotification(requireContext())
             }
         }
 
@@ -91,27 +84,12 @@ class SettingsFragment : Fragment() {
                 showNumberOfStepsDialog()
             } else {
                 // Cancel inactivity notification when inactivity reminder switch is turned off
-                cancelStepsNotification()
+                settingsViewModel.cancelStepsNotification(requireContext())
             }
         }
         calculateDailySteps()
     }
 
-    private fun cancelStepsNotification() {
-        // Create an intent for DailyReminderReceiver
-        val intent = Intent(requireContext(), StepsReminderReceiver::class.java)
-        // Create a PendingIntent to be cancelled
-        val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            1, //1 per steps
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // Get AlarmManager service to cancel the pending intent
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(pendingIntent)
-    }
 
     private fun showNumberOfStepsDialog() {
         // Inflating the dialog layout
@@ -137,13 +115,19 @@ class SettingsFragment : Fragment() {
                 // Fai qualcosa con il numero selezionato
                 Log.d("SelectedNumber", "Selected number is $selectedNumber")
                 scheduleStepsNotification(selectedNumber)
+
+
             }
-            .setNegativeButton("Annulla") { dialog, which ->
+            .setNegativeButton("Cancel") { dialog, which ->
                 dialog.dismiss()
-            }
+                switchStepsReminder.isChecked = false
+            }.setCancelable(false)
 
         // Mostra il dialog
         val alertDialog = builder.create()
+
+
+
         alertDialog.show()
     }
 
@@ -156,23 +140,9 @@ class SettingsFragment : Fragment() {
         }
 
         calculateDailySteps()
-        // Verifica se la somma dei passi giornalieri è inferiore all'obiettivo selezionato
-        val dailyStepsSum = dailySteps // Implementa questa funzione per calcolare la somma dei passi giornalieri
+        settingsViewModel.scheduleStepsNotification(selectedNumber,calendar, dailySteps, requireContext())
+        Toast.makeText(requireContext(), "Steps reminder set for 5:00 PM if goal not met.", Toast.LENGTH_SHORT).show()
 
-        if (dailyStepsSum < selectedNumber) {
-            Log.d("StepsReminder", "Daily steps goal: $selectedNumber, current: $dailyStepsSum")
-            // Invia la notifica degli steps solo se la somma è inferiore all'obiettivo
-            createStepsNotification(calendar)
-        } else {
-            // Non fare nulla, la somma dei passi è sufficiente
-            Log.d("StepsReminder", "Daily steps goal already met.")
-        }
-
-        // Salva l'obiettivo selezionato nelle SharedPreferences
-        val sharedPreferences = requireContext().getSharedPreferences("settings minimum steps reminder notification", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putInt("steps_reminder", selectedNumber)
-        editor.apply()
     }
 
     private fun calculateDailySteps() {
@@ -187,29 +157,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun createStepsNotification(calendar: Calendar) {
 
-        // Create an intent for StepsReminderReceiver
-        val intent = Intent(requireContext(), StepsReminderReceiver::class.java)
-        // Create a PendingIntent to be triggered at the specified time
-        val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            1, // Codice per steps
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // Get AlarmManager service to schedule the notification
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
-        // Inform the user that the steps notification will be set for a specific time
-        Toast.makeText(requireContext(), "Steps reminder set for 5:00 PM if goal not met.", Toast.LENGTH_SHORT).show()
-    }
 
     private fun showTimePickerDialog() {
         val calendar = Calendar.getInstance()
@@ -224,8 +172,15 @@ class SettingsFragment : Fragment() {
             scheduleDailyNotification(selectedHour, selectedMinute, formattedTime)
         }, hour, minute, false) // Use false to display in 12-hour format
 
+        timePickerDialog.setOnCancelListener {
+            switchDailyReminder.isChecked = false
+        }
+
+        timePickerDialog.setCanceledOnTouchOutside(false)
         timePickerDialog.show()
     }
+
+
 
 
     private fun formatTime(hour: Int, minute: Int): String {
@@ -246,51 +201,9 @@ class SettingsFragment : Fragment() {
             set(Calendar.SECOND, 0)
         }
 
-        // Create an intent for DailyReminderReceiver
-        val intent = Intent(requireContext(), DailyReminderReceiver::class.java)
-        // Create a PendingIntent to be triggered at the specified time
-        val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            0, //0 per daily reminder
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // Get AlarmManager service to schedule the notification
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.setRepeating(
-            AlarmManager.RTC_WAKEUP,
-            calendar.timeInMillis,
-            AlarmManager.INTERVAL_DAY,
-            pendingIntent
-        )
-
+        settingsViewModel.scheduleDailyNotification(calendar, requireContext(), hour, minute, formattedTime)
         Toast.makeText(requireContext(), "Daily reminder set for $formattedTime", Toast.LENGTH_SHORT).show()
 
-
-        // Save the formatted notification time in SharedPreferences
-        val sharedPreferences = requireContext().getSharedPreferences("settings daily reminder notification", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putInt("daily_reminder_hour", hour)
-        editor.putInt("daily_reminder_minute", minute)
-        editor.putString("daily_reminder_formatted_time", formattedTime)
-        editor.apply()
-    }
-
-    private fun cancelDailyNotification() {
-        // Create an intent for DailyReminderReceiver
-        val intent = Intent(requireContext(), DailyReminderReceiver::class.java)
-        // Create a PendingIntent to be cancelled
-        val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(),
-            0, //0 per daily reminder
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        // Get AlarmManager service to cancel the pending intent
-        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(pendingIntent)
     }
 
 
