@@ -1,5 +1,12 @@
 package com.example.personalphysicaltracker
 
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.NotificationManager.*
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -16,12 +23,15 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
+import com.example.personalphysicaltracker.ui.settings.DailyReminderReceiver
+import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
     private val activityRecognitionRequestCode: Int = 100
+    private val notificationPermissionRequestCode: Int = 101
 
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,6 +52,27 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize navigation components
         initializeNavigation()
+
+        createNotificationChannel()
+
+        // Schedule daily notification if enabled
+        scheduleDailyNotificationIfEnabled()
+
+    }
+    private fun createNotificationChannel()
+    {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Daily Reminder Channel"
+            val descriptionText = "Channel for daily reminder notifications"
+            val importance = IMPORTANCE_HIGH
+            val channel = NotificationChannel("daily_reminder_channel", name, importance).apply {
+                description = descriptionText
+            }
+
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 
     // Handle click on Up button in ActionBar
@@ -50,11 +81,52 @@ class MainActivity : AppCompatActivity() {
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
 
+    private fun scheduleDailyNotificationIfEnabled() {
+        val sharedPreferences = getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val dailyReminderEnabled = sharedPreferences.getBoolean("daily_reminder_enabled", false)
+        if (dailyReminderEnabled) {
+            val hour = sharedPreferences.getInt("daily_reminder_hour", 8) // Default hour: 8
+            val minute = sharedPreferences.getInt("daily_reminder_minute", 0) // Default minute: 0
+
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+                set(Calendar.SECOND, 0)
+            }
+
+            val intent = Intent(this, DailyReminderReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                this,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )
+        }
+    }
+
     private fun requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val permissionsToRequest = mutableListOf<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !isActivityRecognitionPermissionGranted()) {
+            permissionsToRequest.add(android.Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !isNotificationPermissionGranted()) {
+            permissionsToRequest.add(android.Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION),
+                permissionsToRequest.toTypedArray(),
                 activityRecognitionRequestCode
             )
         }
@@ -62,9 +134,26 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun isPermissionGranted(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            isActivityRecognitionPermissionGranted() && isNotificationPermissionGranted()
+        } else {
+            TODO("VERSION.SDK_INT < TIRAMISU")
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun isActivityRecognitionPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
             android.Manifest.permission.ACTIVITY_RECOGNITION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private fun isNotificationPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
     }
 
@@ -77,7 +166,12 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             activityRecognitionRequestCode -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    Log.d("PERMISSION", "Permission granted")
+                    Log.d("PERMISSION", "Activity recognition permission granted")
+                }
+            }
+            notificationPermissionRequestCode -> {
+                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                    Log.d("PERMISSION", "Notification permission granted")
                 }
             }
         }
