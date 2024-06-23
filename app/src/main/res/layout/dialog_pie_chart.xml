@@ -4,14 +4,10 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
-
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/dialog_pie_chart"
         android:layout_width="335dp"
         android:layout_height="300dp"
         android:layout_margin="16dp" />
-
-    <!-- Aggiungi altre viste se necessario, come bottoni per azioni aggiuntive -->
 
 </LinearLayout>

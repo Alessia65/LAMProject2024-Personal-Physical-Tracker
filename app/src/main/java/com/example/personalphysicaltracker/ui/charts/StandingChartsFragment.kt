@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
+import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.databinding.FragmentChartsStandingBinding
 import com.github.mikephil.charting.charts.BarChart
@@ -44,7 +45,16 @@ class StandingChartsFragment : Fragment() {
         chartViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
 
         initializeViews()
+        showStarterChart()
         return root
+    }
+
+    private fun showStarterChart() {
+        val startSelectedDate = Date()
+        textRange.setText(chartViewModel.printDate(startSelectedDate, "DAY"))
+        standingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.STANDING) as List<StandingActivity>
+        barChart = chartViewModel.showActivities(standingActivitiesToShow, barChart)
+        barChart.invalidate()
     }
 
     // Initialize views and set click listeners

@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentChartsDrivingBinding
 import com.github.mikephil.charting.charts.BarChart
 import com.google.android.material.datepicker.MaterialDatePicker
@@ -44,7 +45,16 @@ class DrivingChartsFragment : Fragment() {
         chartViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
 
         initializeViews()
+        showStarterChart()
         return root
+    }
+
+    private fun showStarterChart() {
+        val startSelectedDate = Date()
+        textRange.setText(chartViewModel.printDate(startSelectedDate, "DAY"))
+        drivingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.DRIVING) as List<DrivingActivity>
+        barChart = chartViewModel.showActivities(drivingActivitiesToShow, barChart)
+        barChart.invalidate()
     }
 
     // Initialize views and set click listeners

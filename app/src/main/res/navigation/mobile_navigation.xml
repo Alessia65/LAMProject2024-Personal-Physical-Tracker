@@ -39,11 +39,11 @@
         android:id="@+id/drivingChartsFragment"
         android:name="com.example.personalphysicaltracker.ui.charts.DrivingChartsFragment"
         android:label="@string/text_driving"
-        tools:layout="@layout/fragment_charts_walking" />
+        tools:layout="@layout/fragment_charts_driving" />
 
     <fragment
         android:id="@+id/standingChartsFragment"
         android:name="com.example.personalphysicaltracker.ui.charts.StandingChartsFragment"
         android:label="@string/text_standing"
-        tools:layout="@layout/fragment_charts_walking" />
+        tools:layout="@layout/fragment_charts_standing" />
 </navigation>

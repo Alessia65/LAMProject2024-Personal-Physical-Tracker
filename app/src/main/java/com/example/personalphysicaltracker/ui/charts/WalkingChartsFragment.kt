@@ -44,11 +44,21 @@ class WalkingChartsFragment : Fragment() {
         chartViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
 
         initializeViews()
+        showStarterChart()
         return root
+    }
+
+    private fun showStarterChart() {
+        val startSelectedDate = Date()
+        textRange.setText(chartViewModel.printDate(startSelectedDate, "DAY"))
+        walkingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.WALKING) as List<WalkingActivity>
+        barChart = chartViewModel.showActivities(walkingActivitiesToShow, barChart)
+        barChart.invalidate()
     }
 
     // Initialize views and set click listeners
     private fun initializeViews() {
+        barChart = binding.root.findViewById(R.id.barChartWalking)
         textRange = binding.root.findViewById(R.id.text_range)
         selectDay = binding.root.findViewById(R.id.select_day_walking)
         selectDay.setOnClickListener {
@@ -69,7 +79,9 @@ class WalkingChartsFragment : Fragment() {
             showYearDialog()
         }
 
-        barChart = binding.root.findViewById(R.id.barChartWalking)
+
+
+
     }
 
     private fun showYearDialog() {

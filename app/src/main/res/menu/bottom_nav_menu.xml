@@ -16,6 +16,4 @@
         android:icon="@drawable/ic_calendar_black"
         android:title="@string/title_calendar" />
 
-
-
 </menu>
