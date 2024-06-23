@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.PhysicalActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
@@ -183,7 +184,7 @@ class ChartsViewModel : ViewModel() {
             val hourEnd = activities.end.substring(11, 13).toInt()
             val durationInHour = activities.duration / 3600.0
 
-            for (i in hourStart until hourEnd) {
+            for (i in hourStart until hourEnd+1) {
                 sums[i] += durationInHour
             }
         }
@@ -278,6 +279,11 @@ class ChartsViewModel : ViewModel() {
                 valueFormatter =
                     IndexAxisValueFormatter(months ?: arrayOf())
 
+            } else { //Daily
+                val hours = Array(24) { (it).toString() }
+
+                valueFormatter =
+                    IndexAxisValueFormatter(hours ?: arrayOf())
             }
             position = XAxis.XAxisPosition.BOTTOM
         }
@@ -426,6 +432,144 @@ class ChartsViewModel : ViewModel() {
         barChart.description.text = "Month Hours in Year"
         return configureBarChart(barChart, barData, emptyArray(), false, false, true)
     }
+
+    fun showWalkingActivitiesSteps(walkingActivitiesToShow: List<WalkingActivity>, barChartSteps: BarChart): BarChart {
+        if (actualType == "DAY"){
+            return showDailyActivitiesSteps(walkingActivitiesToShow, barChartSteps)
+        } else{ // if (actualType == "WEEK")
+            return showWeeklyActivitiesSteps(walkingActivitiesToShow, barChartSteps)
+        }
+
+    }
+
+    private fun showDailyActivitiesSteps(
+        activitiesToShow: List<WalkingActivity>,
+        barChartSteps: BarChart
+    ): BarChart {
+        val entries = ArrayList<BarEntry>()
+        val sums = LongArray(24) { 0L }
+
+        // Calculate sums per hour
+        for (activity in activitiesToShow) {
+            val hourStart = activity.start.substring(11, 13).toInt()
+            val hourEnd = activity.end.substring(11, 13).toInt()
+            val steps = activity.getSteps()
+
+            for (i in hourStart until hourEnd+1) {
+                sums[i] += steps
+            }
+        }
+
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+
+        }
+        Log.d("ENTRIES", entries.toString())
+
+        val barData = configureBarData(entries)
+
+        barChartSteps.description.text = "Daily Steps"
+
+        return configureBarChart(barChartSteps, barData, emptyArray(), false, false, false)
+
+    }
+
+
+    private fun showWeeklyActivitiesSteps(
+        activitiesToShow: List<WalkingActivity>,
+        barChartSteps: BarChart
+    ) : BarChart{
+        var referenceDates = getWeeklyDates()
+
+        val entries = ArrayList<BarEntry>()
+        val sums = Array(7) { 0L }
+
+        // Calculate sums per day
+        for (activities in activitiesToShow) {
+            val steps = activities.getSteps()
+            for (i in 0 until referenceDates.size) {
+                if (activities.date == referenceDates[i]) {
+                    sums[i] += steps
+                }
+            }
+        }
+
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
+
+        val barData = configureBarData(entries)
+
+        barChartSteps.description.text = "Daily Steps in Week"
+
+        return configureBarChart(barChartSteps, barData, referenceDates, true, false, false)
+
+
+    }
+
+    fun showMonthActivitiesStep(activitiesToShow: List<WalkingActivity>, barChartStep: BarChart): BarChart {
+        val entries = ArrayList<BarEntry>()
+
+        val sums = Array(days) { 0L }
+        val referenceDates = Array(days) { i ->
+            if (i <= 8) {
+                "0" + (i + 1)
+            } else (i + 1).toString()
+        }
+
+        // Calculate sums per day
+        for (activities in activitiesToShow) {
+            val steps = activities.getSteps()
+            for (i in 0 until days) {
+                if (activities.date.substring(5, 7) == numberMonthString && activities.date.substring(8) == i.toString()) {
+                    sums[i] += steps
+                }
+            }
+        }
+
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
+
+        val barData = configureBarData(entries)
+
+        barChartStep.description.text = "Daily Hours in Month"
+        return configureBarChart(barChartStep, barData, referenceDates, false, true, false)
+    }
+
+    fun showYearActivitiesSteps(activitiesToShow: List<WalkingActivity>, barChartSteps: BarChart): BarChart {
+        val entries = ArrayList<BarEntry>()
+
+        val sums = Array(12) { 0L }
+
+        // Calculate sums per day
+        for (activity in activitiesToShow) {
+            val steps = activity.getSteps()
+            for (i in 1 until 13) {
+                var currentMonth = i.toString()
+                if (i <= 9){
+                    currentMonth = "0" + i
+                }
+                if (activity.date.substring(0, 4) == currentYear.toString() && activity.date.substring(5,7) == currentMonth) {
+                    sums[i-1] += steps
+                }
+            }
+        }
+
+        // Create BarEntry objects
+        for (i in sums.indices) {
+            entries.add(BarEntry(i.toFloat(), sums[i].toFloat()))
+        }
+
+        val barData = configureBarData(entries)
+
+        barChartSteps.description.text = "Month Hours in Year"
+        return configureBarChart(barChartSteps, barData, emptyArray(), false, false, true)
+    }
+
 
     //TODO: caso in cui un'attività è a ridosso, la data viene inserita come data in cui finisce l'attività dovrei farla dividere giornalemnte
 }

@@ -27,7 +27,8 @@ class WalkingChartsFragment : Fragment() {
     private lateinit var selectMonth: TextView
     private lateinit var selectYear: TextView
     private lateinit var textRange: TextView
-    private lateinit var barChart: BarChart
+    private lateinit var barChartDuration: BarChart
+    private lateinit var barChartSteps: BarChart
     private var walkingActivitiesToShow: List<WalkingActivity> = emptyList()
 
     // ViewModel initialization
@@ -49,16 +50,30 @@ class WalkingChartsFragment : Fragment() {
     }
 
     private fun showStarterChart() {
+
         val startSelectedDate = Date()
         textRange.setText(chartViewModel.printDate(startSelectedDate, "DAY"))
         walkingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.WALKING) as List<WalkingActivity>
-        barChart = chartViewModel.showActivities(walkingActivitiesToShow, barChart)
-        barChart.invalidate()
+
+        //Duration chart:
+        barChartDuration = chartViewModel.showActivities(walkingActivitiesToShow, barChartDuration)
+        barChartDuration.invalidate()
+
+        //Steps chart:
+        barChartSteps = chartViewModel.showWalkingActivitiesSteps(walkingActivitiesToShow, barChartSteps)
+        barChartSteps.invalidate()
+
+        for (w in walkingActivitiesToShow){
+            Log.d("STEPS START", "date: " + w.date + ", start: "+ w.start + ", end: " + w.end + ", steps: " + w.getSteps().toString())
+        }
+
+
     }
 
     // Initialize views and set click listeners
     private fun initializeViews() {
-        barChart = binding.root.findViewById(R.id.barChartWalking)
+        barChartDuration = binding.root.findViewById(R.id.barChartWalkingDuration)
+        barChartSteps = binding.root.findViewById(R.id.barChartWalkingSteps)
         textRange = binding.root.findViewById(R.id.text_range)
         selectDay = binding.root.findViewById(R.id.select_day_walking)
         selectDay.setOnClickListener {
@@ -91,15 +106,19 @@ class WalkingChartsFragment : Fragment() {
         builder.setTitle("Pick a year")
             .setItems(years) { dialog, item ->
                 val selectedYear = years[item]
-
                 textRange.text = selectedYear
-
                 walkingActivitiesToShow = chartViewModel.handleSelectedYear(selectedYear, ActivityType.WALKING) as List<WalkingActivity>
-                for (w in walkingActivitiesToShow){
-                    Log.d("OK", w.date + ", " + w.getActivityTypeName().toString() + ", " + w.duration)
-                }
-                barChart = chartViewModel.showYearActivities(walkingActivitiesToShow, barChart)
-                barChart.invalidate()
+
+                //Duration chart:
+                barChartDuration = chartViewModel.showYearActivities(walkingActivitiesToShow, barChartDuration)
+                barChartDuration.invalidate()
+
+                //Steps chart:
+                barChartSteps = chartViewModel.showYearActivitiesSteps(walkingActivitiesToShow, barChartSteps)
+                barChartSteps.invalidate()
+
+
+
             }
 
         val alert: AlertDialog = builder.create()
@@ -121,8 +140,15 @@ class WalkingChartsFragment : Fragment() {
                 textRange.text = selectedMonth
                 chartViewModel.setMonthDates(selectedMonth, selectedMonthPosition)
                 walkingActivitiesToShow = chartViewModel.handleSelectedMonth(ActivityType.WALKING) as List<WalkingActivity>
-                barChart = chartViewModel.showMonthActivities(walkingActivitiesToShow, barChart)
-                barChart.invalidate()
+
+                //Duration chart:
+
+                barChartDuration = chartViewModel.showMonthActivities(walkingActivitiesToShow, barChartDuration)
+                barChartDuration.invalidate()
+
+                //Step chart:
+                barChartSteps = chartViewModel.showMonthActivitiesStep(walkingActivitiesToShow, barChartSteps)
+                barChartSteps.invalidate()
             }
 
         val alert: AlertDialog = builder.create()
@@ -141,13 +167,21 @@ class WalkingChartsFragment : Fragment() {
         picker.addOnPositiveButtonClickListener {
             val startSelectedDate = Date(it)
 
+
             textRange.setText(chartViewModel.printDate(startSelectedDate, type))
-
-
             walkingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.WALKING) as List<WalkingActivity>
 
-            barChart = chartViewModel.showActivities(walkingActivitiesToShow, barChart)
-            barChart.invalidate()
+            //Duration Chart
+            barChartDuration = chartViewModel.showActivities(walkingActivitiesToShow, barChartDuration)
+            barChartDuration.invalidate()
+
+            //Steps chart
+            barChartSteps = chartViewModel.showWalkingActivitiesSteps(walkingActivitiesToShow, barChartSteps)
+            barChartSteps.invalidate()
+
+            for (w in walkingActivitiesToShow){
+                Log.d("STEPS D", "date: " + w.date + ", steps: " + w.getSteps().toString())
+            }
 
         }
 
