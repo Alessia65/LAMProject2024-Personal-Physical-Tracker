@@ -35,11 +35,11 @@ class NotificationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createNotificationChannel()
+        createDailyReminderNotificationChannel()
+        createStepsReminderNotificationChannel()
     }
 
-    private fun createNotificationChannel() {
-        Log.d("NOTIFICATION SERVICE", "daily reminder sent ad" + Date())
+    private fun createDailyReminderNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Daily Reminder Channel"
             val descriptionText = "Channel for daily reminder notifications"
@@ -53,7 +53,21 @@ class NotificationService : Service() {
         }
     }
 
-    fun showNotification(context: Context, title: String, message: String) {
+    private fun createStepsReminderNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Steps Reminder Channel"
+            val descriptionText = "Channel for steps reminders"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("steps_reminder_channel", name, importance).apply {
+                description = descriptionText
+            }
+
+            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    fun showDailyReminderNotification(context: Context, title: String, message: String) {
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(context, 0, intent,
@@ -80,4 +94,30 @@ class NotificationService : Service() {
         }
     }
 
+    fun showStepsReminderNotification(context: Context, title: String, message: String) {
+        val intent = Intent(context, MainActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val pendingIntent = PendingIntent.getActivity(context, 1, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+
+        val notification = NotificationCompat.Builder(context, "steps_reminder_channel")
+            .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true) // Chiude la notifica quando viene cliccata
+            .build()
+
+        with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
+            notify(2, notification)
+        }
+    }
 }

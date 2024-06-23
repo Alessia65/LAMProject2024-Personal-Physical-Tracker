@@ -35,7 +35,11 @@
             android:exported="false" />
 
         <receiver
-            android:name=".ui.settings.DailyReminderReceiver"
+            android:name=".notifications.DailyReminderReceiver"
+            android:exported="false" />
+
+        <receiver
+            android:name=".notifications.StepsReminderReceiver"
             android:exported="false" />
 
 

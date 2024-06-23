@@ -10,7 +10,6 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -21,7 +20,8 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
-import com.example.personalphysicaltracker.ui.settings.DailyReminderReceiver
+import com.example.personalphysicaltracker.notifications.DailyReminderReceiver
+import com.example.personalphysicaltracker.notifications.StepsReminderReceiver
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Calendar
 
@@ -50,24 +50,44 @@ class MainActivity : AppCompatActivity() {
         initializeNavigation()
 
         // Create notification channel if necessary
-        createNotificationChannel()
+        createNotificationChannels()
 
         // Schedule daily notification if enabled
         scheduleDailyNotificationIfEnabled()
+
+        // Schedule steps notification if enabled
+        scheduleStepsNotificationIfEnabled()
     }
 
-    private fun createNotificationChannel() {
+
+
+    private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Daily Reminder Channel"
-            val descriptionText = "Channel for daily reminder notifications"
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel("daily_reminder_channel", name, importance).apply {
-                description = descriptionText
+
+            //Daily Reminder
+            val nameDailyReminder = "Daily Reminder Channel"
+            val descriptionTextDailyReminder = "Channel for daily reminder notifications"
+            val importanceDailyReminder = NotificationManager.IMPORTANCE_HIGH
+            val channelDailyReminder = NotificationChannel("daily_reminder_channel", nameDailyReminder, importanceDailyReminder).apply {
+                description = descriptionTextDailyReminder
             }
 
-            val notificationManager: NotificationManager =
+            val notificationManagerDailyReminder: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+            notificationManagerDailyReminder.createNotificationChannel(channelDailyReminder)
+
+
+            //Steps Reminder
+            val nameStepsReminder = "Steps Reminder Channel"
+            val descriptionTextStepsReminder = "Channel for steps reminder notifications"
+            val importanceStepsReminder = NotificationManager.IMPORTANCE_HIGH
+            val channelStepsReminder = NotificationChannel("steps_reminder_channel", nameStepsReminder, importanceStepsReminder).apply {
+                description = descriptionTextStepsReminder
+            }
+
+            val notificationManagerStepsReminder: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManagerStepsReminder.createNotificationChannel(channelStepsReminder)
         }
     }
 
@@ -77,7 +97,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scheduleDailyNotificationIfEnabled() {
-        val sharedPreferences = getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val sharedPreferences = getSharedPreferences("settings daily reminder notification", Context.MODE_PRIVATE)
         val dailyReminderEnabled = sharedPreferences.getBoolean("daily_reminder_enabled", false)
         if (dailyReminderEnabled) {
             val hour = sharedPreferences.getInt("daily_reminder_hour", 8) // Default hour: 8
@@ -106,6 +126,41 @@ class MainActivity : AppCompatActivity() {
             )
         }
     }
+
+    private fun scheduleStepsNotificationIfEnabled() {
+        val sharedPreferences = getSharedPreferences("settings minimum steps reminder notification", Context.MODE_PRIVATE)
+        val stepsReminderEnabled = sharedPreferences.getBoolean("steps_reminder_enabled", false)
+        if (stepsReminderEnabled) {
+            val stepsNumber = sharedPreferences.getInt("steps_reminder", 5000) // Default days: 3
+            val hour = 17 // Orario desiderato per la notifica
+            val minute = 0
+
+            // Calcola la data di trigger per la notifica
+            val calendar = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+                set(Calendar.SECOND, 0)
+            }
+
+            val intent = Intent(this, StepsReminderReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                this,
+                1,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+
+            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )
+        }
+    }
+
 
     private fun requestPermissionsIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

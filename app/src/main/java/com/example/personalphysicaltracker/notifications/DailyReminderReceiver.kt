@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.settings
+package com.example.personalphysicaltracker.notifications
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -16,6 +16,6 @@ class DailyReminderReceiver : BroadcastReceiver() {
         val title = "Daily Reminder"
         val message = "Remember to track your physical activities today!"
 
-        notificationService.showNotification(context.applicationContext, title, message)
+        notificationService.showDailyReminderNotification(context.applicationContext, title, message)
     }
 }

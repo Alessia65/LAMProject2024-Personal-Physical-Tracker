@@ -56,14 +56,14 @@
                 <TextView
                     android:layout_width="285dp"
                     android:layout_height="match_parent"
-                    android:text="Allow inactivity reminder"
+                    android:text="Allow steps reminder"
                     android:textAlignment="textStart"
                     android:textSize="25sp">
 
                 </TextView>
 
                 <Switch
-                    android:id="@+id/switch_notification_inactivity_reminder"
+                    android:id="@+id/switch_notification_steps_reminder"
                     android:layout_width="77dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
