@@ -3,7 +3,6 @@ package com.example.personalphysicaltracker
 import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.NotificationManager.*
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -12,7 +11,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -24,6 +22,7 @@ import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 import com.example.personalphysicaltracker.ui.settings.DailyReminderReceiver
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -33,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     private val activityRecognitionRequestCode: Int = 100
     private val notificationPermissionRequestCode: Int = 101
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -42,29 +40,27 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Request permissions if not granted
-        if (!isPermissionGranted()) {
-            requestPermissions()
-        }
+        requestPermissionsIfNeeded()
 
-        // Initialize Sensors -> DON'T DELETE
+        // Initialize Sensors (example)
         val accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
         val stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
 
         // Initialize navigation components
         initializeNavigation()
 
+        // Create notification channel if necessary
         createNotificationChannel()
 
         // Schedule daily notification if enabled
         scheduleDailyNotificationIfEnabled()
-
     }
-    private fun createNotificationChannel()
-    {
+
+    private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Daily Reminder Channel"
             val descriptionText = "Channel for daily reminder notifications"
-            val importance = IMPORTANCE_HIGH
+            val importance = NotificationManager.IMPORTANCE_HIGH
             val channel = NotificationChannel("daily_reminder_channel", name, importance).apply {
                 description = descriptionText
             }
@@ -75,7 +71,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Handle click on Up button in ActionBar
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp() || super.onSupportNavigateUp()
@@ -112,49 +107,54 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestPermissions() {
-        val permissionsToRequest = mutableListOf<String>()
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && !isActivityRecognitionPermissionGranted()) {
-            permissionsToRequest.add(android.Manifest.permission.ACTIVITY_RECOGNITION)
+    private fun requestPermissionsIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (!isActivityRecognitionPermissionGranted()) {
+                requestActivityRecognitionPermission()
+            }
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !isNotificationPermissionGranted()) {
-            permissionsToRequest.add(android.Manifest.permission.POST_NOTIFICATIONS)
-        }
-
-        if (permissionsToRequest.isNotEmpty()) {
-            ActivityCompat.requestPermissions(
-                this,
-                permissionsToRequest.toTypedArray(),
-                activityRecognitionRequestCode
-            )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!isNotificationPermissionGranted()) {
+                requestNotificationPermission()
+            }
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun isPermissionGranted(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            isActivityRecognitionPermissionGranted() && isNotificationPermissionGranted()
-        } else {
-            TODO("VERSION.SDK_INT < TIRAMISU")
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.Q)
-    private fun isActivityRecognitionPermissionGranted(): Boolean {
-        return ContextCompat.checkSelfPermission(
-            this,
-            android.Manifest.permission.ACTIVITY_RECOGNITION
-        ) == PackageManager.PERMISSION_GRANTED
-    }
-
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun isNotificationPermissionGranted(): Boolean {
         return ContextCompat.checkSelfPermission(
             this,
             android.Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+
+    private fun requestActivityRecognitionPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACTIVITY_RECOGNITION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION),
+                activityRecognitionRequestCode
+            )
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+                notificationPermissionRequestCode
+            )
+        }
     }
 
     override fun onRequestPermissionsResult(
@@ -165,34 +165,36 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             activityRecognitionRequestCode -> {
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("PERMISSION", "Activity recognition permission granted")
                 }
             }
             notificationPermissionRequestCode -> {
-                if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("PERMISSION", "Notification permission granted")
                 }
             }
         }
     }
 
+    private fun isActivityRecognitionPermissionGranted(): Boolean {
+        return ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.ACTIVITY_RECOGNITION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
     private fun initializeNavigation() {
         val navView: BottomNavigationView = binding.navView
-
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-        // Define top-level destinations for AppBarConfiguration
         val appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.navigation_home,  R.id.navigation_charts, R.id.navigation_settings,
+                R.id.navigation_home, R.id.navigation_charts, R.id.navigation_settings
             )
         )
 
-        // Setup ActionBar with NavController and AppBarConfiguration
         setupActionBarWithNavController(navController, appBarConfiguration)
-
-        // Setup BottomNavigationView with NavController
         navView.setupWithNavController(navController)
     }
 }
