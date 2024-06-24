@@ -29,6 +29,9 @@ class SettingsFragment : Fragment() {
     private lateinit var switchDailyReminder: Switch
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var switchStepsReminder: Switch
+
+    private lateinit var switchActivityRecognition: Switch
+
     private var dailySteps = 0L
 
     override fun onCreateView(
@@ -87,7 +90,14 @@ class SettingsFragment : Fragment() {
                 settingsViewModel.cancelStepsNotification(requireContext())
             }
         }
+
         calculateDailySteps()
+
+
+        //Background Operations
+        switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
+
+
     }
 
 

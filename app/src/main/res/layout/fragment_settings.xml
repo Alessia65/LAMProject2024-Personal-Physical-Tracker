@@ -71,6 +71,40 @@
             </LinearLayout>
 
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="20sp"
+                android:paddingBottom="10sp"
+                android:text="Background Operations"
+                android:textSize="30sp"
+                android:textStyle="bold">
+
+            </TextView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="61dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="285dp"
+                    android:layout_height="match_parent"
+                    android:text="Allow automatic activity recognition"
+                    android:textAlignment="textStart"
+                    android:textSize="25sp">
+
+                </TextView>
+
+                <Switch
+                    android:id="@+id/switch_b_o_activity_recognition"
+                    android:layout_width="77dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:textAlignment="center" />
+            </LinearLayout>
+
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
