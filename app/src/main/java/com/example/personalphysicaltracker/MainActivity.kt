@@ -29,8 +29,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val activityRecognitionRequestCode: Int = 100
-    private val notificationPermissionRequestCode: Int = 101
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         // Request permissions if not granted
         requestPermissionsIfNeeded()
 
-        // Initialize Sensors (example)
+        // Initialize Sensors (DONT DELETE)
         val accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
         val stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
 
@@ -63,12 +61,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
+            Log.d("NOTIFICATION CHANNEL", "channels created by MainActivity")
             //Daily Reminder
-            val nameDailyReminder = "Daily Reminder Channel"
-            val descriptionTextDailyReminder = "Channel for daily reminder notifications"
+            val nameDailyReminder = Constants.CHANNEL_DAILY_REMINDER_TITLE
+            val descriptionTextDailyReminder = Constants.CHANNEL_DAILY_REMINDER_DESCRIPTION
             val importanceDailyReminder = NotificationManager.IMPORTANCE_HIGH
-            val channelDailyReminder = NotificationChannel("daily_reminder_channel", nameDailyReminder, importanceDailyReminder).apply {
+            val channelDailyReminder = NotificationChannel(Constants.CHANNEL_DAILY_REMINDER_ID, nameDailyReminder, importanceDailyReminder).apply {
                 description = descriptionTextDailyReminder
             }
 
@@ -78,10 +76,10 @@ class MainActivity : AppCompatActivity() {
 
 
             //Steps Reminder
-            val nameStepsReminder = "Steps Reminder Channel"
-            val descriptionTextStepsReminder = "Channel for steps reminder notifications"
+            val nameStepsReminder = Constants.CHANNEL_STEPS_REMINDER_TITLE
+            val descriptionTextStepsReminder = Constants.CHANNEL_STEPS_REMINDER_DESCRIPTION
             val importanceStepsReminder = NotificationManager.IMPORTANCE_HIGH
-            val channelStepsReminder = NotificationChannel("steps_reminder_channel", nameStepsReminder, importanceStepsReminder).apply {
+            val channelStepsReminder = NotificationChannel(Constants.CHANNEL_STEPS_REMINDER_ID, nameStepsReminder, importanceStepsReminder).apply {
                 description = descriptionTextStepsReminder
             }
 
@@ -97,11 +95,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scheduleDailyNotificationIfEnabled() {
-        val sharedPreferences = getSharedPreferences("settings daily reminder notification", Context.MODE_PRIVATE)
-        val dailyReminderEnabled = sharedPreferences.getBoolean("daily_reminder_enabled", false)
+        Log.d("SCHEDULE DAILY NOTIFICATION","FROM MAIN ACTIVITY")
+
+        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
+        val dailyReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
         if (dailyReminderEnabled) {
-            val hour = sharedPreferences.getInt("daily_reminder_hour", 8) // Default hour: 8
-            val minute = sharedPreferences.getInt("daily_reminder_minute", 0) // Default minute: 0
+            val hour = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_HOUR, 8) // Default hour: 8
+            val minute = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_MINUTE, 0) // Default minute: 0
 
             val calendar = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, hour)
@@ -112,7 +112,7 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, DailyReminderReceiver::class.java)
             val pendingIntent = PendingIntent.getBroadcast(
                 this,
-                0,
+                Constants.REQUEST_CODE_DAILY_REMINDER,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -128,24 +128,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scheduleStepsNotificationIfEnabled() {
-        val sharedPreferences = getSharedPreferences("settings minimum steps reminder notification", Context.MODE_PRIVATE)
-        val stepsReminderEnabled = sharedPreferences.getBoolean("steps_reminder_enabled", false)
+        Log.d("SCHEDULE STEP NOTIFICATION","FROM MAIN ACTIVITY")
+        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
+        val stepsReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
         if (stepsReminderEnabled) {
-            val stepsNumber = sharedPreferences.getInt("steps_reminder", 5000) // Default days: 3
-            val hour = 17 // Orario desiderato per la notifica
-            val minute = 0
+            val stepsNumber = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_STEPS_REMINDER_NUMBER, 0) // Default days: 3
+
 
             // Calcola la data di trigger per la notifica
             val calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hour)
-                set(Calendar.MINUTE, minute)
+                set(Calendar.HOUR_OF_DAY, Constants.SHARED_PREFERENCES_STEPS_REMINDER_HOUR)
+                set(Calendar.MINUTE, Constants.SHARED_PREFERENCES_STEPS_REMINDER_MINUTE)
                 set(Calendar.SECOND, 0)
             }
 
             val intent = Intent(this, StepsReminderReceiver::class.java)
             val pendingIntent = PendingIntent.getBroadcast(
                 this,
-                1,
+                Constants.REQUEST_CODE_STEPS_REMINDER,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -193,7 +193,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(android.Manifest.permission.ACTIVITY_RECOGNITION),
-                activityRecognitionRequestCode
+                Constants.ACTIVITY_RECOGNITION_REQUEST_CODE
             )
         }
     }
@@ -207,7 +207,7 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
-                notificationPermissionRequestCode
+                Constants.NOTIFICATION_PERMISSION_REQUEST_CODE
             )
         }
     }
@@ -219,12 +219,12 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
-            activityRecognitionRequestCode -> {
+            Constants.ACTIVITY_RECOGNITION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("PERMISSION", "Activity recognition permission granted")
                 }
             }
-            notificationPermissionRequestCode -> {
+            Constants.NOTIFICATION_PERMISSION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.d("PERMISSION", "Notification permission granted")
                 }

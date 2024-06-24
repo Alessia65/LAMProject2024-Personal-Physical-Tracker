@@ -13,6 +13,7 @@ import android.widget.NumberPicker
 import android.widget.Switch
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentSettingsBinding
 import com.example.personalphysicaltracker.notifications.DailyReminderReceiver
@@ -52,11 +53,11 @@ class SettingsFragment : Fragment() {
         switchStepsReminder = binding.root.findViewById(R.id.switch_notification_steps_reminder)
 
         // Load saved preferences
-        val sharedPreferencesDaily = requireContext().getSharedPreferences("settings daily reminder notification", Context.MODE_PRIVATE)
-        val dailyReminderEnabled = sharedPreferencesDaily.getBoolean("daily_reminder_enabled", false)
+        val sharedPreferencesDaily = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
+        val dailyReminderEnabled = sharedPreferencesDaily.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
 
-        val sharedPreferencesSteps = requireContext().getSharedPreferences("settings minimum steps reminder notification", Context.MODE_PRIVATE)
-        val stepsReminderEnabled = sharedPreferencesSteps.getBoolean("steps_reminder_enabled", false)
+        val sharedPreferencesSteps = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
+        val stepsReminderEnabled = sharedPreferencesSteps.getBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
 
         // Set switches state based on saved preferences
         switchDailyReminder.isChecked = dailyReminderEnabled
@@ -65,7 +66,7 @@ class SettingsFragment : Fragment() {
         // Handle switch state changes
         switchDailyReminder.setOnCheckedChangeListener { _, isChecked ->
             val editor = sharedPreferencesDaily.edit()
-            editor.putBoolean("daily_reminder_enabled", isChecked)
+            editor.putBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, isChecked)
             editor.apply()
 
             if (isChecked) {
@@ -79,7 +80,7 @@ class SettingsFragment : Fragment() {
 
         switchStepsReminder.setOnCheckedChangeListener { _, isChecked ->
             val editor = sharedPreferencesSteps.edit()
-            editor.putBoolean("steps_reminder_enabled", isChecked)
+            editor.putBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, isChecked)
             editor.apply()
 
             if (isChecked) {
@@ -118,12 +119,13 @@ class SettingsFragment : Fragment() {
         // Creazione del AlertDialog
         val builder = AlertDialog.Builder(requireContext())
         builder.setView(dialogView)
-            .setTitle("Seleziona un numero")
+            .setTitle("Pick steps number")
             .setPositiveButton("OK") { dialog, which ->
                 // Ottieni il valore selezionato
                 val selectedNumber = displayValues[numberPicker.value - 1].toInt()
                 // Fai qualcosa con il numero selezionato
                 Log.d("SelectedNumber", "Selected number is $selectedNumber")
+
                 scheduleStepsNotification(selectedNumber)
 
 
@@ -144,14 +146,18 @@ class SettingsFragment : Fragment() {
     private fun scheduleStepsNotification(selectedNumber: Int) {
         // Calcola la data di trigger per la notifica
         val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 17)
-            set(Calendar.MINUTE, 0)
+            set(Calendar.HOUR_OF_DAY, Constants.SHARED_PREFERENCES_STEPS_REMINDER_HOUR)
+            set(Calendar.MINUTE, Constants.SHARED_PREFERENCES_STEPS_REMINDER_MINUTE)
             set(Calendar.SECOND, 0)
         }
 
         calculateDailySteps()
         settingsViewModel.scheduleStepsNotification(selectedNumber,calendar, dailySteps, requireContext())
-        Toast.makeText(requireContext(), "Steps reminder set for 5:00 PM if goal not met.", Toast.LENGTH_SHORT).show()
+
+        val date: Date = calendar.time
+        val sdf = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
+        val formattedDate: String = sdf.format(date)
+        Toast.makeText(requireContext(), "Steps reminder set for $formattedDate if goal not met.", Toast.LENGTH_SHORT).show()
 
     }
 

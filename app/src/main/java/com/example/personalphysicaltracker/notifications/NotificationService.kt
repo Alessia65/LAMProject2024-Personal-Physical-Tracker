@@ -15,6 +15,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.MainActivity
 import com.example.personalphysicaltracker.R
 import java.util.Date
@@ -35,45 +36,18 @@ class NotificationService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createDailyReminderNotificationChannel()
-        createStepsReminderNotificationChannel()
     }
 
-    private fun createDailyReminderNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Daily Reminder Channel"
-            val descriptionText = "Channel for daily reminder notifications"
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel("daily_reminder_channel", name, importance).apply {
-                description = descriptionText
-            }
-
-            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    private fun createStepsReminderNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "Steps Reminder Channel"
-            val descriptionText = "Channel for steps reminders"
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel("steps_reminder_channel", name, importance).apply {
-                description = descriptionText
-            }
-
-            val notificationManager: NotificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
 
     fun showDailyReminderNotification(context: Context, title: String, message: String) {
+        Log.d("SHOW DAILY NOTIFICATION","FROM NOTIFICATION SERVICE")
+
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(context, 0, intent,
+        val pendingIntent = PendingIntent.getActivity(context, Constants.REQUEST_CODE_DAILY_REMINDER, intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val notification = NotificationCompat.Builder(context, "daily_reminder_channel")
+        val notification = NotificationCompat.Builder(context, Constants.CHANNEL_DAILY_REMINDER_ID)
             .setSmallIcon(R.drawable.ic_notifications_black_24dp)
             .setContentTitle(title)
             .setContentText(message)
@@ -90,17 +64,19 @@ class NotificationService : Service() {
             ) {
                 return
             }
-            notify(1, notification)
+            notify(Constants.REQUEST_CODE_DAILY_REMINDER, notification)
         }
     }
 
     fun showStepsReminderNotification(context: Context, title: String, message: String) {
+        Log.d("SHOW STEP NOTIFICATION","FROM NOTIFICATION SERVICE")
+
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(context, 1, intent,
+        val pendingIntent = PendingIntent.getActivity(context, Constants.REQUEST_CODE_STEPS_REMINDER, intent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-        val notification = NotificationCompat.Builder(context, "steps_reminder_channel")
+        val notification = NotificationCompat.Builder(context, Constants.CHANNEL_STEPS_REMINDER_ID)
             .setSmallIcon(R.drawable.ic_notifications_black_24dp)
             .setContentTitle(title)
             .setContentText(message)
@@ -117,7 +93,7 @@ class NotificationService : Service() {
             ) {
                 return
             }
-            notify(2, notification)
+            notify(Constants.REQUEST_CODE_STEPS_REMINDER, notification)
         }
     }
 }

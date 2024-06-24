@@ -1,6 +1,7 @@
 package com.example.personalphysicaltracker.ui.home
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,6 +15,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.DrivingActivity
@@ -151,6 +153,11 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         homeViewModel.dailySteps.observe(viewLifecycleOwner){dailyStepsList ->
             dailyStepsList?.let{
                 stepsText.text = "Daily steps: $dailyStepsList"
+                val sharedPreferencesSteps = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
+                val editor = sharedPreferencesSteps.edit()
+                editor.putLong(Constants.SHARED_PREFERENCES_STEPS_DAILY, dailyStepsList)
+                editor.apply()
+
             }
         }
     }
