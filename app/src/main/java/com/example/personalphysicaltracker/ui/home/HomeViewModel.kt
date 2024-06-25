@@ -18,7 +18,6 @@ class HomeViewModel : ViewModel() {
     private lateinit var activityViewModel: ActivityViewModel
     private lateinit var selectedActivity: PhysicalActivity
 
-
     private var date: String = ""
     private val _dailyTime = MutableLiveData<List<Double?>>(listOf(null, null, null, null))
     val dailyTime: LiveData<List<Double?>>

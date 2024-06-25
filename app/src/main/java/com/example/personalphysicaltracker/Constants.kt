@@ -28,6 +28,10 @@ object Constants {
     const val SHARED_PREFERENCES_STEPS_REMINDER_MINUTE = 0
     const val SHARED_PREFERENCES_STEPS_DAILY = "steps_number_daily"
 
+    const val SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION = "background activities recognition"
+    const val SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED = "background_activities_recognition_enabled"
+
+
     const val PERMISSION_ACTIVITY_RECOGNITION = android.Manifest.permission.ACTIVITY_RECOGNITION
     const val PERMISSION_POST_NOTIFICATIONS = android.Manifest.permission.POST_NOTIFICATIONS
 

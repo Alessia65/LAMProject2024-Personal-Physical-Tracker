@@ -140,7 +140,6 @@ class SettingsViewModel : ViewModel() {
         )
 
 
-
         // Save the formatted notification time in SharedPreferences
         val sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
@@ -189,5 +188,21 @@ class SettingsViewModel : ViewModel() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return dateFormat.format(Date())
     }
+
+    fun checkBackgroundRecogniseActivitiesOn(context: Context): Boolean{
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
+        return  (sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false))
+    }
+
+    fun setBackgroundRecogniseActivies(context: Context, isChecked: Boolean){
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(
+            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION,
+            Context.MODE_PRIVATE
+        )
+        val editor = sharedPreferencesBackgroundActivities.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, isChecked)
+        editor.apply()
+    }
+
 
 }

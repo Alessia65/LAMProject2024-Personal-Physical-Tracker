@@ -13,11 +13,13 @@ import android.widget.NumberPicker
 import android.widget.Switch
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.PermissionsHandler
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentSettingsBinding
 import com.example.personalphysicaltracker.notifications.DailyReminderReceiver
+import com.example.personalphysicaltracker.ui.home.HomeViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -122,6 +124,14 @@ class SettingsFragment : Fragment() {
         //Background Operations
         switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
 
+        switchActivityRecognition.isChecked = settingsViewModel.checkBackgroundRecogniseActivitiesOn(requireContext())
+
+        switchActivityRecognition.setOnCheckedChangeListener{_, isChecked ->
+            Log.d("CHANGE", isChecked.toString())
+            settingsViewModel.setBackgroundRecogniseActivies(requireContext(), isChecked)
+
+        }
+
 
     }
 
@@ -193,11 +203,6 @@ class SettingsFragment : Fragment() {
 
         settingsViewModel.getTotalStepsFromToday(this.activity, this) { totalSteps ->
             this.dailySteps = totalSteps
-            /*
-            lifecycleScope.launch {
-            }
-
-             */
         }
     }
 
