@@ -4,6 +4,8 @@ object Constants {
     const val ACTIVITY_RECOGNITION_REQUEST_CODE = 100
     const val NOTIFICATION_PERMISSION_REQUEST_CODE = 101
 
+    const val SETTINGS_PERMISSION_REQUEST = 102
+
     const val REQUEST_CODE_DAILY_REMINDER = 0
     const val REQUEST_CODE_STEPS_REMINDER = 1
 
@@ -28,6 +30,9 @@ object Constants {
     const val SHARED_PREFERENCES_STEPS_REMINDER_HOUR = 17
     const val SHARED_PREFERENCES_STEPS_REMINDER_MINUTE = 0
     const val SHARED_PREFERENCES_STEPS_DAILY = "steps_number_daily"
+
+    const val PERMISSION_ACTIVITY_RECOGNITION = android.Manifest.permission.ACTIVITY_RECOGNITION
+    const val PERMISSION_POST_NOTIFICATIONS = android.Manifest.permission.POST_NOTIFICATIONS
 
 
 
