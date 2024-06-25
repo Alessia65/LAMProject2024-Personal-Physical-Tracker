@@ -14,25 +14,20 @@ import androidx.core.content.ContextCompat
 @SuppressLint("StaticFieldLeak")
 object PermissionsHandler {
 
-    fun checkActivityRecognitionPermission(context: Context): Boolean {
-        return (ActivityCompat.checkSelfPermission(context, Constants.PERMISSION_ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED)
-
+    public  var notificationPermission = false
+    fun checkPermissions(context: Context): Boolean{
+        val activityRecognise = ActivityCompat.checkSelfPermission(context, Constants.PERMISSION_ACTIVITY_RECOGNITION)
+        val postNotifications = ActivityCompat.checkSelfPermission(context, Constants.PERMISSION_POST_NOTIFICATIONS)
+        return activityRecognise == PackageManager.PERMISSION_GRANTED && postNotifications == PackageManager.PERMISSION_GRANTED
     }
 
-    fun shouldShowRequest(activity: AppCompatActivity): Boolean{
-        return (ActivityCompat.shouldShowRequestPermissionRationale(activity, Constants.PERMISSION_ACTIVITY_RECOGNITION))
-    }
-
-    fun requestActivityRecognitionPermission(activity: AppCompatActivity){
+    fun requestPermissions(activity: Activity){
         ActivityCompat.requestPermissions(
             activity,
-            arrayOf(Constants.PERMISSION_ACTIVITY_RECOGNITION),
-            Constants.ACTIVITY_RECOGNITION_REQUEST_CODE
+            arrayOf(Constants.PERMISSION_ACTIVITY_RECOGNITION, Constants.PERMISSION_POST_NOTIFICATIONS),
+            Constants.PERMISSION_REQUESTS_CODE
         )
     }
 
-    fun checkGrantResults(grantResults: IntArray): Boolean{
-        return (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
 
-    }
 }

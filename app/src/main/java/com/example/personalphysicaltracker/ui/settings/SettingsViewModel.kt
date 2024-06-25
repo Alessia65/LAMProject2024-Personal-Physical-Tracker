@@ -117,7 +117,8 @@ class SettingsViewModel : ViewModel() {
         minute: Int,
         formattedTime: String
     ) {
-        
+        Log.d("NOTIFICATION","CREATE DAILY REMINDER RECEIVER at" + formattedTime)
+
 
         // Create an intent for DailyReminderReceiver
         val intent = Intent(context, DailyReminderReceiver::class.java)
@@ -167,7 +168,9 @@ class SettingsViewModel : ViewModel() {
     }
 
      fun cancelDailyNotification(context: Context) {
-        // Create an intent for DailyReminderReceiver
+         Log.d("NOTIFICATION","DELETE DAILY REMINDER RECEIVER")
+
+         // Create an intent for DailyReminderReceiver
         val intent = Intent(context, DailyReminderReceiver::class.java)
         // Create a PendingIntent to be cancelled
         val pendingIntent = PendingIntent.getBroadcast(

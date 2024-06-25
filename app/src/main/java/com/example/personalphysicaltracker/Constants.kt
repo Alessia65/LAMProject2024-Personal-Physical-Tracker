@@ -1,10 +1,7 @@
 package com.example.personalphysicaltracker
 
 object Constants {
-    const val ACTIVITY_RECOGNITION_REQUEST_CODE = 100
-    const val NOTIFICATION_PERMISSION_REQUEST_CODE = 101
-
-    const val SETTINGS_PERMISSION_REQUEST = 102
+    const val PERMISSION_REQUESTS_CODE = 100
 
     const val REQUEST_CODE_DAILY_REMINDER = 0
     const val REQUEST_CODE_STEPS_REMINDER = 1

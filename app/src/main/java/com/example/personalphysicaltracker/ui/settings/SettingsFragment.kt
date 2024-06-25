@@ -14,6 +14,7 @@ import android.widget.Switch
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.personalphysicaltracker.Constants
+import com.example.personalphysicaltracker.PermissionsHandler
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentSettingsBinding
 import com.example.personalphysicaltracker.notifications.DailyReminderReceiver
@@ -71,7 +72,18 @@ class SettingsFragment : Fragment() {
 
             if (isChecked) {
                 // Show time picker dialog when daily reminder switch is turned on
-                showTimePickerDialog()
+                if (checkNotificationPermission()){
+                    showTimePickerDialog()
+                }
+                else{
+                    PermissionsHandler.requestPermissions(requireActivity())
+                    if (!PermissionsHandler.notificationPermission){
+                        switchDailyReminder.isChecked = false
+                        val editor = sharedPreferencesDaily.edit()
+                        editor.putBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
+                        editor.apply()
+                    }
+                }
             } else {
                 // Cancel daily notification when daily reminder switch is turned off
                 settingsViewModel.cancelDailyNotification(requireContext())
@@ -84,8 +96,20 @@ class SettingsFragment : Fragment() {
             editor.apply()
 
             if (isChecked) {
-                // Prompt user to set days of inactivity
-                showNumberOfStepsDialog()
+                if (checkNotificationPermission()){
+                    showNumberOfStepsDialog()
+                }
+                 else{
+                    PermissionsHandler.requestPermissions(requireActivity())
+                    if (!PermissionsHandler.notificationPermission ){
+                        switchStepsReminder.isChecked = false
+                        val editor = sharedPreferencesSteps.edit()
+                        editor.putBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
+                        editor.apply()
+                    }
+
+                }
+
             } else {
                 // Cancel inactivity notification when inactivity reminder switch is turned off
                 settingsViewModel.cancelStepsNotification(requireContext())
@@ -99,6 +123,10 @@ class SettingsFragment : Fragment() {
         switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
 
 
+    }
+
+    private fun checkNotificationPermission(): Boolean {
+        return PermissionsHandler.notificationPermission
     }
 
 
