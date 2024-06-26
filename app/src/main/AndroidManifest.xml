@@ -39,7 +39,7 @@
             android:exported="false" />
 
         <receiver
-            android:name=".ActivityTransitionReceiver"
+            android:name=".ui.settings.ActivityTransitionReceiver"
             android:exported="false"
             android:enabled="true"/>
 

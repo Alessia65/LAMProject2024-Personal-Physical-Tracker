@@ -34,7 +34,7 @@ class UserActivityTransitionManager(context: Context): LifecycleObserver {
         context,
         Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION_CODE,
         Intent(Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION),
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) PendingIntent.FLAG_CANCEL_CURRENT else PendingIntent.FLAG_MUTABLE
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) PendingIntent.FLAG_CANCEL_CURRENT else PendingIntent.FLAG_IMMUTABLE
     )
 
     private val activityTransitions = listOf(
