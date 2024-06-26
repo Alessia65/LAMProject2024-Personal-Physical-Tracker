@@ -46,7 +46,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
 
     private lateinit var buttonStartActivity: Button
-    private lateinit var accelText: TextView
+    public lateinit var accelText: TextView
     private lateinit var progressBarWalking: ProgressBar
     private lateinit var progressBarDriving: ProgressBar
     private lateinit var progressBarStanding: ProgressBar
@@ -443,6 +443,8 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         //stopAccelerometerSensor()
         _binding = null
     }
+
+
 
 
 }

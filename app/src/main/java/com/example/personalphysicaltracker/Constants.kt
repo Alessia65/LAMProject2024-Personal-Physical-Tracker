@@ -1,6 +1,7 @@
 package com.example.personalphysicaltracker
 
 object Constants {
+
     const val PERMISSION_REQUESTS_CODE = 100
 
     const val REQUEST_CODE_DAILY_REMINDER = 0
@@ -33,9 +34,18 @@ object Constants {
 
 
     const val PERMISSION_ACTIVITY_RECOGNITION = android.Manifest.permission.ACTIVITY_RECOGNITION
+    const val PERMISSION_ACTIVITY_RECOGNITION_BEFORE = "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
     const val PERMISSION_POST_NOTIFICATIONS = android.Manifest.permission.POST_NOTIFICATIONS
 
+    const val BACKGROUND_OPERATION_ACTIVITY_RECOGNITION = "activity recognition on"
+    const val BACKGROUND_OPERATION_ACTIVITY_RECOGNITION_CODE = 254
 
 
 
+
+    /*
+    TODO:
+    1. ogni volta che apro l'app e le notifiche sono attivate arriva la notifica
+    2. registrazione dell'activity broadcast recever nel main
+     */
 }

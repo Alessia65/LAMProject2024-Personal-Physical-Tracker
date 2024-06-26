@@ -1,9 +1,11 @@
 package com.example.personalphysicaltracker.ui.settings
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
-import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,32 +13,39 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.NumberPicker
 import android.widget.Switch
+import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.PermissionsHandler
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentSettingsBinding
-import com.example.personalphysicaltracker.notifications.DailyReminderReceiver
-import com.example.personalphysicaltracker.ui.home.HomeViewModel
+import com.example.personalphysicaltracker.ui.home.HomeFragment
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+@SuppressLint("UseSwitchCompatOrMaterialCode")
 class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
     private val settingsViewModel: SettingsViewModel = SettingsViewModel()
 
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var switchDailyReminder: Switch
-    @SuppressLint("UseSwitchCompatOrMaterialCode")
     private lateinit var switchStepsReminder: Switch
-
     private lateinit var switchActivityRecognition: Switch
 
     private var dailySteps = 0L
+
+
+    private lateinit var manager: UserActivityTransitionManager
+    private lateinit var activityReceiver: ActivityTransitionReceiver
+
+    private lateinit var textCurrentActivity: TextView //Todo: cancellare
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,95 +54,147 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        textCurrentActivity = binding.root.findViewById(R.id.eliminare) //Todo: cancellare
+
+
+
+        initializeObserverActivityTransition()
         initializeViews()
 
         return root
+    }
+
+    private fun initializeObserverActivityTransition() {
+        manager = UserActivityTransitionManager(requireContext())
+        lifecycle.addObserver(manager)
+
+        /*
+        Andrebbe fatta nel Main in qualche modo cosi da mantenerla
+         */
+        activityReceiver = ActivityTransitionReceiver(requireContext(), Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION) { userActivity ->
+            // TODO: Rimuovere
+            activity?.runOnUiThread {
+                textCurrentActivity.text = "Current activity is:\n$userActivity"
+            }
+        }
+        lifecycle.addObserver(activityReceiver)
     }
 
     private fun initializeViews() {
         // Initialize switches
         switchDailyReminder = binding.root.findViewById(R.id.switch_notification_daily_reminder)
         switchStepsReminder = binding.root.findViewById(R.id.switch_notification_steps_reminder)
+        switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
 
-        // Load saved preferences
         val sharedPreferencesDaily = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
         val dailyReminderEnabled = sharedPreferencesDaily.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
+        switchDailyReminder.isChecked = dailyReminderEnabled
 
         val sharedPreferencesSteps = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
         val stepsReminderEnabled = sharedPreferencesSteps.getBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
-
-        // Set switches state based on saved preferences
-        switchDailyReminder.isChecked = dailyReminderEnabled
         switchStepsReminder.isChecked = stepsReminderEnabled
 
         // Handle switch state changes
         switchDailyReminder.setOnCheckedChangeListener { _, isChecked ->
-            val editor = sharedPreferencesDaily.edit()
-            editor.putBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, isChecked)
-            editor.apply()
-
-            if (isChecked) {
-                // Show time picker dialog when daily reminder switch is turned on
-                if (checkNotificationPermission()){
-                    showTimePickerDialog()
-                }
-                else{
-                    PermissionsHandler.requestPermissions(requireActivity())
-                    if (!PermissionsHandler.notificationPermission){
-                        switchDailyReminder.isChecked = false
-                        val editor = sharedPreferencesDaily.edit()
-                        editor.putBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
-                        editor.apply()
-                    }
-                }
-            } else {
-                // Cancel daily notification when daily reminder switch is turned off
-                settingsViewModel.cancelDailyNotification(requireContext())
-            }
+            handleDailyReminderSwitch(isChecked, sharedPreferencesDaily)
         }
 
         switchStepsReminder.setOnCheckedChangeListener { _, isChecked ->
-            val editor = sharedPreferencesSteps.edit()
-            editor.putBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, isChecked)
-            editor.apply()
-
-            if (isChecked) {
-                if (checkNotificationPermission()){
-                    showNumberOfStepsDialog()
-                }
-                 else{
-                    PermissionsHandler.requestPermissions(requireActivity())
-                    if (!PermissionsHandler.notificationPermission ){
-                        switchStepsReminder.isChecked = false
-                        val editor = sharedPreferencesSteps.edit()
-                        editor.putBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
-                        editor.apply()
-                    }
-
-                }
-
-            } else {
-                // Cancel inactivity notification when inactivity reminder switch is turned off
-                settingsViewModel.cancelStepsNotification(requireContext())
-            }
+            handleStepReminderSwitch(isChecked ,sharedPreferencesSteps)
         }
-
-        calculateDailySteps()
 
 
         //Background Operations
-        switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
 
         switchActivityRecognition.isChecked = settingsViewModel.checkBackgroundRecogniseActivitiesOn(requireContext())
 
         switchActivityRecognition.setOnCheckedChangeListener{_, isChecked ->
-            Log.d("CHANGE", isChecked.toString())
-            settingsViewModel.setBackgroundRecogniseActivies(requireContext(), isChecked)
-
+            handleActivityRecognitionSwitch(isChecked)
         }
 
+        calculateDailySteps()
 
     }
+
+    private fun handleActivityRecognitionSwitch(isChecked: Boolean) {
+        settingsViewModel.setBackgroundRecogniseActivies(requireContext(), isChecked)
+        if (isChecked) {
+            registerActivityTransitions()
+        }else {
+            unregisterActivityTransitions()
+        }
+    }
+
+    private fun handleStepReminderSwitch(isChecked: Boolean, sharedPreferencesSteps: SharedPreferences) {
+        val editor = sharedPreferencesSteps.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, isChecked)
+        editor.apply()
+
+        if (isChecked) {
+            if (checkNotificationPermission()){
+                showNumberOfStepsDialog()
+            }
+            else{
+                PermissionsHandler.requestPermissions(requireActivity())
+                if (!PermissionsHandler.notificationPermission ){
+                    switchStepsReminder.isChecked = false
+                    val editor = sharedPreferencesSteps.edit()
+                    editor.putBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
+                    editor.apply()
+                }
+
+            }
+
+        } else {
+            // Cancel inactivity notification when inactivity reminder switch is turned off
+            settingsViewModel.cancelStepsNotification(requireContext())
+        }
+    }
+
+    private fun handleDailyReminderSwitch(isChecked: Boolean, sharedPreferencesDaily: SharedPreferences) {
+        val editor = sharedPreferencesDaily.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, isChecked)
+        editor.apply()
+
+        if (isChecked) {
+            // Show time picker dialog when daily reminder switch is turned on
+            if (checkNotificationPermission()){
+                showTimePickerDialog()
+            }
+            else{
+                PermissionsHandler.requestPermissions(requireActivity())
+                if (!PermissionsHandler.notificationPermission){
+                    switchDailyReminder.isChecked = false
+                    val editor = sharedPreferencesDaily.edit()
+                    editor.putBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
+                    editor.apply()
+                }
+            }
+        } else {
+            // Cancel daily notification when daily reminder switch is turned off
+            settingsViewModel.cancelDailyNotification(requireContext())
+        }
+    }
+
+    private fun registerActivityTransitions() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                manager.registerActivityTransitions()
+            }
+        }
+    }
+
+    private fun unregisterActivityTransitions() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                manager.unregisterActivityTransitions()
+            }
+        }
+    }
+
+
+
+
 
     private fun checkNotificationPermission(): Boolean {
         return PermissionsHandler.notificationPermission
@@ -254,6 +315,7 @@ class SettingsFragment : Fragment() {
         Toast.makeText(requireContext(), "Daily reminder set for $formattedTime", Toast.LENGTH_SHORT).show()
 
     }
+
 
 
 
