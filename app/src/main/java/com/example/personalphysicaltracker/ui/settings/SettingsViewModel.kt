@@ -121,9 +121,9 @@ class SettingsViewModel : ViewModel() {
     ) {
         Log.d("NOTIFICATION","CREATE DAILY REMINDER RECEIVER at" + formattedTime)
 
-
         // Create an intent for DailyReminderReceiver
         val intent = Intent(context, DailyReminderReceiver::class.java)
+
         // Create a PendingIntent to be triggered at the specified time
         val pendingIntent = PendingIntent.getBroadcast(
             context,
@@ -207,7 +207,4 @@ class SettingsViewModel : ViewModel() {
     }
 
 
-    fun stopNotificationActivityRecognition(context: Context, channelId: String) {
-
-    }
 }

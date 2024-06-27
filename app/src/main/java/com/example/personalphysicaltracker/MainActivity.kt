@@ -156,45 +156,61 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scheduleDailyNotificationIfEnabled() {
-        Log.d("SCHEDULE DAILY NOTIFICATION","FROM MAIN ACTIVITY")
+            Log.d("SCHEDULE DAILY NOTIFICATION", "FROM MAIN ACTIVITY")
 
-        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
-        val dailyReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
-        if (dailyReminderEnabled) {
-            val hour = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_HOUR, 8) // Default hour: 8
-            val minute = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_MINUTE, 0) // Default minute: 0
+            val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
+            val dailyReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
 
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hour)
-                set(Calendar.MINUTE, minute)
-                set(Calendar.SECOND, 0)
+            if (dailyReminderEnabled) {
+                val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val intent = Intent(this, DailyReminderReceiver::class.java)
+                var pendingIntent = PendingIntent.getBroadcast(
+                    this,
+                    Constants.REQUEST_CODE_DAILY_REMINDER,
+                    intent,
+                    PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE // Check if PendingIntent already exists
+                )
+
+                if (pendingIntent == null) {
+                    Log.d("NOTIFICATION", "pending intent null")
+                    // PendingIntent non esiste, quindi crea un nuovo allarme
+                    val hour = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_HOUR, 8) // Default hour: 8
+                    val minute = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_MINUTE, 0) // Default minute: 0
+
+                    val calendar = Calendar.getInstance().apply {
+                        set(Calendar.HOUR_OF_DAY, hour)
+                        set(Calendar.MINUTE, minute)
+                        set(Calendar.SECOND, 0)
+                    }
+
+                    pendingIntent = PendingIntent.getBroadcast(
+                        this,
+                        Constants.REQUEST_CODE_DAILY_REMINDER,
+                        intent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                    )
+
+                    alarmManager.setRepeating(
+                        AlarmManager.RTC_WAKEUP,
+                        calendar.timeInMillis,
+                        AlarmManager.INTERVAL_DAY,
+                        pendingIntent
+                    )
+                } else {
+                    Log.d("SCHEDULE DAILY NOTIFICATION", "Alarm already scheduled")
+                }
             }
 
-            val intent = Intent(this, DailyReminderReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(
-                this,
-                Constants.REQUEST_CODE_DAILY_REMINDER,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
 
-            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                AlarmManager.INTERVAL_DAY,
-                pendingIntent
-            )
-        }
     }
 
     private fun scheduleStepsNotificationIfEnabled() {
-        Log.d("SCHEDULE STEP NOTIFICATION","FROM MAIN ACTIVITY")
+        Log.d("SCHEDULE STEP NOTIFICATION", "FROM MAIN ACTIVITY")
         val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
         val stepsReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
-        if (stepsReminderEnabled) {
-            val stepsNumber = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_STEPS_REMINDER_NUMBER, 0) // Default days: 3
 
+        if (stepsReminderEnabled) {
+            //val stepsNumber = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_STEPS_REMINDER_NUMBER, 0) // Default days: 3
 
             // Calcola la data di trigger per la notifica
             val calendar = Calendar.getInstance().apply {
@@ -208,19 +224,32 @@ class MainActivity : AppCompatActivity() {
                 this,
                 Constants.REQUEST_CODE_STEPS_REMINDER,
                 intent,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE // Check if PendingIntent already exists
             )
 
+            if (pendingIntent == null) {
+                Log.d("NOTIFICATION", "pending intent null")
+                // PendingIntent non esiste, quindi crea un nuovo allarme
+                val pendingIntentNew = PendingIntent.getBroadcast(
+                    this,
+                    Constants.REQUEST_CODE_STEPS_REMINDER,
+                    intent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
 
-            val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                AlarmManager.INTERVAL_DAY,
-                pendingIntent
-            )
+                val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                alarmManager.setRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    AlarmManager.INTERVAL_DAY,
+                    pendingIntentNew
+                )
+            } else {
+                Log.d("SCHEDULE STEP NOTIFICATION", "Alarm already scheduled")
+            }
         }
     }
+
 
 
     private fun initializeNavigation() {
