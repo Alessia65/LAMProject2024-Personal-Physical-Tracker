@@ -1,7 +1,5 @@
 package com.example.personalphysicaltracker
 
-import android.Manifest.permission.ACTIVITY_RECOGNITION
-import android.Manifest.permission.POST_NOTIFICATIONS
 import android.app.AlarmManager
 import android.app.AlertDialog
 import android.app.NotificationChannel
@@ -15,12 +13,10 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -28,10 +24,9 @@ import androidx.navigation.ui.setupWithNavController
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
-import com.example.personalphysicaltracker.notifications.DailyReminderReceiver
-import com.example.personalphysicaltracker.notifications.StepsReminderReceiver
+import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
+import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import java.net.URI
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {

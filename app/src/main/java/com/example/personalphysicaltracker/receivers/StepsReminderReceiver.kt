@@ -1,11 +1,11 @@
-package com.example.personalphysicaltracker.notifications
+package com.example.personalphysicaltracker.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.example.personalphysicaltracker.Constants
-import com.example.personalphysicaltracker.ui.settings.SettingsViewModel
+import com.example.personalphysicaltracker.ui.settings.NotificationService
 
 class StepsReminderReceiver : BroadcastReceiver() {
 

@@ -1,15 +1,12 @@
-package com.example.personalphysicaltracker.notifications
+package com.example.personalphysicaltracker.ui.settings
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -18,7 +15,6 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.MainActivity
 import com.example.personalphysicaltracker.R
-import java.util.Date
 
 class NotificationService : Service() {
 

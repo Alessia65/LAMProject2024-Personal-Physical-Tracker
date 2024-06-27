@@ -34,21 +34,21 @@
             android:resource="@array/preloaded_fonts" />
 
         <service
-            android:name=".notifications.NotificationService"
+            android:name=".ui.settings.NotificationService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false" />
 
         <receiver
-            android:name=".ui.settings.ActivityTransitionReceiver"
+            android:name=".receivers.ActivityTransitionReceiver"
             android:exported="false"
             android:enabled="true"/>
 
         <receiver
-            android:name=".notifications.DailyReminderReceiver"
+            android:name=".receivers.DailyReminderReceiver"
             android:exported="false" />
 
         <receiver
-            android:name=".notifications.StepsReminderReceiver"
+            android:name=".receivers.StepsReminderReceiver"
             android:exported="false" />
 
 

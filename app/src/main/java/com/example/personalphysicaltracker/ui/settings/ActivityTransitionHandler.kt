@@ -10,7 +10,7 @@ import androidx.lifecycle.LifecycleObserver
 import com.google.android.gms.location.*
 import kotlinx.coroutines.tasks.await
 
-class UserActivityTransitionManager(context: Context): LifecycleObserver {
+class ActivityTransitionHandler(context: Context): LifecycleObserver {
 
     companion object {
 

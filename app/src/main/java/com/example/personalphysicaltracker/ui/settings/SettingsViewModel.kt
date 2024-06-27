@@ -14,8 +14,8 @@ import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
-import com.example.personalphysicaltracker.notifications.DailyReminderReceiver
-import com.example.personalphysicaltracker.notifications.StepsReminderReceiver
+import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
+import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,7 +23,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-import java.util.TimeZone
 
 // Communication ActivityViewModel and HomeFragment
 class SettingsViewModel : ViewModel() {
@@ -203,6 +202,7 @@ class SettingsViewModel : ViewModel() {
         editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, isChecked)
         editor.apply()
     }
+
 
 
 }

@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.settings
+package com.example.personalphysicaltracker.receivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -10,6 +10,7 @@ import android.util.Log
 import com.google.android.gms.location.ActivityTransitionResult
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.personalphysicaltracker.ui.settings.ActivityTransitionHandler
 
 class ActivityTransitionReceiver(
     private val context: Context,
@@ -19,11 +20,11 @@ class ActivityTransitionReceiver(
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val result = intent?.let { ActivityTransitionResult.extractResult(it) } ?: return
+            val result = intent.let { ActivityTransitionResult.extractResult(it) } ?: return
             val printInformations = buildString {
                 for (event in result.transitionEvents) {
-                    append("${UserActivityTransitionManager.getActivityType(event.activityType)}: ")
-                    append("${UserActivityTransitionManager.getTransitionType(event.transitionType)}\n\n")
+                    append("${ActivityTransitionHandler.getActivityType(event.activityType)}: ")
+                    append("${ActivityTransitionHandler.getTransitionType(event.transitionType)}\n\n")
                 }
             }
             Log.d("Activity Transition Receiver", "onReceive: $printInformations")
@@ -38,7 +39,6 @@ class ActivityTransitionReceiver(
         } else {
             Log.d("ACTIVITY TRANSITION RECEIVER", "NOT NECESSARY RECEIVER_NOT_EXPORTED")
             context.registerReceiver(broadcastReceiver, IntentFilter(intentAction))
-
         }
         Log.d("Activity Transition Receiver", "BroadcastReceiver registered")
     }
