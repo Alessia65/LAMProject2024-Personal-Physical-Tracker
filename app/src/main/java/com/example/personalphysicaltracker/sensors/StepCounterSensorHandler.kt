@@ -58,7 +58,8 @@ class StepCounterSensorHandler(context: Context) : SensorEventListener {
     }
 
     fun stopStepCounter() {
-        if (presenceOnDevice) {
+        //if (presenceOnDevice) { //TODO: controllare
+        if (running) {
             sensorManager.unregisterListener(this)
             Log.d("Step Counter", "Sensor stopped")
             running = false

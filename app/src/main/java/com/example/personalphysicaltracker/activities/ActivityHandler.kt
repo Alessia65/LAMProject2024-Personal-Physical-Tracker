@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.activities
 
+import android.content.Context
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
@@ -11,6 +12,10 @@ import com.example.personalphysicaltracker.database.ActivityEntity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
+import com.example.personalphysicaltracker.sensors.AccelerometerListener
+import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
+import com.example.personalphysicaltracker.sensors.StepCounterListener
+import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,10 +25,12 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-object ActivityHandler {
+object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
     private lateinit var activityViewModel: ActivityViewModel
     private lateinit var selectedActivity: PhysicalActivity
+    private lateinit var accelerometerSensorHandler: AccelerometerSensorHandler
+    private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
 
     private var date: String = ""
     private var totalSteps: Long = 0
@@ -36,14 +43,23 @@ object ActivityHandler {
     val dailySteps: LiveData<Long>
         get() = _dailySteps
 
+    private val _actualSteps = MutableLiveData<Long>()
+    val actualSteps: LiveData<Long>
+        get() = _actualSteps
 
-    suspend fun initialize(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner) {
+    public var stepCounterOn = false
+    public var stepCounterWithAcc = false
+
+    suspend fun initialize(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner, context: Context) {
         if (!this::activityViewModel.isInitialized) {
             val application = requireNotNull(activity).application
             val repository = TrackingRepository(application)
             val viewModelFactory = ActivityViewModelFactory(repository)
             activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityViewModel::class.java]
         }
+
+        accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(context)
+        stepCounterSensorHandler = StepCounterSensorHandler.getInstance(context)
         // Load daily data from the database at startup
         updateDailyTimeFromDatabase()
 
@@ -121,6 +137,7 @@ object ActivityHandler {
     }
 
     suspend fun startSelectedActivity(activity: PhysicalActivity) {
+
         val lastActivity = getLastActivity()
         val currentTime = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
 
@@ -134,6 +151,15 @@ object ActivityHandler {
 
         val typeForLog = activity.getActivityTypeName()
         Log.d("PHYSICAL ACTIVITY", "$typeForLog Activity Started")
+        startSensors()
+    }
+
+    private fun startSensors() {
+        val activityType = selectedActivity.getActivityTypeName()
+        if (activityType == ActivityType.WALKING){
+            //startStepCounterSensor()
+        }
+        startAccelerometerSensor(activityType)
     }
 
     // Get the last saved activity
@@ -185,6 +211,12 @@ object ActivityHandler {
     }
 
     suspend fun stopSelectedActivity(isWalkingActivity: Boolean) {
+        stopStepCounterSensor()
+        stopAccelerometerSensor()
+        //if (isWalkingActivity){
+        //    stopStepCounterSensor()
+        //}
+
         selectedActivity.setFinishTime()
         selectedActivity.calculateDuration()
 
@@ -194,6 +226,8 @@ object ActivityHandler {
 
         val typeForLog = selectedActivity.getActivityTypeName()
         Log.d("PHYSICAL ACTIVITY", "$typeForLog Activity Stopped")
+
+        _dailySteps.postValue(_dailySteps.value)
         saveInDb()
         updateDailyValues()
     }
@@ -228,6 +262,84 @@ object ActivityHandler {
 
     fun setSteps(totalSteps: Long) {
         this.totalSteps = totalSteps
+        _actualSteps.postValue(totalSteps)
+    }
+
+    private fun startAccelerometerSensor(activityType: ActivityType){
+        accelerometerSensorHandler.registerAccelerometerListener(this)
+        accelerometerSensorHandler.startAccelerometer(activityType)
+    }
+
+
+
+    fun stepCounterActive(): Boolean{
+        return stepCounterSensorHandler.isActive()
+    }
+
+    fun accelerometerActive(): ActivityType?{
+        return accelerometerSensorHandler.isActive()
+    }
+
+    fun startStepCounterSensor(){
+        stepCounterSensorHandler.registerStepCounterListener(this)
+    }
+
+    fun getStepCounterSensorHandler(): Boolean {
+
+        val temp = stepCounterSensorHandler.startStepCounter()
+        if (temp){
+            startStepCounterSensor()
+            stepCounterOn = true
+        }
+        return temp
+    }
+
+    private fun stopAccelerometerSensor(){
+        accelerometerSensorHandler.unregisterListener()
+        accelerometerSensorHandler.stopAccelerometer()
+        //accelerometerSensorHandler.unregisterAllListeners() //TODO: ATTENZIONE
+
+    }
+
+    fun stopStepCounterSensor(){
+        Log.d("STEP COUNTER ON", stepCounterOn.toString())
+        //if (stepCounterOn) {
+        _dailySteps.postValue((_dailySteps.value ?: 0) + totalSteps)
+        stepCounterSensorHandler.unregisterListener()
+        stepCounterSensorHandler.stopStepCounter()
+        stepCounterOn = false
+        Log.d("TOTAL STEPS: " ,  (_dailySteps.value).toString())
+        //}
+    }
+
+    fun setStepCounterOnValue(value: Boolean){
+        stepCounterOn = value
+    }
+
+    fun setStepCounterWithAccValue(value: Boolean){
+        stepCounterWithAcc = value
+    }
+
+
+    override fun onAccelerometerDataReceived(data: String) {
+        if (stepCounterWithAcc) {
+            registerStep(data)
+        }
+        dailyTime.value?.let { dailyTimeList ->
+            val currentProgressWalking = dailyTimeList[0] ?: 0.0
+            val currentProgressDriving = dailyTimeList[1] ?: 0.0
+            val currentProgressStanding = dailyTimeList[2] ?: 0.0
+
+        }
+    }
+
+    override fun onStepCounterDataReceived(data: String) {
+       setSteps(data.toLong())
+    }
+
+    private fun registerStep(data: String) {
+        val step = stepCounterSensorHandler.registerStepWithAccelerometer(data)
+        onStepCounterDataReceived(step.toString())
     }
 
 

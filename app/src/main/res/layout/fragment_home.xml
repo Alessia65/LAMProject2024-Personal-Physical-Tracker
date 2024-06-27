@@ -235,10 +235,9 @@
         app:layout_constraintVertical_bias="0.807" />
 
     <TextView
-        android:id="@+id/text_steps"
+        android:id="@+id/daily_steps_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Boooooh"
         app:layout_constraintBottom_toTopOf="@+id/text_walking_hours"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.084"
@@ -320,5 +319,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/acceleration_text"
         app:layout_constraintVertical_bias="0.322" />
+
+    <TextView
+        android:id="@+id/current_steps_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@+id/text_standing_hours"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.918"
+        app:layout_constraintStart_toEndOf="@+id/daily_steps_text"
+        app:layout_constraintTop_toBottomOf="@+id/progress_bar_standing"
+        app:layout_constraintVertical_bias="0.7" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -42,6 +42,7 @@ object ActivityTransitionHandler : LifecycleObserver {
     private lateinit var context: Context
     private lateinit var lifecycle: Lifecycle
     private var started = false
+    private var stopped = false
 
     fun initialize(context: Context, lifecycle: Lifecycle) {
         this.context = context.applicationContext
@@ -141,8 +142,14 @@ object ActivityTransitionHandler : LifecycleObserver {
 
         if (transitionType == "START"){
             CoroutineScope(Dispatchers.IO).launch{
-                ActivityHandler.startSelectedActivity(activity)
-                started = true
+                if (stopped) {
+                    ActivityHandler.startSelectedActivity(activity)
+                    started = true
+                    stopped = false
+                } else {
+                    ActivityHandler.stopSelectedActivity(walkingType)
+                    ActivityHandler.startSelectedActivity(activity)
+                }
             }
             // Attendere il completamento della coroutine
             Thread.sleep(1000)
@@ -153,6 +160,7 @@ object ActivityTransitionHandler : LifecycleObserver {
                 CoroutineScope(Dispatchers.IO).launch {
                     ActivityHandler.stopSelectedActivity(walkingType)
                     started = false
+                    stopped = true
                 }
                 // Attendere il completamento della coroutine
                 Thread.sleep(1000)
@@ -162,7 +170,7 @@ object ActivityTransitionHandler : LifecycleObserver {
             }
 
         } else { //UNKNOWN
-
+            return
         }
     }
 

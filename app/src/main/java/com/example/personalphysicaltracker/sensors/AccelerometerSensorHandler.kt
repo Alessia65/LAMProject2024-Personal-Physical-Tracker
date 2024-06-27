@@ -5,6 +5,7 @@ import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
+import android.hardware.SensorListener
 import android.hardware.SensorManager
 import android.util.Log
 import com.example.personalphysicaltracker.activities.ActivityType
@@ -49,9 +50,20 @@ class AccelerometerSensorHandler(context: Context) : SensorEventListener {
     fun stopAccelerometer() {
         activityType = null
         sensorManager.unregisterListener(this)
+
         Log.d("Accelerometer", "Sensor stopped")
 
     }
+
+    /*
+    fun unregisterAllListeners(){
+        sensorManager.unregisterListener(null as SensorEventListener?) // Rimuove tutti i listener
+        sensorManager.unregisterListener(null as SensorListener?) // Rimuove tutti i listener
+
+
+    }
+
+     */
 
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {

@@ -14,21 +14,19 @@ import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityHandler
-import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
-import com.example.personalphysicaltracker.sensors.AccelerometerListener
-import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
-import com.example.personalphysicaltracker.sensors.StepCounterListener
-import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 import com.example.personalphysicaltracker.ui.history.CalendarViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -37,14 +35,13 @@ import kotlin.math.roundToInt
 
 
 @SuppressLint("SetTextI18n")
-class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
+class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var homeViewModel: HomeViewModel
-    private lateinit var accelerometerSensorHandler: AccelerometerSensorHandler
-    private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
+
 
     private lateinit var buttonStartActivity: Button
     private lateinit var accelText: TextView
@@ -54,13 +51,12 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     private lateinit var walkingHours: TextView
     private lateinit var drivingHours: TextView
     private lateinit var standingHours: TextView
-    private lateinit var stepsText: TextView
+    private lateinit var dailyStepsText: TextView
+    private lateinit var currentStepsText: TextView
     private lateinit var buttonSeeHistory: Button
 
-    private var stepCounterOn: Boolean = false
     private var isWalkingActivity = false
     private var totalSteps= 0L
-    private var stepCounterWithAcc = false
 
     private lateinit var calendarViewModel: CalendarViewModel
 
@@ -72,8 +68,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root = binding.root
 
-        accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(requireContext())
-        stepCounterSensorHandler = StepCounterSensorHandler.getInstance(requireContext())
+
 
         initializeViewModel()
 
@@ -93,9 +88,9 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         // Initialize buttons
         initializeButtons(root)
 
-        if(stepCounterSensorHandler.isActive() || accelerometerSensorHandler.isActive()!=null){
+        if(ActivityHandler.stepCounterActive() || ActivityHandler.accelerometerActive()!=null){
             changeButtonToStop()
-            accelText.text = accelerometerSensorHandler.isActive().toString() + " Activity Running"
+            accelText.text = ActivityHandler.accelerometerActive().toString() + " Activity Running"
         } else {
             accelText.text = "No activity running"
         }
@@ -107,7 +102,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Initialize the ViewModel
     private fun initializeViewModel() {
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
-        homeViewModel.initializeActivityHandler(this.activity, this)
+        homeViewModel.initializeActivityHandler(this.activity, this, requireContext())
 
         calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
         calendarViewModel.initializeActivityViewModel(requireActivity())
@@ -122,7 +117,8 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         walkingHours = root.findViewById(R.id.text_walking_hours)
         drivingHours = root.findViewById(R.id.text_driving_hours)
         standingHours = root.findViewById(R.id.text_standing_hours)
-        stepsText = root.findViewById(R.id.text_steps)
+        dailyStepsText = root.findViewById(R.id.daily_steps_text)
+        currentStepsText = root.findViewById(R.id.current_steps_text)
     }
 
     // Set the maximum value for progress bars to represent 24 hours in seconds
@@ -151,9 +147,19 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     
     private fun observeDailyStepsChanges(){
+
+        ActivityHandler.actualSteps.observe(viewLifecycleOwner){ actualStepsList ->
+            actualStepsList?.let {
+                requireActivity().runOnUiThread {
+                    homeViewModel.setSteps(totalSteps)
+                    currentStepsText.text = "Current steps: $actualStepsList"
+                    totalSteps = actualStepsList.toLong()
+                }
+            }
+        }
         ActivityHandler.dailySteps.observe(viewLifecycleOwner){dailyStepsList ->
             dailyStepsList?.let{
-                stepsText.text = "Daily steps: $dailyStepsList"
+                dailyStepsText.text = "Daily steps: $dailyStepsList"
                 val sharedPreferencesSteps = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
                 val editor = sharedPreferencesSteps.edit()
                 editor.putLong(Constants.SHARED_PREFERENCES_STEPS_DAILY, dailyStepsList)
@@ -161,6 +167,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
             }
         }
+
     }
 
 
@@ -237,7 +244,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     
     private fun startWalkingActivity() {
         homeViewModel.startSelectedActivity(WalkingActivity())
-        startAccelerometerSensor(ActivityType.WALKING)
+        //startAccelerometerSensor(ActivityType.WALKING)
         startStepCounterSensor()
         changeButtonToStop()
         isWalkingActivity = true
@@ -247,7 +254,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Start the driving activity and change button to "Stop Activity"
     private fun startDrivingActivity() {
         homeViewModel.startSelectedActivity(DrivingActivity())
-        startAccelerometerSensor(ActivityType.DRIVING)
+        //startAccelerometerSensor(ActivityType.DRIVING)
         changeButtonToStop()
         isWalkingActivity = false
         accelText.text = "Driving Activity Running"
@@ -257,60 +264,39 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Start the standing activity and change button to "Stop Activity"
     private fun startStandingActivity() {
         homeViewModel.startSelectedActivity(StandingActivity())
-        startAccelerometerSensor(ActivityType.STANDING)
+        //startAccelerometerSensor(ActivityType.STANDING)
         changeButtonToStop()
         isWalkingActivity = false
         accelText.text = "Standing Activity Running"
 
     }
 
-    private fun startAccelerometerSensor(activityType: ActivityType){
-        accelerometerSensorHandler.registerAccelerometerListener(this)
-        accelerometerSensorHandler.startAccelerometer(activityType)
-    }
-
     private fun startStepCounterSensor(){
-        stepCounterSensorHandler.registerStepCounterListener(this)
-        val presenceStepCounterSensor = stepCounterSensorHandler.startStepCounter()
+        val presenceStepCounterSensor = ActivityHandler.getStepCounterSensorHandler()
         if (!presenceStepCounterSensor){
             showAlert()
-        } else{
-            stepCounterOn = true
         }
     }
 
 
 
+    //TODO: Far in modo che si deve per forza scegliere
     private fun showAlert() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Attention")
             .setMessage("Warning: Your device does not have a step counter sensor. The step count might be approximate. Do you still want to enable the step counter?")
             .setPositiveButton("Yes") { _, _ ->
-                stepCounterOn = true
-                stepCounterWithAcc = true
+                ActivityHandler.setStepCounterOnValue(true)
+                ActivityHandler.setStepCounterWithAccValue(true)
             }
             .setNegativeButton("No") { _, _ ->
-                stepCounterOn = false
-                stepCounterWithAcc = false
+                ActivityHandler.setStepCounterOnValue(false)
+                ActivityHandler.setStepCounterWithAccValue(false)
             }
 
         val alert = builder.create()
         alert.show()
     }
-    private fun stopAccelerometerSensor(){
-        accelerometerSensorHandler.unregisterListener()
-        accelerometerSensorHandler.stopAccelerometer()
-
-    }
-
-    private fun stopStepCounterSensor(){
-        if (stepCounterOn) {
-            stepCounterSensorHandler.unregisterListener()
-            stepCounterSensorHandler.stopStepCounter()
-            stepCounterOn = false
-        }
-    }
-
 
 
 
@@ -324,13 +310,8 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     // Stop the currently selected activity and reset the button to "Start Activity"
     private fun stopSelectedActivity() {
-        stopAccelerometerSensor()
-        stopStepCounterSensor()
-        if (isWalkingActivity){
-            homeViewModel.stopSelectedActivity(totalSteps, true)
-        } else {
-            homeViewModel.stopSelectedActivity(0, false)
-
+        lifecycleScope.launch(Dispatchers.IO) {
+            ActivityHandler.stopSelectedActivity(isWalkingActivity)
         }
         resetButtonToStart()
         requireActivity().runOnUiThread {
@@ -347,45 +328,11 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     }
 
 
-    // Handle accelerometer data updates
-    override fun onAccelerometerDataReceived(data: String) {
-
-        /*
-        requireActivity().runOnUiThread {
-            accelText.text = data
-        }
-
-         */
-
-        if (stepCounterWithAcc) {
-            registerStep(data)
-        }
-        ActivityHandler.dailyTime.value?.let { dailyTimeList ->
-            val currentProgressWalking = dailyTimeList[0] ?: 0.0
-            val currentProgressDriving = dailyTimeList[1] ?: 0.0
-            val currentProgressStanding = dailyTimeList[2] ?: 0.0
-            updateProgressBarWalking(currentProgressWalking)
-            updateProgressBarDriving(currentProgressDriving)
-            updateProgressBarStanding(currentProgressStanding)
-        }
-    }
-
-
-    private fun registerStep(data: String) {
-        val step = stepCounterSensorHandler.registerStepWithAccelerometer(data)
-        onStepCounterDataReceived(step.toString())
-    }
 
 
 
-    override fun onStepCounterDataReceived(data: String) {
-        requireActivity().runOnUiThread {
-            homeViewModel.setSteps(totalSteps)
-            stepsText.text = "Current steps: $data"
-            totalSteps = data.toLong()
 
-        }
-    }
+
 
 
 
