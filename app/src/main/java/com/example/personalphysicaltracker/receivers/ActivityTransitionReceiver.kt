@@ -30,10 +30,11 @@ class ActivityTransitionReceiver(
             val result = intent.let { ActivityTransitionResult.extractResult(it) } ?: return
             val printInformations = buildString {
                 for (event in result.transitionEvents) {
-                    append("${ActivityTransitionHandler.getActivityType(event.activityType)}: ")
-                    append("${ActivityTransitionHandler.getTransitionType(event.transitionType)}\n\n")
+                    val activityType = (ActivityTransitionHandler.getActivityType(event.activityType))
+                    val transitionType = ActivityTransitionHandler.getTransitionType(event.transitionType)
+                    append("$activityType:$transitionType\n")
 
-                    ActivityTransitionHandler.handleEvent(event)
+                    ActivityTransitionHandler.handleEvent(activityType, transitionType)
                 }
             }
 

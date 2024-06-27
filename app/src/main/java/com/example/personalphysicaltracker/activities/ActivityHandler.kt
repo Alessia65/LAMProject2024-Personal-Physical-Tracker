@@ -26,6 +26,8 @@ object ActivityHandler {
     private lateinit var selectedActivity: PhysicalActivity
 
     private var date: String = ""
+    private var totalSteps: Long = 0
+
     private val _dailyTime = MutableLiveData<List<Double?>>(listOf(null, null, null, null))
     val dailyTime: LiveData<List<Double?>>
         get() = _dailyTime
@@ -182,12 +184,12 @@ object ActivityHandler {
         return (endTime - startTime).toDouble() / 1000
     }
 
-    suspend fun stopSelectedActivity(steps: Long, isWalkingActivity: Boolean) {
+    suspend fun stopSelectedActivity(isWalkingActivity: Boolean) {
         selectedActivity.setFinishTime()
         selectedActivity.calculateDuration()
 
         if (isWalkingActivity){
-            (selectedActivity as WalkingActivity).setActivitySteps(steps)
+            (selectedActivity as WalkingActivity).setActivitySteps(totalSteps)
         }
 
         val typeForLog = selectedActivity.getActivityTypeName()
@@ -222,6 +224,10 @@ object ActivityHandler {
     // Update the daily values based on the selected activity
     private suspend fun updateDailyValues() {
         updateDailyTimeFromDatabase()
+    }
+
+    fun setSteps(totalSteps: Long) {
+        this.totalSteps = totalSteps
     }
 
 

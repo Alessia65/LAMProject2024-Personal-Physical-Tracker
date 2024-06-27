@@ -36,11 +36,15 @@ class HomeViewModel : ViewModel() {
     // Stop the selected activity, calculate the duration, and update the daily values
     fun stopSelectedActivity(steps: Long, isWalkingActivity: Boolean) {
         viewModelScope.launch (Dispatchers.IO) {
-            ActivityHandler.stopSelectedActivity(steps, isWalkingActivity)
+            setSteps(steps)
+            ActivityHandler.stopSelectedActivity(isWalkingActivity)
         }
 
     }
 
+    fun setSteps(totalSteps: Long) {
+        ActivityHandler.setSteps(totalSteps)
+    }
 
 
 }

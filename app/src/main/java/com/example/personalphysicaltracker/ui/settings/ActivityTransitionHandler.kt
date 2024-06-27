@@ -14,6 +14,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.Constants
+import com.example.personalphysicaltracker.activities.ActivityHandler
+import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.activities.PhysicalActivity
+import com.example.personalphysicaltracker.activities.StandingActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
 import com.example.personalphysicaltracker.ui.home.HomeViewModel
@@ -22,6 +27,7 @@ import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -35,8 +41,7 @@ object ActivityTransitionHandler : LifecycleObserver {
     private lateinit var activityReceiver: ActivityTransitionReceiver
     private lateinit var context: Context
     private lateinit var lifecycle: Lifecycle
-    private lateinit var homeViewModel: HomeViewModel
-
+    private var started = false
 
     fun initialize(context: Context, lifecycle: Lifecycle) {
         this.context = context.applicationContext
@@ -114,19 +119,51 @@ object ActivityTransitionHandler : LifecycleObserver {
 
     }
 
-    fun handleEvent(event: ActivityTransitionEvent){
-        val activityType = event.activityType
-        val transitionType= event.transitionType
+    fun handleEvent(activityType: String, transitionType: String){
+        var walkingType = false
+        lateinit var activity: PhysicalActivity
+        when (activityType) {
+            "WALKING" -> {
+                activity = WalkingActivity()
+                walkingType = true
+            }
+            "IN_VEHICLE" -> {
+                activity = DrivingActivity()
+            }
+            "STILL" -> {
+                activity = StandingActivity()
+            }
+            else -> {
+                activity = PhysicalActivity()
+            }
+        }
 
-        if (transitionType.toString() == "START"){
 
-        } else if (transitionType.toString() == "END"){
+        if (transitionType == "START"){
+            CoroutineScope(Dispatchers.IO).launch{
+                ActivityHandler.startSelectedActivity(activity)
+                started = true
+            }
+            // Attendere il completamento della coroutine
+            Thread.sleep(1000)
+
+        } else if (transitionType.toString() == "END" ){
+
+            if (started) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    ActivityHandler.stopSelectedActivity(walkingType)
+                    started = false
+                }
+                // Attendere il completamento della coroutine
+                Thread.sleep(1000)
+            } else {
+                Log.d("ACTIVITY TRANSITION HANDLER", "no activity to stop")
+                return
+            }
 
         } else { //UNKNOWN
 
         }
-
-
     }
 
 

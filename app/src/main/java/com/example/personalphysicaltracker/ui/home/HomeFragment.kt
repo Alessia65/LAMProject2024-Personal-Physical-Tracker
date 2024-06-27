@@ -380,6 +380,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     override fun onStepCounterDataReceived(data: String) {
         requireActivity().runOnUiThread {
+            homeViewModel.setSteps(totalSteps)
             stepsText.text = "Current steps: $data"
             totalSteps = data.toLong()
 
