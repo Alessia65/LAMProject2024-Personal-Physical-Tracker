@@ -17,6 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.R
+import com.example.personalphysicaltracker.activities.ActivityHandler
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
@@ -46,7 +47,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
 
     private lateinit var buttonStartActivity: Button
-    public lateinit var accelText: TextView
+    private lateinit var accelText: TextView
     private lateinit var progressBarWalking: ProgressBar
     private lateinit var progressBarDriving: ProgressBar
     private lateinit var progressBarStanding: ProgressBar
@@ -106,7 +107,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
     // Initialize the ViewModel
     private fun initializeViewModel() {
         homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
-        homeViewModel.initializeActivityViewModel(this.activity, this)
+        homeViewModel.initializeActivityHandler(this.activity, this)
 
         calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
         calendarViewModel.initializeActivityViewModel(requireActivity())
@@ -136,7 +137,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     // Observe changes in dailyTime LiveData and update UI accordingly
     private fun observeDailyTimeChanges() {
-        homeViewModel.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
+        ActivityHandler.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
             dailyTimeList?.let {
                 val currentProgressWalking = dailyTimeList[0] ?: 0.0
                 val currentProgressDriving = dailyTimeList[1] ?: 0.0
@@ -150,7 +151,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
 
     
     private fun observeDailyStepsChanges(){
-        homeViewModel.dailySteps.observe(viewLifecycleOwner){dailyStepsList ->
+        ActivityHandler.dailySteps.observe(viewLifecycleOwner){dailyStepsList ->
             dailyStepsList?.let{
                 stepsText.text = "Daily steps: $dailyStepsList"
                 val sharedPreferencesSteps = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
@@ -359,7 +360,7 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         if (stepCounterWithAcc) {
             registerStep(data)
         }
-        homeViewModel.dailyTime.value?.let { dailyTimeList ->
+        ActivityHandler.dailyTime.value?.let { dailyTimeList ->
             val currentProgressWalking = dailyTimeList[0] ?: 0.0
             val currentProgressDriving = dailyTimeList[1] ?: 0.0
             val currentProgressStanding = dailyTimeList[2] ?: 0.0

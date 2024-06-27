@@ -107,6 +107,7 @@ class StepCounterSensorHandler(context: Context) : SensorEventListener {
             magnitude = sqrt(x * x + y * y + z * z)
 
             if (firstChange) {
+                totalSteps = 0f
                 magnitudePreviousStep = magnitude
                 firstChange = false
             }

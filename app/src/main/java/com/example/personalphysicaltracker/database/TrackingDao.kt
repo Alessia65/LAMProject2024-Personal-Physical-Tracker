@@ -16,8 +16,8 @@ interface TrackingDao {
     suspend fun getWalkingActivityById(id: Int): WalkingActivityEntity
 
     //Insert for step_table
-    @Query("INSERT INTO steps_table VALUES(:id, :steps)")
-    suspend fun insertWalkingActivityEntity(id: Int, steps: Long)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertWalkingActivityEntity(walkingActivity: WalkingActivityEntity)
 
     @Query("SELECT SUM(steps) FROM steps_table JOIN activities_table ON steps_table.walkingActivityId = activities_table.id WHERE activities_table.date = :date AND activities_table.activity_type = 'WALKING'")
     suspend fun getTotalStepsFromToday(date:String): Long
@@ -40,7 +40,7 @@ interface TrackingDao {
     fun getTotalDurationByActivityType(activityType: String): Double
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(activity: ActivityEntity)
+    fun insert(activity: ActivityEntity): Long
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertMultiple(activities: List<ActivityEntity>)

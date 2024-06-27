@@ -27,8 +27,8 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
         return repository.getLastWalkingId()
     }
 
-    suspend fun insertWalkingActivityEntity(id: Int, steps: Long){
-        return repository.insertWalkingActivityEntity(id, steps)
+    suspend fun insertWalkingActivity(activityEntity: ActivityEntity, steps: Long) {
+        repository.insertWalkingActivity(activityEntity, steps)
     }
 
     suspend fun getTotalStepsFromToday(date:String): Long{

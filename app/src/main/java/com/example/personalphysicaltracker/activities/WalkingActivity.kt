@@ -28,16 +28,11 @@ class WalkingActivity : PhysicalActivity() {
             duration = duration
         )
 
-        // to complete the insert before taking id
         withContext(Dispatchers.IO) {
-            activityViewModel.insertActivityEntity(activityEntity)
-
+            activityViewModel.insertWalkingActivity(activityEntity, steps)
         }
-
-        val id = activityViewModel.getLastWalkingId()
-
-        activityViewModel.insertWalkingActivityEntity(id, steps)
     }
+
 
 
 }

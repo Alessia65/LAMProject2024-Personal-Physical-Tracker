@@ -32,6 +32,8 @@ class ActivityTransitionReceiver(
                 for (event in result.transitionEvents) {
                     append("${ActivityTransitionHandler.getActivityType(event.activityType)}: ")
                     append("${ActivityTransitionHandler.getTransitionType(event.transitionType)}\n\n")
+
+                    ActivityTransitionHandler.handleEvent(event)
                 }
             }
 
