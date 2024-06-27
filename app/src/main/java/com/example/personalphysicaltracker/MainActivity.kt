@@ -22,16 +22,20 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
+import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
 import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
 import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
+import com.example.personalphysicaltracker.ui.settings.ActivityTransitionHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var activityTransitionHandler: ActivityTransitionHandler
+    private lateinit var activityReceiver: ActivityTransitionReceiver
 
 
     // ActivityResultLauncher to handle permission request result
@@ -86,8 +90,32 @@ class MainActivity : AppCompatActivity() {
         // Schedule steps notification if enabled
         scheduleStepsNotificationIfEnabled()
 
+        val sharedPreferencesBackgroundActivities = this.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
+        val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+        initializeObserverActivityTransition()
+        createNotificationChannelForActivityRecognition()
+        if (backgroundRecognitionEnabled){
+            ActivityTransitionHandler.connect()
+        }
+
     }
 
+    private fun createNotificationChannelForActivityRecognition() {
+        val nameActivityRecognitionChannel = Constants.CHANNEL_ACTIVITY_RECOGNITION_TITLE
+        val descriptionActivityRecognitionChannel = Constants.CHANNEL_ACTIVITY_RECOGNITION_DESCRIPTION
+        val importanceActivityRecognitionChannel = NotificationManager.IMPORTANCE_HIGH
+        val channelActivityRecognition = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel(Constants.CHANNEL_ACTIVITY_RECOGNITION_ID, nameActivityRecognitionChannel, importanceActivityRecognitionChannel).apply {
+                description = descriptionActivityRecognitionChannel
+            }
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+
+        val notificationManagerActivityRecognition: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManagerActivityRecognition.createNotificationChannel(channelActivityRecognition)
+    }
 
 
     private fun createNotificationChannels() {
@@ -210,6 +238,9 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    private fun initializeObserverActivityTransition() {
+        ActivityTransitionHandler.initialize(this, lifecycle)
+    }
 
 
 

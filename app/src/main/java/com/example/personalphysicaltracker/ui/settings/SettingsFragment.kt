@@ -42,8 +42,6 @@ class SettingsFragment : Fragment() {
     private var dailySteps = 0L
 
 
-    private lateinit var activityTransitionHandler: ActivityTransitionHandler
-    private lateinit var activityReceiver: ActivityTransitionReceiver
 
     private lateinit var textCurrentActivity: TextView //Todo: cancellare
 
@@ -56,28 +54,12 @@ class SettingsFragment : Fragment() {
 
         textCurrentActivity = binding.root.findViewById(R.id.eliminare) //Todo: cancellare
 
-
-        initializeObserverActivityTransition()
         initializeViews()
 
         return root
     }
 
-    private fun initializeObserverActivityTransition() {
-        activityTransitionHandler = ActivityTransitionHandler(requireContext())
-        lifecycle.addObserver(activityTransitionHandler)
 
-        /*
-        Andrebbe fatta nel Main in qualche modo cosi da mantenerla
-         */
-        activityReceiver = ActivityTransitionReceiver(requireContext(), Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION) { userActivity ->
-            // TODO: Rimuovere
-            activity?.runOnUiThread {
-                textCurrentActivity.text = "Current activity is:\n$userActivity"
-            }
-        }
-        lifecycle.addObserver(activityReceiver)
-    }
 
     private fun initializeViews() {
         // Initialize switches
@@ -118,8 +100,10 @@ class SettingsFragment : Fragment() {
     private fun handleActivityRecognitionSwitch(isChecked: Boolean) {
         settingsViewModel.setBackgroundRecogniseActivies(requireContext(), isChecked)
         if (isChecked) {
+            ActivityTransitionHandler.connect()
             registerActivityTransitions()
         }else {
+            ActivityTransitionHandler.disconnect(requireContext())
             unregisterActivityTransitions()
         }
     }
@@ -178,7 +162,7 @@ class SettingsFragment : Fragment() {
     private fun registerActivityTransitions() {
         lifecycleScope.launch(Dispatchers.IO) {
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
-                activityTransitionHandler.registerActivityTransitions()
+                ActivityTransitionHandler.registerActivityTransitions()
             }
         }
     }
@@ -186,7 +170,7 @@ class SettingsFragment : Fragment() {
     private fun unregisterActivityTransitions() {
         lifecycleScope.launch(Dispatchers.IO) {
             if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
-                activityTransitionHandler.unregisterActivityTransitions()
+                ActivityTransitionHandler.unregisterActivityTransitions()
             }
         }
     }

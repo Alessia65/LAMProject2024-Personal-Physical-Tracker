@@ -1,41 +1,45 @@
 package com.example.personalphysicaltracker.ui.settings
 
-import com.example.personalphysicaltracker.Constants
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresPermission
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import com.google.android.gms.location.*
+import com.example.personalphysicaltracker.Constants
+import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityTransition
+import com.google.android.gms.location.ActivityTransitionRequest
+import com.google.android.gms.location.DetectedActivity
 import kotlinx.coroutines.tasks.await
 
-class ActivityTransitionHandler(context: Context): LifecycleObserver {
+@SuppressLint("StaticFieldLeak")
+object ActivityTransitionHandler : LifecycleObserver {
 
-    companion object {
+    private lateinit var activityReceiver: ActivityTransitionReceiver
+    private lateinit var context: Context
+    private lateinit var lifecycle: Lifecycle
 
-        fun getActivityType(int: Int): String = when (int) {
-            DetectedActivity.STILL -> "STILL"
-            DetectedActivity.WALKING -> "WALKING"
-            DetectedActivity.IN_VEHICLE -> "IN_VEHICLE"
-            else -> "UNKNOWN"
-        }
-
-        fun getTransitionType(int: Int): String = when (int) {
-            ActivityTransition.ACTIVITY_TRANSITION_ENTER -> "START"
-            ActivityTransition.ACTIVITY_TRANSITION_EXIT -> "END"
-            else -> "UNKNOWN"
-        }
+    fun initialize(context: Context, lifecycle: Lifecycle) {
+        this.context = context.applicationContext
+        this.lifecycle = lifecycle
+        activityReceiver = ActivityTransitionReceiver(context, Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION) { userActivity -> }
     }
 
-    private val client = ActivityRecognition.getClient(context)
+    private val client by lazy { ActivityRecognition.getClient(context) }
 
-    private val pendingIntent: PendingIntent = PendingIntent.getBroadcast(
-        context,
-        Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION_CODE,
-        Intent(Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION),
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) PendingIntent.FLAG_CANCEL_CURRENT else PendingIntent.FLAG_IMMUTABLE
-    )
+    private val pendingIntent: PendingIntent by lazy {
+        PendingIntent.getBroadcast(
+            context,
+            Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION_CODE,
+            Intent(Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION),
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) PendingIntent.FLAG_CANCEL_CURRENT else PendingIntent.FLAG_IMMUTABLE
+        )
+    }
 
     private val activityTransitions = listOf(
         DetectedActivity.STILL,
@@ -50,14 +54,9 @@ class ActivityTransitionHandler(context: Context): LifecycleObserver {
         )
     }
 
-
-    /*
-    Nella guida utilizza onSuccess e onFailure ma cosi è piu veloce!! Senza await: 1mn, con: 30sec
-     */
-
-
     @RequiresPermission(Constants.PERMISSION_ACTIVITY_RECOGNITION)
     suspend fun registerActivityTransitions() = kotlin.runCatching {
+        Log.d("ACTIVITY TRANSITION HANDLER", "mi sto collegando")
         client.requestActivityTransitionUpdates(
             ActivityTransitionRequest(
                 activityTransitions
@@ -67,33 +66,37 @@ class ActivityTransitionHandler(context: Context): LifecycleObserver {
 
     @RequiresPermission(Constants.PERMISSION_ACTIVITY_RECOGNITION)
     suspend fun unregisterActivityTransitions() = kotlin.runCatching {
+        Log.d("ACTIVITY TRANSITION HANDLER", "mi sto scollegando")
+
         client.removeActivityUpdates(pendingIntent).await()
     }
 
-    /*
 
-    @RequiresPermission(Constants.PERMISSION_ACTIVITY_RECOGNITION)
-    fun registerActivityTransitions() {
-        client.requestActivityTransitionUpdates(
-            ActivityTransitionRequest(activityTransitions), pendingIntent
-        ).addOnSuccessListener {
-            Log.d("ACTIVITY TRANSITION REGISTER", "SUCCESS")
-        }.addOnFailureListener { exception ->
-            Log.d("ACTIVITY TRANSITION REGISTER", "UNSUCCESS")
-        }
+    fun getActivityType(int: Int): String = when (int) {
+        DetectedActivity.STILL -> "STILL"
+        DetectedActivity.WALKING -> "WALKING"
+        DetectedActivity.IN_VEHICLE -> "IN_VEHICLE"
+        else -> "UNKNOWN"
     }
 
-    @RequiresPermission(Constants.PERMISSION_ACTIVITY_RECOGNITION)
-    fun unregisterActivityTransitions() {
-        client.removeActivityUpdates(pendingIntent)
-            .addOnSuccessListener {
-            Log.d("ACTIVITY TRANSITION UNREGISTER", "SUCCESS")
-            }
-            .addOnFailureListener { exception ->
-            Log.d("ACTIVITY TRANSITION UNREGISTER", "UNSUCCESS")
-            }
+    fun getTransitionType(int: Int): String = when (int) {
+        ActivityTransition.ACTIVITY_TRANSITION_ENTER -> "START"
+        ActivityTransition.ACTIVITY_TRANSITION_EXIT -> "END"
+        else -> "UNKNOWN"
     }
 
-     */
+    fun disconnect(context: Context) {
+        lifecycle.removeObserver(activityReceiver)
+        lifecycle.removeObserver(this)
+        activityReceiver.stopReceiver()
+        Log.d("ACTIVITY TRANSITION HANDLER", "OBSERVER OFF")
+    }
+
+    fun connect(){
+        lifecycle.addObserver(this)
+        lifecycle.addObserver(activityReceiver)
+        Log.d("ACTIVITY TRANSITION HANDLER", "OBSERVER ON")
+
+    }
+
 }
-

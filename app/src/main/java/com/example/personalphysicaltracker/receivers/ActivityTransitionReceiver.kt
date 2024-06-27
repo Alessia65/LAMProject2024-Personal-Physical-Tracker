@@ -11,6 +11,7 @@ import com.google.android.gms.location.ActivityTransitionResult
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.personalphysicaltracker.ui.settings.ActivityTransitionHandler
+import com.example.personalphysicaltracker.ui.settings.NotificationService
 
 class ActivityTransitionReceiver(
     private val context: Context,
@@ -18,8 +19,14 @@ class ActivityTransitionReceiver(
     private val systemEvent: (userActivity: String) -> Unit
 ) : DefaultLifecycleObserver {
 
+    private var isOn = false;
+
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
+            isOn = true
+            val notificationService = NotificationService()
+            val title = "Activity Changed!"
+
             val result = intent.let { ActivityTransitionResult.extractResult(it) } ?: return
             val printInformations = buildString {
                 for (event in result.transitionEvents) {
@@ -27,12 +34,15 @@ class ActivityTransitionReceiver(
                     append("${ActivityTransitionHandler.getTransitionType(event.transitionType)}\n\n")
                 }
             }
+
+            val message = printInformations
+            notificationService.showActivityChangesNotification(context, title, message)
             Log.d("Activity Transition Receiver", "onReceive: $printInformations")
             systemEvent(printInformations)
         }
     }
 
-    override fun onStart(owner: LifecycleOwner) {
+    override fun onCreate(owner: LifecycleOwner) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Log.d("ACTIVITY TRANSITION RECEIVER", "RECEIVER_NOT_EXPORTED")
                 context.registerReceiver(broadcastReceiver, IntentFilter(intentAction), RECEIVER_NOT_EXPORTED)
@@ -40,12 +50,31 @@ class ActivityTransitionReceiver(
             Log.d("ACTIVITY TRANSITION RECEIVER", "NOT NECESSARY RECEIVER_NOT_EXPORTED")
             context.registerReceiver(broadcastReceiver, IntentFilter(intentAction))
         }
+        isOn = true
         Log.d("Activity Transition Receiver", "BroadcastReceiver registered")
     }
 
-    override fun onStop(owner: LifecycleOwner) {
-        context.unregisterReceiver(broadcastReceiver)
+    override fun onDestroy(owner: LifecycleOwner) {
+        if (isOn) {
+            context.unregisterReceiver(broadcastReceiver)
+            isOn = false
+        }
         Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
     }
+
+    fun stopReceiver() {
+        if (isOn) {
+            context.unregisterReceiver(broadcastReceiver)
+            isOn = false
+            Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
+        } else {
+            Log.d("Activity Transition Receiver", "BroadcastReceiver not registered")
+        }
+    }
+
+
+
+
+
 }
 

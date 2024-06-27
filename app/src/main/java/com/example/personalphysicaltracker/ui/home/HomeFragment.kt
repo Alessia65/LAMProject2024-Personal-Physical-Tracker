@@ -178,10 +178,8 @@ class HomeFragment : Fragment(), AccelerometerListener, StepCounterListener {
         val sharedPreferencesBackgroundActivities = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
         val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
         if (backgroundRecognitionEnabled){
-            Log.d("CIAO","BRO")
             buttonStartActivity.isEnabled = false
         }
-        Log.d("CIAO",backgroundRecognitionEnabled.toString())
 
     }
 

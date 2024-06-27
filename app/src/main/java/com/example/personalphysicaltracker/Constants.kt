@@ -2,10 +2,13 @@ package com.example.personalphysicaltracker
 
 object Constants {
 
+
     const val PERMISSION_REQUESTS_CODE = 100
 
     const val REQUEST_CODE_DAILY_REMINDER = 0
     const val REQUEST_CODE_STEPS_REMINDER = 1
+    const val REQUEST_CODE_ACTIVITY_RECOGNITION = 2
+
 
     const val CHANNEL_DAILY_REMINDER_TITLE = "Daily Reminder Channel"
     const val CHANNEL_DAILY_REMINDER_DESCRIPTION = "Channel for daily reminder notifications"
@@ -14,6 +17,10 @@ object Constants {
     const val CHANNEL_STEPS_REMINDER_TITLE = "Steps Reminder Channel"
     const val CHANNEL_STEPS_REMINDER_DESCRIPTION = "Channel for steps reminder notifications"
     const val CHANNEL_STEPS_REMINDER_ID = "steps_reminder_channel"
+
+    const val CHANNEL_ACTIVITY_RECOGNITION_TITLE = "Activity Recognition Channel"
+    const val CHANNEL_ACTIVITY_RECOGNITION_DESCRIPTION = "Channel for activity recognition changes notifications"
+    const val CHANNEL_ACTIVITY_RECOGNITION_ID = "activity_recognition_channel"
 
 
     const val SHARED_PREFERENCES_DAILY_REMINDER = "settings daily reminder notification"
