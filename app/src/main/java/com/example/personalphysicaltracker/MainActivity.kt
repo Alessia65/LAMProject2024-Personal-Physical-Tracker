@@ -17,10 +17,12 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.personalphysicaltracker.activities.ActivityHandler
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
 import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
@@ -29,6 +31,7 @@ import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
 import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
 import com.example.personalphysicaltracker.ui.settings.ActivityTransitionHandler
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
@@ -342,4 +345,34 @@ class MainActivity : AppCompatActivity() {
             }
         builder.show()
     }
+
+    /*
+    Todo: gestire la chiusura dell'app con attività in corso
+     */
+    override fun onDestroy() {
+        Log.d("ON DESTROY", "Main activity onDestroy started")
+        super.onDestroy()
+
+        // Gestione delle operazioni asincrone o persistenti
+        lifecycleScope.launch {
+            // Gestione della distruzione dell'attività principale
+            ActivityHandler.handleDestroy()
+
+            // Gestione della terminazione di servizi o attività in background, se necessario
+            val sharedPreferencesBackgroundActivities = this@MainActivity.getSharedPreferences(
+                Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
+            val backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(
+                Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+
+            if (backgroundRecognitionEnabled) {
+                ActivityTransitionHandler.handleOnDestroy(this@MainActivity)
+            }
+
+            // Altre operazioni di pulizia o persistenza
+            // Assicurati che tutte le risorse siano liberate correttamente
+        }
+
+        Log.d("ON DESTROY", "Main activity onDestroy finished")
+    }
+
 }

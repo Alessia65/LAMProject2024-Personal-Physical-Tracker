@@ -28,9 +28,11 @@ import java.util.Locale
 object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
     private lateinit var activityViewModel: ActivityViewModel
-    private lateinit var selectedActivity: PhysicalActivity
+    public lateinit var selectedActivity: PhysicalActivity
     private lateinit var accelerometerSensorHandler: AccelerometerSensorHandler
     private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
+    private var isWalkingActivity = false
+    private var started = false
 
     private var date: String = ""
     private var totalSteps: Long = 0
@@ -137,7 +139,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     }
 
     suspend fun startSelectedActivity(activity: PhysicalActivity) {
-
+        started = true
         val lastActivity = getLastActivity()
         val currentTime = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
 
@@ -152,12 +154,16 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
         val typeForLog = activity.getActivityTypeName()
         Log.d("PHYSICAL ACTIVITY", "$typeForLog Activity Started")
         startSensors()
+
     }
 
     private fun startSensors() {
         val activityType = selectedActivity.getActivityTypeName()
         if (activityType == ActivityType.WALKING){
-            //startStepCounterSensor()
+            Log.d("ACTIVITY HANDLER", "RICHIESTA START STEP COUNTER")
+            getStepCounterSensorHandler()
+        } else {
+            Log.d("ACTIVITY HANDLER", "NON SONO UNA WALKING ACTIVITY")
         }
         startAccelerometerSensor(activityType)
     }
@@ -211,6 +217,8 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     }
 
     suspend fun stopSelectedActivity(isWalkingActivity: Boolean) {
+        started = false
+        this.isWalkingActivity = isWalkingActivity
         stopStepCounterSensor()
         stopAccelerometerSensor()
         //if (isWalkingActivity){
@@ -285,7 +293,6 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     }
 
     fun getStepCounterSensorHandler(): Boolean {
-
         val temp = stepCounterSensorHandler.startStepCounter()
         if (temp){
             startStepCounterSensor()
@@ -340,6 +347,14 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     private fun registerStep(data: String) {
         val step = stepCounterSensorHandler.registerStepWithAccelerometer(data)
         onStepCounterDataReceived(step.toString())
+    }
+
+    suspend fun handleDestroy(){
+        if (started){
+            stopSelectedActivity(isWalkingActivity)
+            stopStepCounterSensor()
+            stopAccelerometerSensor()
+        }
     }
 
 

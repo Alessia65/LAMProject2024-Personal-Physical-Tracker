@@ -43,6 +43,7 @@ object ActivityTransitionHandler : LifecycleObserver {
     private lateinit var lifecycle: Lifecycle
     private var started = false
     private var stopped = false
+    private var isWalkingType  = false
 
     fun initialize(context: Context, lifecycle: Lifecycle) {
         this.context = context.applicationContext
@@ -107,6 +108,20 @@ object ActivityTransitionHandler : LifecycleObserver {
     }
 
     fun disconnect(context: Context) {
+        Log.d("ON DESTROY", "In disconnect()")
+        //Prima devo concludere l'attività se è running
+        if (started){
+            try {
+                CoroutineScope(Dispatchers.IO).launch {
+                    ActivityHandler.stopSelectedActivity(isWalkingType)
+                }
+                started = false
+                stopped = true
+                Log.d("ON DESTROY", "In disconnect() try")
+            }catch (e: Exception){
+                Log.d("EXCEPTION CATCHED", e.message.toString())
+            }
+        }
         lifecycle.removeObserver(activityReceiver)
         lifecycle.removeObserver(this)
         activityReceiver.stopReceiver()
@@ -121,12 +136,12 @@ object ActivityTransitionHandler : LifecycleObserver {
     }
 
     fun handleEvent(activityType: String, transitionType: String){
-        var walkingType = false
+        isWalkingType = false
         lateinit var activity: PhysicalActivity
         when (activityType) {
             "WALKING" -> {
                 activity = WalkingActivity()
-                walkingType = true
+                isWalkingType = true
             }
             "IN_VEHICLE" -> {
                 activity = DrivingActivity()
@@ -147,8 +162,17 @@ object ActivityTransitionHandler : LifecycleObserver {
                     started = true
                     stopped = false
                 } else {
-                    ActivityHandler.stopSelectedActivity(walkingType)
-                    ActivityHandler.startSelectedActivity(activity)
+                    try {
+                        ActivityHandler.stopSelectedActivity(isWalkingType)
+                        stopped = true
+                    } catch (e: Exception){
+                        //Concludo attività
+                        Log.d("MESSAGGIO DI ERRORE", e.message.toString()) //COSA SUCCEDE?
+                    } finally {
+                        ActivityHandler.startSelectedActivity(activity)
+                        started = true
+                    }
+
                 }
             }
             // Attendere il completamento della coroutine
@@ -158,7 +182,7 @@ object ActivityTransitionHandler : LifecycleObserver {
 
             if (started) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    ActivityHandler.stopSelectedActivity(walkingType)
+                    ActivityHandler.stopSelectedActivity(isWalkingType)
                     started = false
                     stopped = true
                 }
@@ -172,6 +196,11 @@ object ActivityTransitionHandler : LifecycleObserver {
         } else { //UNKNOWN
             return
         }
+    }
+
+    fun handleOnDestroy(context: Context) {
+        Log.d("ON DESTROY", "Disconnetting")
+        disconnect(context)
     }
 
 

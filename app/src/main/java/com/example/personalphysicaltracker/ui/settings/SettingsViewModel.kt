@@ -57,13 +57,15 @@ class SettingsViewModel : ViewModel() {
         viewModelScope.launch {
             var totalSteps = 0L
             try {
-                // Execute the query in the IO thread to get the duration
                 totalSteps = withContext(Dispatchers.IO) {
+
                     activityViewModel.getTotalStepsFromToday(today)
                 }
+
             } catch (e: Exception) {
                 // Exception handling, such as logging or other types of handling
-                Log.e("SettingsViewModel", "Exception while fetching duration", e)
+                Log.e("SettingsViewModel", "Exception with total steps = 0")
+                totalSteps = 0
             }
             callback(totalSteps)
         }
