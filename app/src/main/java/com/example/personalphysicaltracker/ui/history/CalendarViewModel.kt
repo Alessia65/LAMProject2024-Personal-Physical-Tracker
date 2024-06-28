@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.ui.history
 
+import android.content.Context
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
@@ -127,5 +128,9 @@ class CalendarViewModel : ViewModel() {
 
     fun clearFilters() {
         selectedFilters.clear()
+    }
+
+    fun exportActivitiesToCSV(context: Context, activities: List<PhysicalActivity>) {
+        ShareHandler.exportActivitiesToCSV(context, activities)
     }
 }
