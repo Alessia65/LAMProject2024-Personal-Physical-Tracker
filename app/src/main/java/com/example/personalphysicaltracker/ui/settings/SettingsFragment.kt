@@ -4,9 +4,13 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +19,9 @@ import android.widget.NumberPicker
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.personalphysicaltracker.Constants
@@ -38,12 +44,18 @@ class SettingsFragment : Fragment() {
     private lateinit var switchDailyReminder: Switch
     private lateinit var switchStepsReminder: Switch
     private lateinit var switchActivityRecognition: Switch
+    private lateinit var switchLocation: Switch
 
     private var dailySteps = 0L
-
-
-
-    private lateinit var textCurrentActivity: TextView //Todo: cancellare
+    private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        // Check if activity recognition permission is granted
+        if (PermissionsHandler.hasLocationPermissions(requireContext())){
+            showDialogSettings()
+            PermissionsHandler.locationPermission = false
+        } else {
+            PermissionsHandler.locationPermission = true
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -52,7 +64,6 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        textCurrentActivity = binding.root.findViewById(R.id.eliminare) //Todo: cancellare
 
         initializeViews()
 
@@ -66,6 +77,7 @@ class SettingsFragment : Fragment() {
         switchDailyReminder = binding.root.findViewById(R.id.switch_notification_daily_reminder)
         switchStepsReminder = binding.root.findViewById(R.id.switch_notification_steps_reminder)
         switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
+        switchLocation = binding.root.findViewById(R.id.switch_b_o_location)
 
         val sharedPreferencesDaily = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
         val dailyReminderEnabled = sharedPreferencesDaily.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
@@ -93,9 +105,31 @@ class SettingsFragment : Fragment() {
             handleActivityRecognitionSwitch(isChecked)
         }
 
+        switchLocation.isChecked = settingsViewModel.checkBackgroundLocationDetection(requireContext())
+        switchLocation.setOnCheckedChangeListener{_, isChecked ->
+            handleLocationDetectionSwitch(isChecked)
+        }
+
         calculateDailySteps()
 
     }
+
+    private fun handleLocationDetectionSwitch(isChecked: Boolean) {
+        settingsViewModel.setBackgroundLocationDetection(requireContext(), isChecked)
+        if (isChecked){
+            handlePermissions()
+            /*
+            Si connette l'handler
+            SI registra
+             */
+        } else {
+            /*
+            disconnessione e deregistrazione
+             */
+        }
+    }
+
+
 
     private fun handleActivityRecognitionSwitch(isChecked: Boolean) {
         settingsViewModel.setBackgroundRecogniseActivies(requireContext(), isChecked)
@@ -299,6 +333,41 @@ class SettingsFragment : Fragment() {
 
     }
 
+
+
+
+    private fun handlePermissions() {
+        if (PermissionsHandler.hasLocationPermissions(requireContext())){
+            return
+
+        }
+
+        if (!PermissionsHandler.requestLocationPermissions(requireActivity(), requireContext())){
+            showDialogSettings()
+            switchLocation.isChecked = false
+        }
+
+
+    }
+
+    fun showDialogSettings(){
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setMessage("You need permissions to detect locations!")
+            .setTitle("Permission required")
+            .setCancelable(false)
+            .setPositiveButton("Settings") { dialog, _ ->
+                val intent: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", requireActivity().getPackageName(), null)
+                intent.setData(uri)
+                SETTINGS_PERMISSION_REQUEST.launch(intent)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Continue") { dialog, _ ->
+                dialog.dismiss()
+                PermissionsHandler.locationPermission = false
+            }
+        builder.show()
+    }
 
 
 

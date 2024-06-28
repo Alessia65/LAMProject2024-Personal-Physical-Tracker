@@ -16,7 +16,9 @@ import androidx.core.content.ContextCompat
 object PermissionsHandler {
 
     public  var notificationPermission = false
-     var ACTUAL_PERMISSION_ACTIVITY_RECOGNITION = ""
+    public  var locationPermission = false
+
+    var ACTUAL_PERMISSION_ACTIVITY_RECOGNITION = ""
     fun checkPermissions(context: Context): Boolean{
         var activityRecognise = -1
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
@@ -39,6 +41,37 @@ object PermissionsHandler {
             arrayOf(ACTUAL_PERMISSION_ACTIVITY_RECOGNITION, Constants.PERMISSION_POST_NOTIFICATIONS),
             Constants.PERMISSION_REQUESTS_CODE
         )
+    }
+
+    fun hasLocationPermissions(context: Context): Boolean {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            locationPermission =  (ActivityCompat.checkSelfPermission(
+                context,
+                Constants.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED)
+        } else {
+            locationPermission =  (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Constants.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        }
+        return locationPermission
+    }
+
+    fun requestLocationPermissions(activity: Activity, context: Context): Boolean{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Constants.ACCESS_BACKGROUND_LOCATION),
+                Constants.PERMISSION_LOCATION_REQUESTS_CODE
+            )
+        }
+        else {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Constants.ACCESS_FINE_LOCATION, Constants.ACCESS_COARSE_LOCATION),
+                Constants.PERMISSION_LOCATION_REQUESTS_CODE
+            )
+        }
+        return hasLocationPermissions(context)
     }
 
 

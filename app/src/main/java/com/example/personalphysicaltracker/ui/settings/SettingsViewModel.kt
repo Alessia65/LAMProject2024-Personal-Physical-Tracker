@@ -208,5 +208,20 @@ class SettingsViewModel : ViewModel() {
         editor.apply()
     }
 
+    fun checkBackgroundLocationDetection(context: Context): Boolean {
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
+        return  (sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, false))
+    }
+
+    fun setBackgroundLocationDetection(context: Context, isChecked: Boolean) {
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(
+            Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION,
+            Context.MODE_PRIVATE
+        )
+        val editor = sharedPreferencesBackgroundActivities.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, isChecked)
+        editor.apply()
+    }
+
 
 }

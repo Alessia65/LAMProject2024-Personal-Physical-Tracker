@@ -8,6 +8,11 @@
         android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION"
         android:maxSdkVersion="28" />
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+
+
 
     <application
         android:allowBackup="true"
@@ -51,6 +56,10 @@
         <receiver
             android:name=".receivers.StepsReminderReceiver"
             android:exported="false" />
+
+        <receiver
+            android:name=".receivers.GeofenceBroadcastReceiver"
+            android:exported="false"/>
 
 
     </application>

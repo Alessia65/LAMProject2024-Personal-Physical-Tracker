@@ -39,6 +39,9 @@ object Constants {
     const val SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION = "background activities recognition"
     const val SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED = "background_activities_recognition_enabled"
 
+    const val SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION = "background location detection"
+    const val SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED = "background_location_detection_enabled"
+
 
     const val PERMISSION_ACTIVITY_RECOGNITION = android.Manifest.permission.ACTIVITY_RECOGNITION
     const val PERMISSION_ACTIVITY_RECOGNITION_BEFORE = "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
@@ -47,7 +50,15 @@ object Constants {
     const val BACKGROUND_OPERATION_ACTIVITY_RECOGNITION = "ACTIVITY_RECOGNITION_ON"
     const val BACKGROUND_OPERATION_ACTIVITY_RECOGNITION_CODE = 1000
 
+    const val GEOFENCE_EXPIRATION_IN_MILLISECONDS: Long = 30 * 60 * 1000
+    const val GEOFENCE_RADIUS_IN_METERS = 100.0F
 
+    const val BACKGROUND_OPERATION_LOCATION_DETECTION = "LOCATION_DETECTION_ON"
+    const val BACKGROUND_OPERATION_LOCATION_DETECTION_CODE = 1001
+    const val ACCESS_COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION
+    const val ACCESS_FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION
+    const val ACCESS_BACKGROUND_LOCATION = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+    const val PERMISSION_LOCATION_REQUESTS_CODE = 101
 
 
     /*
