@@ -21,7 +21,7 @@ class ActivityAdapter : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>
 
     fun submitList(list: List<PhysicalActivity>) {
         activities = list
-        notifyDataSetChanged()  // Assicurati che notifyDataSetChanged() venga chiamato correttamente qui
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivityViewHolder {
@@ -39,24 +39,49 @@ class ActivityAdapter : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>
 
     inner class ActivityViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val textViewActivityDetails: TextView = itemView.findViewById(R.id.textViewActivityDetails)
+        private val textViewActivityDetailsActivityType: TextView = itemView.findViewById(R.id.textViewActivityDetailsActivityType)
+        private val textViewActivityDetailsDate: TextView = itemView.findViewById(R.id.textViewActivityDetailsDate)
+        private val textViewActivityDetailsStartedAt: TextView = itemView.findViewById(R.id.textViewActivityDetailsStartedAt)
+        private val textViewActivityDetailsEndedAt: TextView = itemView.findViewById(R.id.textViewActivityDetailsEndedAt)
+        private val textViewActivityDetailsDuration: TextView = itemView.findViewById(R.id.textViewActivityDetailsDuration)
+        private val textViewActivityDetailsSteps: TextView = itemView.findViewById(R.id.textViewActivityDetailsSteps)
 
         fun bind(activity: PhysicalActivity) {
             val startTime = activity.start.substring(11)
             val endTime = activity.end.substring(11)
 
-            val builder = SpannableStringBuilder()
-            builder.append(getSpannableString("Activity", activity.getActivityTypeName().toString()))
-            builder.append(getSpannableString("Date", activity.date))
-            builder.append(getSpannableString("Started at", startTime))
-            builder.append(getSpannableString("Ended at", endTime))
-            builder.append(getSpannableString("Duration", activity.duration.toString()))
+            val builderActivityType = SpannableStringBuilder()
+            //builderActivityType.append(getSpannableString("Activity", activity.getActivityTypeName().toString()))
+
+            builderActivityType.append(activity.getActivityTypeName().toString())
+
+
+            val builderDate = SpannableStringBuilder()
+            builderDate.append(getSpannableString("Date", activity.date))
+
+            val builderStartedAt = SpannableStringBuilder()
+            builderStartedAt.append(getSpannableString("Started at", startTime))
+
+            val builderEndedAt = SpannableStringBuilder()
+            builderEndedAt.append(getSpannableString("Ended at", endTime))
+
+            val builderDuration= SpannableStringBuilder()
+            builderDuration.append(getSpannableString("Duration", activity.duration.toString()))
+
+            textViewActivityDetailsActivityType.text = builderActivityType
+            textViewActivityDetailsDate.text = builderDate
+            textViewActivityDetailsStartedAt.text = builderStartedAt
+            textViewActivityDetailsEndedAt.text = builderEndedAt
+            textViewActivityDetailsDuration.text = builderDuration
 
             if (activity.getActivityTypeName() == ActivityType.WALKING) {
-                builder.append(getSpannableString("Steps", (activity as WalkingActivity).getSteps().toString()))
+                val builderSteps = SpannableStringBuilder()
+                builderSteps.append(getSpannableString("Steps", (activity as WalkingActivity).getSteps().toString()))
+                textViewActivityDetailsSteps.text = builderSteps
+                textViewActivityDetailsSteps.visibility = View.VISIBLE
+            } else {
+                textViewActivityDetailsSteps.visibility = View.GONE
             }
-
-            textViewActivityDetails.text = builder
         }
 
         private fun getSpannableString(prefix: String, value: String): SpannableStringBuilder {
@@ -69,6 +94,7 @@ class ActivityAdapter : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>
             return spannableString
         }
     }
+
 
 
 
