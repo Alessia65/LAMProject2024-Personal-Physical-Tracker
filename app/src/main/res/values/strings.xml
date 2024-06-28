@@ -10,4 +10,10 @@
     <string name="text_unknown">UNKNOWN</string>
     <string name="title_settings">Settings</string>
     <string name="share">Share</string>
+    <string name="allow_steps_reminder">Allow steps reminder</string>
+    <string name="background_operations">Background Operations</string>
+    <string name="allow_automatic_activity_recognition">Allow automatic activity recognition</string>
+    <string name="allow_daily_reminder">Allow daily reminder</string>
+    <string name="notification">Notification</string>
+    <string name="allow_presence_detection_in_a_location">Allow presence detection in a location</string>
 </resources>

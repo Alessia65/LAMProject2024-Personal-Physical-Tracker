@@ -296,6 +296,7 @@ class HomeFragment : Fragment() {
                 ActivityHandler.setStepCounterOnValue(false)
                 ActivityHandler.setStepCounterWithAccValue(false)
             }
+            .setCancelable(false)
 
         val alert = builder.create()
         alert.show()
