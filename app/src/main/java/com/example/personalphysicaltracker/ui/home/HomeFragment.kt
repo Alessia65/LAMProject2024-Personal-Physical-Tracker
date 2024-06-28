@@ -187,6 +187,9 @@ class HomeFragment : Fragment() {
         val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
         if (backgroundRecognitionEnabled){
             buttonStartActivity.isEnabled = false
+            accelText.visibility = View.GONE
+        } else {
+            accelText.visibility = View.VISIBLE
         }
 
     }
