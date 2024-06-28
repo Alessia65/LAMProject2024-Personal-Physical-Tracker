@@ -1,6 +1,8 @@
     package com.example.personalphysicaltracker.ui.settings
 
     import android.Manifest
+    import android.app.AlarmManager
+    import android.app.NotificationManager
     import android.app.PendingIntent
     import android.app.Service
     import android.content.Context
@@ -15,6 +17,7 @@
     import com.example.personalphysicaltracker.Constants
     import com.example.personalphysicaltracker.MainActivity
     import com.example.personalphysicaltracker.R
+    import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
 
     class NotificationService : Service() {
 
@@ -105,9 +108,10 @@
                 .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                 .setContentTitle(title)
                 .setContentText(message)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true) // Chiude la notifica quando viene cliccata
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .build()
 
             with(NotificationManagerCompat.from(context)) {
@@ -122,4 +126,38 @@
                 notify(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, notification)
             }
         }
+
+         fun createPermanentNotificationActivityRecognition(context: Context) {
+
+            val intent = Intent(context, MainActivity::class.java)
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, intent, PendingIntent.FLAG_IMMUTABLE)
+
+            val notification = NotificationCompat.Builder(context, Constants.CHANNEL_ACTIVITY_RECOGNITION_ID)
+                .setContentTitle("Activity Recognition On")
+                .setContentText("Don't close the app.")
+                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+                .setContentIntent(pendingIntent)
+                .setOngoing(true)
+                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .build()
+
+             with(NotificationManagerCompat.from(context)) {
+                 if (ActivityCompat.checkSelfPermission(
+                         context,
+                         Manifest.permission.POST_NOTIFICATIONS
+                     ) != PackageManager.PERMISSION_GRANTED
+                 ) {
+                     Log.d("NOTIFICATION SERVICE","Permission not Granted")
+                     return
+                 }
+                 notify(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, notification)
+             }
+        }
+
+        fun stopPermanentNotificationActivityRecognition(context: Context) {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION) // Usa l'ID della notifica che vuoi cancellare
+        }
+
+
     }

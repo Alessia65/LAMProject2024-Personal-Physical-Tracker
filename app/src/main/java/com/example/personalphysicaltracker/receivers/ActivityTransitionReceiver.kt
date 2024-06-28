@@ -20,12 +20,13 @@ class ActivityTransitionReceiver(
 ) : DefaultLifecycleObserver {
 
     private var isOn = false;
+    private val notificationService = NotificationService()
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             isOn = true
-            val notificationService = NotificationService()
-            val title = "Activity Changed!"
+
+            val title = "Activity Recognition On: Activity Changed!"
 
             val result = intent.let { ActivityTransitionResult.extractResult(it) } ?: return
             val printInformations = buildString {
@@ -54,13 +55,17 @@ class ActivityTransitionReceiver(
             context.registerReceiver(broadcastReceiver, IntentFilter(intentAction))
         }
         isOn = true
+        notificationService.createPermanentNotificationActivityRecognition(context)
         Log.d("Activity Transition Receiver", "BroadcastReceiver registered")
     }
+
+
 
     override fun onDestroy(owner: LifecycleOwner) {
         if (isOn) {
             context.unregisterReceiver(broadcastReceiver)
             isOn = false
+            notificationService.stopPermanentNotificationActivityRecognition(context)
         }
         Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
     }
@@ -70,12 +75,11 @@ class ActivityTransitionReceiver(
             context.unregisterReceiver(broadcastReceiver)
             isOn = false
             Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
+            notificationService.stopPermanentNotificationActivityRecognition(context)
         } else {
             Log.d("Activity Transition Receiver", "BroadcastReceiver not registered")
         }
     }
-
-
 
 
 
