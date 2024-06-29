@@ -46,4 +46,10 @@
         android:name="com.example.personalphysicaltracker.ui.charts.StandingChartsFragment"
         android:label="@string/text_standing"
         tools:layout="@layout/fragment_charts_standing" />
+
+    <fragment
+        android:id="@+id/mapFragment"
+        android:name="com.example.personalphysicaltracker.ui.settings.MapFragment"
+        android:label="MAP"
+        tools:layout="@layout/fragment_map" />
 </navigation>

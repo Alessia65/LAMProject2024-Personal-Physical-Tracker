@@ -7,9 +7,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.location.Location
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,18 +22,21 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.PermissionsHandler
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentSettingsBinding
-import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import org.osmdroid.config.Configuration.*
+import org.osmdroid.views.MapView
+import java.util.Date
+import java.util.Locale
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 class SettingsFragment : Fragment() {
@@ -45,6 +49,9 @@ class SettingsFragment : Fragment() {
     private lateinit var switchStepsReminder: Switch
     private lateinit var switchActivityRecognition: Switch
     private lateinit var switchLocation: Switch
+    private lateinit var map : MapView
+    private lateinit var selectedLocation: Location
+    private lateinit var setLocation: TextView
 
     private var dailySteps = 0L
     private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -64,6 +71,7 @@ class SettingsFragment : Fragment() {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        getInstance().load(requireContext(), PreferenceManager.getDefaultSharedPreferences(requireContext()))
 
         initializeViews()
 
@@ -78,6 +86,7 @@ class SettingsFragment : Fragment() {
         switchStepsReminder = binding.root.findViewById(R.id.switch_notification_steps_reminder)
         switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
         switchLocation = binding.root.findViewById(R.id.switch_b_o_location)
+        setLocation = binding.root.findViewById<TextView>(R.id.set_location_text)
 
         val sharedPreferencesDaily = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
         val dailyReminderEnabled = sharedPreferencesDaily.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
@@ -110,22 +119,52 @@ class SettingsFragment : Fragment() {
             handleLocationDetectionSwitch(isChecked)
         }
 
+
+        setLocation.setOnClickListener(){
+            handlePermissions()
+            //if (selectedLocation != null) {
+            if (PermissionsHandler.hasLocationPermissions(requireContext())){
+                goToFragmentMap()
+            }
+        }
+
         calculateDailySteps()
 
     }
 
     private fun handleLocationDetectionSwitch(isChecked: Boolean) {
         settingsViewModel.setBackgroundLocationDetection(requireContext(), isChecked)
-        if (isChecked){
+        if (isChecked) {
             handlePermissions()
-            /*
-            Si connette l'handler
-            SI registra
-             */
+            //if (selectedLocation != null) {
+            if (PermissionsHandler.hasLocationPermissions(requireContext())){
+                //se setLocation ha un elemento
+            }
+                //Apri mappa
+                /*
+                val mapController = map.controller
+                mapController.setZoom(9.5)
+                val startPoint = GeoPoint(48.8583, 2.2944);
+                mapController.setCenter(startPoint);
+
+                map = binding.root.findViewById<MapView>(R.id.map)
+                map.setTileSource(TileSourceFactory.MAPNIK)
+
+                // Add geofence using GeofenceHandler
+                GeofenceHandler.addGeofence("selected_location", selectedLocation!!)
+                GeofenceHandler.registerGeofence()
+
+                 */
+            //} else {
+                // Handle case where no location is selected
+                // You might want to inform the user to select a location first
+            //}
         } else {
-            /*
-            disconnessione e deregistrazione
-             */
+            // Handle case when switch is unchecked
+            lifecycleScope.launch(Dispatchers.IO) {
+                GeofenceHandler.deregisterGeofence()
+            }
+            GeofenceHandler.removeGeofence("selected_location")
         }
     }
 
@@ -369,7 +408,29 @@ class SettingsFragment : Fragment() {
         builder.show()
     }
 
+    private fun goToFragmentMap(){
+        val navController = findNavController()
+        navController.navigate(R.id.mapFragment)
 
+    }
+
+    override fun onResume() {
+        super.onResume()
+        //this will refresh the osmdroid configuration on resuming.
+        //if you make changes to the configuration, use
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
+        //map.onResume() //needed for compass, my location overlays, v6.0.0 and up
+    }
+
+    override fun onPause() {
+        super.onPause()
+        //this will refresh the osmdroid configuration on resuming.
+        //if you make changes to the configuration, use
+        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        //Configuration.getInstance().save(this, prefs);
+       //map.onPause()  //needed for compass, my location overlays, v6.0.0 and up
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -58,6 +58,10 @@ object Constants {
     const val ACCESS_COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION
     const val ACCESS_FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION
     const val ACCESS_BACKGROUND_LOCATION = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
+    const val ACCESS_NETWORK_STATE = android.Manifest.permission.ACCESS_NETWORK_STATE
+    const val INTERNET = android.Manifest.permission.INTERNET
+
+
     const val PERMISSION_LOCATION_REQUESTS_CODE = 101
 
 

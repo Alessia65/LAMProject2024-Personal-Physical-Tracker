@@ -43,15 +43,20 @@ object PermissionsHandler {
         )
     }
 
+
     fun hasLocationPermissions(context: Context): Boolean {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             locationPermission =  (ActivityCompat.checkSelfPermission(
                 context,
                 Constants.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED)
+            ) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
         } else {
-            locationPermission =  (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Constants.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+            locationPermission =  (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Constants.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
         }
         return locationPermission
     }
@@ -60,19 +65,23 @@ object PermissionsHandler {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
             ActivityCompat.requestPermissions(
                 activity,
-                arrayOf(Constants.ACCESS_BACKGROUND_LOCATION),
+                arrayOf(Constants.ACCESS_BACKGROUND_LOCATION, Constants.ACCESS_NETWORK_STATE, Constants.INTERNET),
                 Constants.PERMISSION_LOCATION_REQUESTS_CODE
             )
         }
         else {
             ActivityCompat.requestPermissions(
                 activity,
-                arrayOf(Constants.ACCESS_FINE_LOCATION, Constants.ACCESS_COARSE_LOCATION),
+                arrayOf(Constants.ACCESS_FINE_LOCATION, Constants.ACCESS_COARSE_LOCATION, Constants.ACCESS_NETWORK_STATE, Constants.INTERNET),
                 Constants.PERMISSION_LOCATION_REQUESTS_CODE
             )
         }
         return hasLocationPermissions(context)
     }
+
+
+
+
 
 
 }

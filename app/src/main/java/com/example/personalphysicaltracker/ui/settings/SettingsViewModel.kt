@@ -223,5 +223,9 @@ class SettingsViewModel : ViewModel() {
         editor.apply()
     }
 
+    fun setLocation(){
+
+    }
+
 
 }

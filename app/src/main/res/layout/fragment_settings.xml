@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+    android:id="@+id/fragment_settings">
 
 
         <LinearLayout
@@ -129,6 +130,14 @@
                     android:textAlignment="center"
                     tools:ignore="UseSwitchCompatOrMaterialXml" />
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/set_location_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Set your interests' location"
+                android:clickable="true">
+            </TextView>
 
         </LinearLayout>
 
