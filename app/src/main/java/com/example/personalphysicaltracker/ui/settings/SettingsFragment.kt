@@ -49,8 +49,6 @@ class SettingsFragment : Fragment() {
     private lateinit var switchStepsReminder: Switch
     private lateinit var switchActivityRecognition: Switch
     private lateinit var switchLocation: Switch
-    private lateinit var map : MapView
-    private lateinit var selectedLocation: Location
     private lateinit var setLocation: TextView
 
     private var dailySteps = 0L
@@ -136,29 +134,15 @@ class SettingsFragment : Fragment() {
         settingsViewModel.setBackgroundLocationDetection(requireContext(), isChecked)
         if (isChecked) {
             handlePermissions()
-            //if (selectedLocation != null) {
-            if (PermissionsHandler.hasLocationPermissions(requireContext())){
-                //se setLocation ha un elemento
+            val settedLocation = checkLocation()
+            if (settedLocation){
+                //Attiva il controllo
+            } else {
+                switchLocation.isChecked = false
+                showGeofenceAlert()
+
             }
-                //Apri mappa
-                /*
-                val mapController = map.controller
-                mapController.setZoom(9.5)
-                val startPoint = GeoPoint(48.8583, 2.2944);
-                mapController.setCenter(startPoint);
 
-                map = binding.root.findViewById<MapView>(R.id.map)
-                map.setTileSource(TileSourceFactory.MAPNIK)
-
-                // Add geofence using GeofenceHandler
-                GeofenceHandler.addGeofence("selected_location", selectedLocation!!)
-                GeofenceHandler.registerGeofence()
-
-                 */
-            //} else {
-                // Handle case where no location is selected
-                // You might want to inform the user to select a location first
-            //}
         } else {
             // Handle case when switch is unchecked
             lifecycleScope.launch(Dispatchers.IO) {
@@ -166,6 +150,12 @@ class SettingsFragment : Fragment() {
             }
             GeofenceHandler.removeGeofence("selected_location")
         }
+    }
+
+    private fun checkLocation(): Boolean {
+        val sharedPreferences = requireContext().getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        val key = sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
+        return !key.isNullOrEmpty()
     }
 
 
@@ -378,14 +368,12 @@ class SettingsFragment : Fragment() {
     private fun handlePermissions() {
         if (PermissionsHandler.hasLocationPermissions(requireContext())){
             return
-
         }
 
         if (!PermissionsHandler.requestLocationPermissions(requireActivity(), requireContext())){
             showDialogSettings()
             switchLocation.isChecked = false
         }
-
 
     }
 
@@ -414,22 +402,19 @@ class SettingsFragment : Fragment() {
 
     }
 
-    override fun onResume() {
-        super.onResume()
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this));
-        //map.onResume() //needed for compass, my location overlays, v6.0.0 and up
-    }
+    private fun showGeofenceAlert() {
+        val title = "Ops! Something's missing"
+        val message = "You need to set your interest's location"
 
-    override fun onPause() {
-        super.onPause()
-        //this will refresh the osmdroid configuration on resuming.
-        //if you make changes to the configuration, use
-        //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //Configuration.getInstance().save(this, prefs);
-       //map.onPause()  //needed for compass, my location overlays, v6.0.0 and up
+
+        val alertDialogBuilder = AlertDialog.Builder(requireContext())
+        alertDialogBuilder.setTitle(title)
+        alertDialogBuilder.setMessage(message)
+        alertDialogBuilder.setPositiveButton("OK") { dialog, which ->
+            dialog.dismiss()
+        }
+        alertDialogBuilder.setCancelable(false)
+        alertDialogBuilder.show()
     }
 
     override fun onDestroyView() {
