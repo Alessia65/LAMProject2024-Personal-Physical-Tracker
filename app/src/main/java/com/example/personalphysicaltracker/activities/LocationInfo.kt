@@ -14,9 +14,11 @@ import java.util.Locale
 class LocationInfo {
 
     var start: String = ""
+    var date: String = ""
     lateinit var end: String
     var latitude: Double = 0.0
     var longitude: Double = 0.0
+
 
     var duration: Double = 0.0
     protected lateinit var activityViewModel: ActivityViewModel
@@ -25,8 +27,9 @@ class LocationInfo {
         latitude = lat
         longitude = long
         start = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
+        date = start.substring(0,10)
         this.activityViewModel = activityViewModel
-        Log.d("LocationHandler", "Entrance time recorded: $start")
+        Log.d("LocationHandler", "Entrance time recorded: $start at $date")
 
     }
 
@@ -53,6 +56,7 @@ class LocationInfo {
         val locationEntity = LocationEntity(
             latitude = this.latitude,
             longitude = this.longitude,
+            date = this.date,
             timeStart = start,
             timeFinish = end,
             duration = duration

@@ -21,6 +21,11 @@ import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.viewModels.CalendarViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 class ActivitiesDoneFragment : Fragment() {
 
     private var _binding: FragmentActivitiesDoneBinding? = null
@@ -93,7 +98,11 @@ class ActivitiesDoneFragment : Fragment() {
         )
         val enabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, false)
         if (enabled){
-            getTotalPresenceInLocation()
+            calendarViewModel.getTotalPresenceInLocation(requireContext())
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(3000)
+                getTotalPresenceInLocation()
+            }
         } else {
             locationDetection.text = ""
         }
@@ -101,10 +110,8 @@ class ActivitiesDoneFragment : Fragment() {
     }
 
     private fun getTotalPresenceInLocation() {
-        var x = "2024-06-30 14:17:25"
-        x = x.substring(0,10)
-        Log.d("Ciao",x)
-        locationDetection.text = "You were detected in your interest's location for: " + calendarViewModel.getTotalPresenceInLocation(requireContext()) + " hours"
+        var hours = (calendarViewModel.getDurationAtLocationInHours()).toString().substring(0,6)
+        locationDetection.text = "You were detected in your interest's location for: " + hours + " hours"
     }
 
 

@@ -11,14 +11,16 @@ import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.handlers.ShareHandler
 import com.example.personalphysicaltracker.utils.Constants
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class CalendarViewModel : ViewModel() {
 
     private var endDate: String = ""
     private var startDate: String = ""
-
+    private var durationAtLocation: Double = 0.0
     // ViewModel to interact with activity data
     private lateinit var activityViewModel: ActivityViewModel
 
@@ -140,23 +142,19 @@ class CalendarViewModel : ViewModel() {
         ShareHandler.exportActivitiesToCSV(context, activities)
     }
 
-    fun getTotalPresenceInLocation(context: Context): String {
+    fun getTotalPresenceInLocation(context: Context) {
         val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
-        val key = sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
         val latitude = sharedPreferences.getFloat(Constants.GEOFENCE_LATITUDE, 0.0f).toDouble()
         val longitude = sharedPreferences.getFloat(Constants.GEOFENCE_LONGITUDE, 0.0f).toDouble()
-        Log.d("cvm",latitude.toString()+","+longitude.toString())
-        var durationResult = "0"
-
         viewModelScope.launch {
-            val duration = withContext(Dispatchers.IO) {
-                activityViewModel.getTotalPresenceInLocation(latitude, longitude, startDate, endDate)
+            durationAtLocation =
+                activityViewModel.getTotalPresenceInLocation(latitude, longitude,startDate, endDate)!!
             }
-            duration?.let {
-                durationResult = (it / 3600).toString()
-            }
-        }
-
-        return durationResult
     }
+
+    fun getDurationAtLocationInHours(): Double{
+        return durationAtLocation/3600
+    }
+
+
 }

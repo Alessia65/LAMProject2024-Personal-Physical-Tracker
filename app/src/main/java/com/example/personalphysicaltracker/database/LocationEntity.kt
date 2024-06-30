@@ -17,6 +17,9 @@ data class LocationEntity(
     @ColumnInfo(name = "longitude")
     var longitude: Double,
 
+    @ColumnInfo(name = "date")
+    val date: String,
+
     @ColumnInfo(name = "date_time_start")
     var timeStart: String,
 

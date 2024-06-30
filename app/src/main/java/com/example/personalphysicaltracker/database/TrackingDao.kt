@@ -56,14 +56,7 @@ interface TrackingDao {
     fun deleteLocation(location: LocationEntity)
 
 
-    @Query("""
-        SELECT SUM(duration) 
-        FROM locations_table 
-        WHERE latitude = :latitude 
-        AND longitude = :longitude 
-        AND SUBSTR(date_time_start, 0, 9) >= :startDate
-        AND SUBSTR(date_time_finish, 0, 9) <= :endDate
-    """)
+    @Query("SELECT SUM(duration) FROM locations_table WHERE (latitude = :latitude AND longitude = :longitude AND date >= :startDate AND date <= :endDate)")
     suspend fun getTotalPresenceInLocation(
         latitude: Double,
         longitude: Double,
