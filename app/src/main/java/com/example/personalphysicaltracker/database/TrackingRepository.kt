@@ -65,4 +65,8 @@ class TrackingRepository(app: Application) {
     suspend fun getWalkingActivityById(id: Int): WalkingActivityEntity {
         return trackingDao.getWalkingActivityById(id)
     }
+
+    fun insertLocationInfo(locationEntity: LocationEntity) {
+        return trackingDao.insertLocation(locationEntity)
+    }
 }

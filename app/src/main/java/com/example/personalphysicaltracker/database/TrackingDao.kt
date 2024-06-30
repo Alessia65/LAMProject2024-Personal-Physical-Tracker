@@ -49,5 +49,9 @@ interface TrackingDao {
     @Delete
     fun deleteList(activitiesList: List<ActivityEntity>)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertLocation(location: LocationEntity)
 
+    @Delete
+    fun deleteLocation(location: LocationEntity)
 }

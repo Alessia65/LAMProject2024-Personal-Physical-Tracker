@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 // exportSchema set to false to avoid DB migrations
-@Database(entities = [ActivityEntity::class, WalkingActivityEntity::class], version = 1, exportSchema = false)
+@Database(entities = [ActivityEntity::class, WalkingActivityEntity::class, LocationEntity::class], version = 1, exportSchema = false)
 abstract class TrackingRoomDatabase : RoomDatabase() {
 
     abstract fun trackingDao(): TrackingDao

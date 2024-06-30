@@ -59,6 +59,7 @@ class MapFragment : Fragment() {
         setMap()
         addMapClickListener()
 
+
         // Set up cancel button listener
         cancelLocation = root.findViewById(R.id.cancel_location_button)
         cancelLocation.setOnClickListener {
@@ -189,10 +190,9 @@ class MapFragment : Fragment() {
         // Retrieve geofence information from SharedPreferences
         val sharedPreferences = requireContext().getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
         val key = sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
-        val latitude = sharedPreferences.getString(Constants.GEOFENCE_LATITUDE, null)?.toDouble()
-        val longitude = sharedPreferences.getString(Constants.GEOFENCE_LONGITUDE, null)?.toDouble()
+        val latitude = sharedPreferences.getFloat(Constants.GEOFENCE_LATITUDE, 0.0f).toDouble()
+        val longitude = sharedPreferences.getFloat(Constants.GEOFENCE_LONGITUDE, 0.0f).toDouble()
 
-        if (latitude != null && longitude != null) {
             // Create location from retrieved latitude and longitude
             val location = Location(LocationManager.GPS_PROVIDER).apply {
                 this.latitude = latitude
@@ -213,7 +213,7 @@ class MapFragment : Fragment() {
             // Update current geofence references
             currentGeofenceKey = key
             currentGeofenceMarker = marker
-        }
+
     }
 
     // Method to save geofence key and location to SharedPreferences
@@ -221,8 +221,8 @@ class MapFragment : Fragment() {
         val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
         with(sharedPreferences.edit()) {
             putString(Constants.GEOFENCE_KEY, key)
-            putString(Constants.GEOFENCE_LATITUDE, location.latitude.toString())
-            putString(Constants.GEOFENCE_LONGITUDE, location.longitude.toString())
+            putFloat(Constants.GEOFENCE_LATITUDE, location.latitude.toFloat())
+            putFloat(Constants.GEOFENCE_LONGITUDE, location.longitude.toFloat())
             apply()
         }
     }
@@ -248,6 +248,7 @@ class MapFragment : Fragment() {
         currentGeofenceKey = null
         currentGeofenceMarker = null
     }
+
 
     override fun onResume() {
         super.onResume()

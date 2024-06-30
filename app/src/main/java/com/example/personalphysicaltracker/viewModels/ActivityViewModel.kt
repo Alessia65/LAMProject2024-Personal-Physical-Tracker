@@ -7,6 +7,7 @@ import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityEntity
+import com.example.personalphysicaltracker.database.LocationEntity
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.database.WalkingActivityEntity
 
@@ -112,6 +113,10 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
     }
     suspend private fun getWalkingActivityById(id: Int): WalkingActivityEntity {
         return repository.getWalkingActivityById(id)
+    }
+
+    fun insertLocationInfo(locationEntity: LocationEntity) {
+        return repository.insertLocationInfo(locationEntity)
     }
 
 

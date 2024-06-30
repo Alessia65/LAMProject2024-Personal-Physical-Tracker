@@ -14,6 +14,7 @@ import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
 import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
+import com.google.android.gms.location.FusedLocationProviderClient
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -218,9 +219,8 @@ class SettingsViewModel : ViewModel() {
         editor.apply()
     }
 
-    fun setLocation(){
-
+    fun getActivityViewModel(): ActivityViewModel{
+        return activityViewModel
     }
-
 
 }

@@ -30,7 +30,9 @@ import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentSettingsBinding
 import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
 import com.example.personalphysicaltracker.handlers.GeofenceHandler
+import com.example.personalphysicaltracker.handlers.LocationHandler
 import com.example.personalphysicaltracker.viewModels.SettingsViewModel
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -69,8 +71,6 @@ class SettingsFragment : Fragment() {
     ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
         val root: View = binding.root
-
-        getInstance().load(requireContext(), PreferenceManager.getDefaultSharedPreferences(requireContext()))
 
         initializeViews()
 
@@ -124,6 +124,7 @@ class SettingsFragment : Fragment() {
             //if (selectedLocation != null) {
             if (PermissionsHandler.hasLocationPermissions(requireContext())){
                 goToFragmentMap()
+                //switchLocation.isChecked = false
             }
         }
 
@@ -137,14 +138,15 @@ class SettingsFragment : Fragment() {
             handlePermissions()
             val settedLocation = checkLocation()
             if (settedLocation){
-                //Attiva il controllo
+                LocationHandler.startLocationUpdates(requireContext(), LocationServices.getFusedLocationProviderClient(requireActivity()), settingsViewModel.getActivityViewModel())
             } else {
-                switchLocation.isChecked = false
+               switchLocation.isChecked = false
                 showGeofenceAlert()
 
             }
 
         } else {
+            LocationHandler.stopLocationUpdates(LocationServices.getFusedLocationProviderClient(requireActivity()))
             // Handle case when switch is unchecked
             lifecycleScope.launch(Dispatchers.IO) {
                 GeofenceHandler.deregisterGeofence()
