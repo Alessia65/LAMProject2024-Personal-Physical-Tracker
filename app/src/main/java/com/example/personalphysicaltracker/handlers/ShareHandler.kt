@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.history
+package com.example.personalphysicaltracker.handlers
 
 import android.content.ContentResolver
 import android.content.ContentValues

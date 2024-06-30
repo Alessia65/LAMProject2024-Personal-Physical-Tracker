@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.history
+package com.example.personalphysicaltracker.viewModels
 
 import android.content.Context
 import android.util.Log
@@ -7,9 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.activities.PhysicalActivity
-import com.example.personalphysicaltracker.database.ActivityViewModel
-import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
+import com.example.personalphysicaltracker.handlers.ShareHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 

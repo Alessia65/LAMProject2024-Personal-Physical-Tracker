@@ -10,12 +10,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.example.personalphysicaltracker.Constants
+import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentMapBinding
+import com.example.personalphysicaltracker.handlers.GeofenceHandler
 import org.osmdroid.config.Configuration
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
@@ -75,6 +77,35 @@ class MapFragment : Fragment() {
 
     // Method to set a geofence at a specific GeoPoint
     fun setGeofenceAt(point: GeoPoint) {
+        // Check if there's an existing geofence
+        if (checkLocation()) {
+            // Show alert dialog to confirm modifying the geofence
+            showModifyGeofenceAlert(point)
+        } else {
+            // No existing geofence, directly set the new one
+            setNewGeofence(point)
+        }
+    }
+
+    // Method to show alert dialog asking to modify existing geofence
+    private fun showModifyGeofenceAlert(point: GeoPoint) {
+        val alertDialogBuilder = AlertDialog.Builder(requireContext())
+        alertDialogBuilder.setTitle("Modify Geofence")
+        alertDialogBuilder.setMessage("Do you want to modify the existing geofence location? Attention: your data will be deleted")
+        alertDialogBuilder.setPositiveButton("Yes") { dialog, which ->
+            // User wants to modify, set the new geofence
+            setNewGeofence(point)
+        }
+        alertDialogBuilder.setNegativeButton("No") { dialog, which ->
+            // User doesn't want to modify, do nothing
+            dialog.dismiss()
+        }
+        alertDialogBuilder.setCancelable(false)
+        alertDialogBuilder.show()
+    }
+
+    // Method to set a new geofence at the specified GeoPoint
+    private fun setNewGeofence(point: GeoPoint) {
         // Remove current geofence and marker if they exist
         currentGeofenceKey?.let { GeofenceHandler.removeGeofence(it) }
         currentGeofenceMarker?.let { map.overlays.remove(it) }
@@ -196,6 +227,13 @@ class MapFragment : Fragment() {
         }
     }
 
+    // Method to check if there is an existing geofence
+    private fun checkLocation(): Boolean {
+        val sharedPreferences = requireContext().getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        val key = sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
+        return key != null
+    }
+
     // Method to cancel the geofence
     private fun cancelGeofence() {
         // Remove geofence from SharedPreferences
@@ -221,9 +259,10 @@ class MapFragment : Fragment() {
         super.onPause()
         map.onPause()
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
 }
+
+

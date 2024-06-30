@@ -41,7 +41,7 @@
             android:resource="@array/preloaded_fonts" />
 
         <service
-            android:name=".ui.settings.NotificationService"
+            android:name=".utils.NotificationService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false" />
 

@@ -13,6 +13,7 @@ import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentChartsWalkingBinding
+import com.example.personalphysicaltracker.viewModels.ChartsViewModel
 import com.github.mikephil.charting.charts.BarChart
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.util.Date

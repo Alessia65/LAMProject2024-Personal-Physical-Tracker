@@ -1,17 +1,12 @@
-package com.example.personalphysicaltracker.ui.home
+package com.example.personalphysicaltracker.viewModels
 
 import android.content.Context
-import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.*
 import com.example.personalphysicaltracker.activities.*
-import com.example.personalphysicaltracker.database.*
+import com.example.personalphysicaltracker.handlers.ActivityHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
 
 // Communication ActivityViewModel and HomeFragment
 class HomeViewModel : ViewModel() {

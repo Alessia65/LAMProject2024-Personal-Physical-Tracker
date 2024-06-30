@@ -10,8 +10,8 @@ import android.util.Log
 import com.google.android.gms.location.ActivityTransitionResult
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.personalphysicaltracker.ui.settings.ActivityTransitionHandler
-import com.example.personalphysicaltracker.ui.settings.NotificationService
+import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
+import com.example.personalphysicaltracker.utils.NotificationService
 
 class ActivityTransitionReceiver(
     private val context: Context,

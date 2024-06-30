@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.sensors
+package com.example.personalphysicaltracker.handlers
 
 import android.content.Context
 import android.hardware.Sensor
@@ -6,6 +6,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.util.Log
+import com.example.personalphysicaltracker.listeners.StepCounterListener
 import kotlin.math.sqrt
 
 class StepCounterSensorHandler(context: Context) : SensorEventListener {

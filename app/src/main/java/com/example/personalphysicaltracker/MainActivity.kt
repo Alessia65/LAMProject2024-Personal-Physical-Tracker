@@ -22,14 +22,16 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.personalphysicaltracker.activities.ActivityHandler
+import com.example.personalphysicaltracker.handlers.ActivityHandler
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
-import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
-import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
+import com.example.personalphysicaltracker.handlers.AccelerometerSensorHandler
+import com.example.personalphysicaltracker.handlers.StepCounterSensorHandler
 import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
 import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
-import com.example.personalphysicaltracker.ui.settings.ActivityTransitionHandler
+import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
+import com.example.personalphysicaltracker.handlers.PermissionsHandler
+import com.example.personalphysicaltracker.utils.Constants
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -94,7 +96,8 @@ class MainActivity : AppCompatActivity() {
         scheduleStepsNotificationIfEnabled()
 
         val sharedPreferencesBackgroundActivities = this.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
-        val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+        val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(
+            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
         initializeObserverActivityTransition()
         createNotificationChannelForActivityRecognition()
         if (backgroundRecognitionEnabled){

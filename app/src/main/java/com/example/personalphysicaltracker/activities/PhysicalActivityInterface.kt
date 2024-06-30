@@ -1,6 +1,6 @@
 package com.example.personalphysicaltracker.activities
 
-import com.example.personalphysicaltracker.database.ActivityViewModel
+import com.example.personalphysicaltracker.viewModels.ActivityViewModel
 
 interface PhysicalActivityInterface {
     fun getActivityTypeName(): ActivityType

@@ -1,14 +1,14 @@
-package com.example.personalphysicaltracker.sensors
+package com.example.personalphysicaltracker.handlers
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
-import android.hardware.SensorListener
 import android.hardware.SensorManager
 import android.util.Log
 import com.example.personalphysicaltracker.activities.ActivityType
+import com.example.personalphysicaltracker.listeners.AccelerometerListener
 
 
 class AccelerometerSensorHandler(context: Context) : SensorEventListener {

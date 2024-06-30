@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.settings
+package com.example.personalphysicaltracker.handlers
 
 import android.annotation.SuppressLint
 import android.app.PendingIntent
@@ -7,33 +7,22 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewModelScope
-import com.example.personalphysicaltracker.Constants
-import com.example.personalphysicaltracker.activities.ActivityHandler
+import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
-import com.example.personalphysicaltracker.database.ActivityViewModel
 import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
-import com.example.personalphysicaltracker.ui.home.HomeViewModel
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
-import com.google.android.gms.location.ActivityTransitionEvent
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @SuppressLint("StaticFieldLeak")
 object ActivityTransitionHandler : LifecycleObserver {
@@ -46,8 +35,8 @@ object ActivityTransitionHandler : LifecycleObserver {
     private var isWalkingType  = false
 
     fun initialize(context: Context, lifecycle: Lifecycle) {
-        this.context = context.applicationContext
-        this.lifecycle = lifecycle
+        ActivityTransitionHandler.context = context.applicationContext
+        ActivityTransitionHandler.lifecycle = lifecycle
         activityReceiver = ActivityTransitionReceiver(context, Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION) { userActivity -> }
 
     }

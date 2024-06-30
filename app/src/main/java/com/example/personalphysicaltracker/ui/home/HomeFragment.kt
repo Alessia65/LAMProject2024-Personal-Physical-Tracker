@@ -16,14 +16,15 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.personalphysicaltracker.Constants
+import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.R
-import com.example.personalphysicaltracker.activities.ActivityHandler
+import com.example.personalphysicaltracker.handlers.ActivityHandler
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
-import com.example.personalphysicaltracker.ui.history.CalendarViewModel
+import com.example.personalphysicaltracker.viewModels.CalendarViewModel
+import com.example.personalphysicaltracker.viewModels.HomeViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -157,7 +158,7 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-        ActivityHandler.dailySteps.observe(viewLifecycleOwner){dailyStepsList ->
+        ActivityHandler.dailySteps.observe(viewLifecycleOwner){ dailyStepsList ->
             dailyStepsList?.let{
                 dailyStepsText.text = "Daily steps: $dailyStepsList"
                 val sharedPreferencesSteps = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
@@ -184,7 +185,8 @@ class HomeFragment : Fragment() {
         }
 
         val sharedPreferencesBackgroundActivities = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
-        val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+        val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(
+            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
         if (backgroundRecognitionEnabled){
             buttonStartActivity.isEnabled = false
             accelText.visibility = View.GONE

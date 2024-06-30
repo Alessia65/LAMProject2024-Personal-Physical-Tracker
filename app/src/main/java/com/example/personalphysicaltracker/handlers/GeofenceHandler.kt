@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.settings
+package com.example.personalphysicaltracker.handlers
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -8,10 +8,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Build
-import android.os.Bundle
 import android.util.Log
 import androidx.core.app.ActivityCompat
-import com.example.personalphysicaltracker.Constants
+import com.example.personalphysicaltracker.utils.Constants
 import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_ENTER
 import com.google.android.gms.location.Geofence.GEOFENCE_TRANSITION_EXIT
@@ -31,7 +30,7 @@ object GeofenceHandler {
 
 
     fun initialize(context: Context){
-        this.context = context
+        GeofenceHandler.context = context
         geofencingClient = LocationServices.getGeofencingClient(context)
         pendingIntent =
             PendingIntent.getBroadcast(

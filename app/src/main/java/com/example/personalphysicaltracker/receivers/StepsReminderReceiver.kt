@@ -4,8 +4,8 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.example.personalphysicaltracker.Constants
-import com.example.personalphysicaltracker.ui.settings.NotificationService
+import com.example.personalphysicaltracker.utils.Constants
+import com.example.personalphysicaltracker.utils.NotificationService
 
 class StepsReminderReceiver : BroadcastReceiver() {
 

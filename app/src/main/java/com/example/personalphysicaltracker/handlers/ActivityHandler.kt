@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.activities
+package com.example.personalphysicaltracker.handlers
 
 import android.content.Context
 import android.util.Log
@@ -7,17 +7,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.viewModelScope
+import com.example.personalphysicaltracker.activities.ActivityType
+import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.activities.PhysicalActivity
+import com.example.personalphysicaltracker.activities.StandingActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityEntity
-import com.example.personalphysicaltracker.database.ActivityViewModel
-import com.example.personalphysicaltracker.database.ActivityViewModelFactory
+import com.example.personalphysicaltracker.viewModels.ActivityViewModel
+import com.example.personalphysicaltracker.viewModels.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
-import com.example.personalphysicaltracker.sensors.AccelerometerListener
-import com.example.personalphysicaltracker.sensors.AccelerometerSensorHandler
-import com.example.personalphysicaltracker.sensors.StepCounterListener
-import com.example.personalphysicaltracker.sensors.StepCounterSensorHandler
+import com.example.personalphysicaltracker.listeners.AccelerometerListener
+import com.example.personalphysicaltracker.listeners.StepCounterListener
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -218,7 +219,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
     suspend fun stopSelectedActivity(isWalkingActivity: Boolean) {
         started = false
-        this.isWalkingActivity = isWalkingActivity
+        ActivityHandler.isWalkingActivity = isWalkingActivity
         stopStepCounterSensor()
         stopAccelerometerSensor()
         //if (isWalkingActivity){
@@ -269,7 +270,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     }
 
     fun setSteps(totalSteps: Long) {
-        this.totalSteps = totalSteps
+        ActivityHandler.totalSteps = totalSteps
         _actualSteps.postValue(totalSteps)
     }
 

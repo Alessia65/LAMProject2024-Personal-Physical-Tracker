@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker
+package com.example.personalphysicaltracker.utils
 
 object Constants {
 

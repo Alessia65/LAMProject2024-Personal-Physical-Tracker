@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.database
+package com.example.personalphysicaltracker.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -6,6 +6,9 @@ import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
+import com.example.personalphysicaltracker.database.ActivityEntity
+import com.example.personalphysicaltracker.database.TrackingRepository
+import com.example.personalphysicaltracker.database.WalkingActivityEntity
 
 class ActivityViewModel(private val repository: TrackingRepository) : ViewModel() {
 
@@ -107,7 +110,7 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
 
         return activity
     }
-    suspend private fun getWalkingActivityById(id: Int): WalkingActivityEntity{
+    suspend private fun getWalkingActivityById(id: Int): WalkingActivityEntity {
         return repository.getWalkingActivityById(id)
     }
 

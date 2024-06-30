@@ -2,7 +2,7 @@ package com.example.personalphysicaltracker.activities
 
 
 import com.example.personalphysicaltracker.database.ActivityEntity
-import com.example.personalphysicaltracker.database.ActivityViewModel
+import com.example.personalphysicaltracker.viewModels.ActivityViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

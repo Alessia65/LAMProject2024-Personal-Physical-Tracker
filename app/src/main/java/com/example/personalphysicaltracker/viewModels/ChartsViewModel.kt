@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.ui.charts
+package com.example.personalphysicaltracker.viewModels
 
 import android.graphics.Color
 import android.util.Log
@@ -10,8 +10,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
-import com.example.personalphysicaltracker.database.ActivityViewModel
-import com.example.personalphysicaltracker.database.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis

@@ -2,7 +2,6 @@ package com.example.personalphysicaltracker.ui.charts
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,9 +10,9 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
-import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.databinding.FragmentChartsStandingBinding
+import com.example.personalphysicaltracker.viewModels.ChartsViewModel
 import com.github.mikephil.charting.charts.BarChart
 import com.google.android.material.datepicker.MaterialDatePicker
 import java.util.Date

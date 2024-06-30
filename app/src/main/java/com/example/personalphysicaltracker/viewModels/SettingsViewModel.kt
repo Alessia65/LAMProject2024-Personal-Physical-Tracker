@@ -1,21 +1,16 @@
-package com.example.personalphysicaltracker.ui.settings
+package com.example.personalphysicaltracker.viewModels
 
 import android.app.AlarmManager
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
-import com.example.personalphysicaltracker.Constants
-import com.example.personalphysicaltracker.database.ActivityViewModel
-import com.example.personalphysicaltracker.database.ActivityViewModelFactory
+import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
 import com.example.personalphysicaltracker.receivers.StepsReminderReceiver

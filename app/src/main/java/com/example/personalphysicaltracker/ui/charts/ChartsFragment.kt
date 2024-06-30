@@ -15,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.databinding.FragmentChartsBinding
+import com.example.personalphysicaltracker.viewModels.ChartsViewModel
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.PercentFormatter

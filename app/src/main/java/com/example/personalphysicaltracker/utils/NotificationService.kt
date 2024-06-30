@@ -1,7 +1,6 @@
-    package com.example.personalphysicaltracker.ui.settings
+    package com.example.personalphysicaltracker.utils
 
     import android.Manifest
-    import android.app.AlarmManager
     import android.app.NotificationManager
     import android.app.PendingIntent
     import android.app.Service
@@ -14,10 +13,8 @@
     import androidx.core.app.ActivityCompat
     import androidx.core.app.NotificationCompat
     import androidx.core.app.NotificationManagerCompat
-    import com.example.personalphysicaltracker.Constants
     import com.example.personalphysicaltracker.MainActivity
     import com.example.personalphysicaltracker.R
-    import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
 
     class NotificationService : Service() {
 
