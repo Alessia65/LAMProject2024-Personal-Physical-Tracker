@@ -66,7 +66,11 @@ class TrackingRepository(app: Application) {
         return trackingDao.getWalkingActivityById(id)
     }
 
-    fun insertLocationInfo(locationEntity: LocationEntity) {
+     fun insertLocationInfo(locationEntity: LocationEntity) {
         return trackingDao.insertLocation(locationEntity)
+    }
+
+    suspend fun getTotalPresenceInLocation(latitude: Double, longitude: Double, startDate:String, endDate:String): Double {
+        return trackingDao.getTotalPresenceInLocation(latitude,longitude, startDate, endDate)
     }
 }

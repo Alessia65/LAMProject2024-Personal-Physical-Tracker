@@ -9,10 +9,15 @@ import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.handlers.ShareHandler
+import com.example.personalphysicaltracker.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CalendarViewModel : ViewModel() {
+
+    private var endDate: String = ""
+    private var startDate: String = ""
 
     // ViewModel to interact with activity data
     private lateinit var activityViewModel: ActivityViewModel
@@ -78,6 +83,8 @@ class CalendarViewModel : ViewModel() {
     }
 
      fun handleSelectedDateRange(startDate: String, endDate: String) {
+         this.startDate = startDate
+         this.endDate = endDate
          activitiesToSend = obtainDates()
         Log.d("ACTIVITIES FROM DB", activitiesToSend.size.toString())
 
@@ -131,5 +138,25 @@ class CalendarViewModel : ViewModel() {
 
     fun exportActivitiesToCSV(context: Context, activities: List<PhysicalActivity>) {
         ShareHandler.exportActivitiesToCSV(context, activities)
+    }
+
+    fun getTotalPresenceInLocation(context: Context): String {
+        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        val key = sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
+        val latitude = sharedPreferences.getFloat(Constants.GEOFENCE_LATITUDE, 0.0f).toDouble()
+        val longitude = sharedPreferences.getFloat(Constants.GEOFENCE_LONGITUDE, 0.0f).toDouble()
+        Log.d("cvm",latitude.toString()+","+longitude.toString())
+        var durationResult = "0"
+
+        viewModelScope.launch {
+            val duration = withContext(Dispatchers.IO) {
+                activityViewModel.getTotalPresenceInLocation(latitude, longitude, startDate, endDate)
+            }
+            duration?.let {
+                durationResult = (it / 3600).toString()
+            }
+        }
+
+        return durationResult
     }
 }

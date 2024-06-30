@@ -115,8 +115,12 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
         return repository.getWalkingActivityById(id)
     }
 
-    fun insertLocationInfo(locationEntity: LocationEntity) {
+     fun insertLocationInfo(locationEntity: LocationEntity) {
         return repository.insertLocationInfo(locationEntity)
+    }
+
+    suspend fun getTotalPresenceInLocation(latitude: Double, longitude: Double, startDate:String, endDate:String): Double? {
+        return repository.getTotalPresenceInLocation(latitude, longitude, startDate, endDate)
     }
 
 

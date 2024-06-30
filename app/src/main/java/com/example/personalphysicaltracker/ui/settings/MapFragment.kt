@@ -92,7 +92,7 @@ class MapFragment : Fragment() {
     private fun showModifyGeofenceAlert(point: GeoPoint) {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
         alertDialogBuilder.setTitle("Modify Geofence")
-        alertDialogBuilder.setMessage("Do you want to modify the existing geofence location? Attention: your data will be deleted")
+        alertDialogBuilder.setMessage("Do you want to modify the existing geofence location?")
         alertDialogBuilder.setPositiveButton("Yes") { dialog, which ->
             // User wants to modify, set the new geofence
             setNewGeofence(point)

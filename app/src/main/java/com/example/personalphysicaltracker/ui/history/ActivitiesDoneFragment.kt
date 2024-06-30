@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.ui.history
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.databinding.FragmentActivitiesDoneBinding
+import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.viewModels.CalendarViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
@@ -30,8 +33,7 @@ class ActivitiesDoneFragment : Fragment() {
     private lateinit var adapter: ActivityAdapter
     private lateinit var shareButton: ImageButton
 
-    private lateinit var scrollView: ScrollView
-    private lateinit var linearLayoutScrollView: LinearLayout
+    private lateinit var locationDetection: TextView
     private lateinit var chipGroup: ChipGroup
 
 
@@ -41,8 +43,8 @@ class ActivitiesDoneFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_activities_done, container, false)
-        initializeViews(view)
         initializeViewModels()
+        initializeViews(view)
         obtainDates()
         return view
     }
@@ -68,6 +70,7 @@ class ActivitiesDoneFragment : Fragment() {
         chipGroup = view.findViewById(R.id.chip_group)
         recyclerView = view.findViewById(R.id.recycler_view)
         shareButton = view.findViewById(R.id.button_share)
+        locationDetection = view.findViewById(R.id.location_text)
 
         // Setup RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
@@ -83,6 +86,25 @@ class ActivitiesDoneFragment : Fragment() {
         shareButton.setOnClickListener{
             calendarViewModel.exportActivitiesToCSV(requireContext(), activities)
         }
+
+        val sharedPreferencesBackgroundActivities = requireContext().getSharedPreferences(
+            Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION,
+            Context.MODE_PRIVATE
+        )
+        val enabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, false)
+        if (enabled){
+            getTotalPresenceInLocation()
+        } else {
+            locationDetection.text = ""
+        }
+
+    }
+
+    private fun getTotalPresenceInLocation() {
+        var x = "2024-06-30 14:17:25"
+        x = x.substring(0,10)
+        Log.d("Ciao",x)
+        locationDetection.text = "You were detected in your interest's location for: " + calendarViewModel.getTotalPresenceInLocation(requireContext()) + " hours"
     }
 
 

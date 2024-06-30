@@ -24,6 +24,8 @@ object LocationHandler {
     private var currentInfoLocation: LocationInfo = LocationInfo()
     private lateinit var activityViewModel: ActivityViewModel
     private var started = false
+    private var isInsideGeofence = false
+
 
     @SuppressLint("MissingPermission")
     fun startLocationUpdates(context: Context, client: FusedLocationProviderClient, activityViewModel: ActivityViewModel) {
@@ -70,13 +72,15 @@ object LocationHandler {
         val distance = location.distanceTo(geofenceLocation)
 
         if (distance <= radius) {
-            Log.d("LOCATION HANDLER", "sei nell'area")
-            Log.d("LOCATION HANDLER, geo", "$lat;$lon")
-            Log.d("LOCATION HANDLER, current", "${location.latitude};${location.longitude}")
+            if (!isInsideGeofence) {
+                Log.d("LOCATION HANDLER", "sei nell'area")
+                Log.d("LOCATION HANDLER, geo", "$lat;$lon")
+                Log.d("LOCATION HANDLER, current", "${location.latitude};${location.longitude}")
 
-
-            currentInfoLocation.initialize(lat, lon, activityViewModel)
-            started = true
+                currentInfoLocation.initialize(lat, lon, activityViewModel)
+                started = true
+                isInsideGeofence = true
+            }
         } else {
             Log.d("LOCATION HANDLER", "sei fuori, distante di $distance")
 
@@ -91,6 +95,8 @@ object LocationHandler {
                     currentInfoLocation = LocationInfo()
                 }
             }
+            isInsideGeofence = false
+
         }
     }
 
