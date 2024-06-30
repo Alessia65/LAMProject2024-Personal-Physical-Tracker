@@ -73,4 +73,8 @@ class TrackingRepository(app: Application) {
     suspend fun getTotalPresenceInLocation(latitude: Double, longitude: Double, startDate:String, endDate:String): Double {
         return trackingDao.getTotalPresenceInLocation(latitude,longitude, startDate, endDate)
     }
+
+    suspend fun getAllLocationsInDate(startDate: String, endDate: String): List<LocationEntity> {
+        return trackingDao.getAllLocationsInDate(startDate, endDate)
+    }
 }

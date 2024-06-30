@@ -64,4 +64,7 @@ interface TrackingDao {
         endDate: String
     ): Double
 
+    @Query("SELECT * FROM locations_table WHERE (date >= :startDate AND date <= :endDate)")
+    suspend fun getAllLocationsInDate(startDate: String, endDate: String): List<LocationEntity>
+
 }

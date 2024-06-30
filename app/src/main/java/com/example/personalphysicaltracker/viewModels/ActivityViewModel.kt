@@ -1,8 +1,10 @@
 package com.example.personalphysicaltracker.viewModels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.activities.DrivingActivity
+import com.example.personalphysicaltracker.activities.LocationInfo
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
@@ -122,6 +124,30 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
     suspend fun getTotalPresenceInLocation(latitude: Double, longitude: Double, startDate:String, endDate:String): Double? {
         return repository.getTotalPresenceInLocation(latitude, longitude, startDate, endDate)
     }
+
+    suspend fun getAllLocationsInDate(startDate: String, endDate: String): List<LocationInfo> {
+        val locationEntities = repository.getAllLocationsInDate(startDate, endDate)
+
+        val  list =  obtainListLocation(locationEntities)
+        return list
+
+    }
+
+    private fun obtainListLocation(locationEntities: List<LocationEntity>): List<LocationInfo> {
+        val temp: MutableList<LocationInfo> = mutableListOf() // Inizializza una lista vuota
+
+        for (entity in locationEntities) {
+            val newLocation = LocationInfo()
+            newLocation.date = entity.date
+            newLocation.start = entity.timeStart
+            newLocation.end = entity.timeFinish
+            newLocation.latitude = entity.latitude
+            newLocation.longitude = entity.longitude
+            temp.add(newLocation)
+        }
+        return temp
+    }
+
 
 
 }

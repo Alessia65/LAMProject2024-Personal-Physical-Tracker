@@ -15,7 +15,7 @@ class LocationInfo {
 
     var start: String = ""
     var date: String = ""
-    lateinit var end: String
+    var end: String = ""
     var latitude: Double = 0.0
     var longitude: Double = 0.0
 

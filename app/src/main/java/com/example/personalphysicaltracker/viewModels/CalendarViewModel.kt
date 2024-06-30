@@ -6,11 +6,14 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.personalphysicaltracker.activities.LocationInfo
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.handlers.ShareHandler
 import com.example.personalphysicaltracker.utils.Constants
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -26,6 +29,7 @@ class CalendarViewModel : ViewModel() {
 
     // List to hold activities fetched from the database
     var activitiesOnDb: List<PhysicalActivity> = emptyList()
+    var locationInfos: List<LocationInfo> = emptyList()
 
     // List to hold activities to be sent or displayed in another fragment
     var activitiesToSend: List<PhysicalActivity> = emptyList()
@@ -139,8 +143,30 @@ class CalendarViewModel : ViewModel() {
     }
 
     fun exportActivitiesToCSV(context: Context, activities: List<PhysicalActivity>) {
-        ShareHandler.exportActivitiesToCSV(context, activities)
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(
+            Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION,
+            Context.MODE_PRIVATE
+        )
+        val enabledLocation = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, false)
+
+        Log.d("ENABLED", enabledLocation.toString())
+        Log.d("SIZE", locationInfos.size.toString())
+        if (enabledLocation){
+            CoroutineScope(Dispatchers.Main).launch {
+                delay(3000)
+                for (l in locationInfos){
+                    Log.d("CIAO", l.duration.toString())
+                }
+                ShareHandler.exportActivitiesToCSV(context, activities, enabledLocation, locationInfos)
+
+            }
+        } else {
+            ShareHandler.exportActivitiesToCSV(context, activities, enabledLocation, locationInfos)
+
+        }
     }
+
+
 
     fun getTotalPresenceInLocation(context: Context) {
         val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
@@ -149,7 +175,9 @@ class CalendarViewModel : ViewModel() {
         viewModelScope.launch {
             durationAtLocation =
                 activityViewModel.getTotalPresenceInLocation(latitude, longitude,startDate, endDate)!!
-            }
+            locationInfos = activityViewModel.getAllLocationsInDate(startDate, endDate) //Per sfruttare per il popolamento
+            Log.d("SIZE", locationInfos.size.toString())
+        }
     }
 
     fun getDurationAtLocationInHours(): Double{
