@@ -64,6 +64,11 @@ object Constants {
 
     const val PERMISSION_LOCATION_REQUESTS_CODE = 101
 
+    const val GEOFENCE = "GEOFENCE"
+    const val GEOFENCE_LATITUDE = "GEOFENCE_LATITUDE"
+    const val GEOFENCE_LONGITUDE = "GEOFENCE_LONGITUDE"
+    const val GEOFENCE_KEY = "GEOFENCE_KEY"
+
 
     /*
     TODO:

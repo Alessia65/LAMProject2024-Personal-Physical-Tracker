@@ -1,23 +1,19 @@
 package com.example.personalphysicaltracker.ui.settings
 
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.app.AlertDialog
-import android.app.Dialog
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import com.example.personalphysicaltracker.PermissionsHandler
+import androidx.navigation.fragment.findNavController
+import com.example.personalphysicaltracker.Constants
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.databinding.FragmentMapBinding
 import org.osmdroid.config.Configuration
@@ -38,7 +34,6 @@ class MapFragment : Fragment() {
     private lateinit var map: MapView
     private lateinit var client: FusedLocationProviderClient
     private lateinit var locationManager: LocationManager
-    private lateinit var setLocation: Button
     private lateinit var cancelLocation: Button
 
     private var currentGeofenceMarker: Marker? = null
@@ -51,24 +46,71 @@ class MapFragment : Fragment() {
         _binding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        // Initialize components and services
         GeofenceHandler.initialize(requireContext())
         client = LocationServices.getFusedLocationProviderClient(requireActivity())
         locationManager = requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+        // Load map configuration
         Configuration.getInstance().load(requireContext(), requireActivity().getPreferences(Context.MODE_PRIVATE))
         map = binding.map
         setMap()
         addMapClickListener()
 
-        setLocation = root.findViewById(R.id.set_location_button)
+        // Set up cancel button listener
         cancelLocation = root.findViewById(R.id.cancel_location_button)
+        cancelLocation.setOnClickListener {
+            // Cancel the saved geofence
+            cancelGeofence()
+
+            // Navigate back to the settings fragment
+            findNavController().popBackStack()
+        }
+
+        // Show the saved geofence on the map
+        showGeofence()
 
         return root
     }
 
+    // Method to set a geofence at a specific GeoPoint
+    fun setGeofenceAt(point: GeoPoint) {
+        // Remove current geofence and marker if they exist
+        currentGeofenceKey?.let { GeofenceHandler.removeGeofence(it) }
+        currentGeofenceMarker?.let { map.overlays.remove(it) }
 
+        // Create location from GeoPoint
+        val location = Location(LocationManager.GPS_PROVIDER).apply {
+            latitude = point.latitude
+            longitude = point.longitude
+        }
+        val key = "geofence:${point.latitude};${point.longitude}"
+
+        // Add geofence and register it
+        GeofenceHandler.addGeofence(key, location)
+        GeofenceHandler.registerGeofence()
+
+        // Save geofence details to SharedPreferences
+        saveGeofenceToPreferences(requireContext(), key, location)
+
+        // Create and add marker to the map
+        val marker = Marker(map).apply {
+            position = point
+            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+            icon = ContextCompat.getDrawable(requireContext(), R.drawable.baseline_add_location_24)
+            title = "This is your point of interest"
+        }
+        map.overlays.add(marker)
+        map.invalidate()
+
+        // Update current geofence references
+        currentGeofenceKey = key
+        currentGeofenceMarker = marker
+    }
+
+    // Method to set up the map
     @SuppressLint("MissingPermission")
-    fun setMap() {
+    private fun setMap() {
         map.setTileSource(TileSourceFactory.MAPNIK)
 
         client.lastLocation.addOnSuccessListener { location: Location? ->
@@ -83,18 +125,19 @@ class MapFragment : Fragment() {
                 startMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
 
                 val icon: Drawable? =
-                    ContextCompat.getDrawable(requireContext(), R.drawable.baseline_add_location_24)
+                    ContextCompat.getDrawable(requireContext(), R.drawable.baseline_adjust_24)
                 startMarker.icon = icon
+                startMarker.title = "You're here" // Set the marker title
 
                 map.overlays.add(startMarker)
             }
         }
     }
 
-    fun addMapClickListener() {
+    // Method to add click listener to the map
+    private fun addMapClickListener() {
         val receiver = object : MapEventsReceiver {
             override fun singleTapConfirmedHelper(p: GeoPoint): Boolean {
-                Log.d("Map Click", "Tapped at: ${p.latitude}, ${p.longitude}")
                 setGeofenceAt(p)
                 return true
             }
@@ -107,49 +150,71 @@ class MapFragment : Fragment() {
         map.overlays.add(overlay)
     }
 
-    fun setGeofenceAt(point: GeoPoint) {
-        // Remove the current geofence and marker if they exist
-        currentGeofenceKey?.let { GeofenceHandler.removeGeofence(it) }
+    // Method to show the saved geofence on the map
+    private fun showGeofence() {
+        // Remove previous marker if exists
         currentGeofenceMarker?.let { map.overlays.remove(it) }
 
-        val location = Location(LocationManager.GPS_PROVIDER).apply {
-            latitude = point.latitude
-            longitude = point.longitude
-        }
-        val key = "geofence_${point.latitude}_${point.longitude}"
-        GeofenceHandler.addGeofence(key, location)
-        GeofenceHandler.registerGeofence()
+        // Retrieve geofence information from SharedPreferences
+        val sharedPreferences = requireContext().getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        val key = sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
+        val latitude = sharedPreferences.getString(Constants.GEOFENCE_LATITUDE, null)?.toDouble()
+        val longitude = sharedPreferences.getString(Constants.GEOFENCE_LONGITUDE, null)?.toDouble()
 
-        val marker = Marker(map).apply {
-            position = point
-            setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-            icon = ContextCompat.getDrawable(requireContext(), R.drawable.baseline_add_location_24)
-            setOnMarkerClickListener { marker, mapView ->
-                removeGeofenceAt(marker.position)
-                mapView.overlays.remove(marker)
-                mapView.invalidate()
-                true
+        if (latitude != null && longitude != null) {
+            // Create location from retrieved latitude and longitude
+            val location = Location(LocationManager.GPS_PROVIDER).apply {
+                this.latitude = latitude
+                this.longitude = longitude
             }
-        }
-        map.overlays.add(marker)
-        map.invalidate()
 
-        // Update the current geofence and marker references
-        currentGeofenceKey = key
-        currentGeofenceMarker = marker
+            // Create and add marker of the geofence on the map
+            val point = GeoPoint(latitude, longitude)
+            val marker = Marker(map).apply {
+                position = point
+                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
+                icon = ContextCompat.getDrawable(requireContext(), R.drawable.baseline_add_location_24)
+                title = "This is your point of interest"
+            }
+            map.overlays.add(marker)
+            map.invalidate()
+
+            // Update current geofence references
+            currentGeofenceKey = key
+            currentGeofenceMarker = marker
+        }
     }
 
-    fun removeGeofenceAt(point: GeoPoint) {
-        val key = "geofence_${point.latitude}_${point.longitude}"
-        GeofenceHandler.removeGeofence(key)
-        GeofenceHandler.registerGeofence()  // Re-register to update the geofences
-        currentGeofenceMarker = null
+    // Method to save geofence key and location to SharedPreferences
+    private fun saveGeofenceToPreferences(context: Context, key: String, location: Location) {
+        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString(Constants.GEOFENCE_KEY, key)
+            putString(Constants.GEOFENCE_LATITUDE, location.latitude.toString())
+            putString(Constants.GEOFENCE_LONGITUDE, location.longitude.toString())
+            apply()
+        }
+    }
+
+    // Method to cancel the geofence
+    private fun cancelGeofence() {
+        // Remove geofence from SharedPreferences
+        val sharedPreferences = requireContext().getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        sharedPreferences.edit().clear().apply()
+
+        // Remove marker from map if present
+        currentGeofenceMarker?.let { map.overlays.remove(it) }
+        map.invalidate()
+
+        // Reset current geofence references
         currentGeofenceKey = null
+        currentGeofenceMarker = null
     }
 
     override fun onResume() {
         super.onResume()
         map.onResume()
+        showGeofence()
     }
 
     override fun onPause() {
@@ -160,17 +225,5 @@ class MapFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-    }
-
-
-    // Save the geofence key and location to SharedPreferences
-    private fun saveGeofenceToPreferences(context: Context, key: String, location: Location) {
-        val sharedPreferences = context.getSharedPreferences("GeofencePrefs", Context.MODE_PRIVATE)
-        with(sharedPreferences.edit()) {
-            putString("geofence_key", key)
-            putString("geofence_latitude", location.latitude.toString())
-            putString("geofence_longitude", location.longitude.toString())
-            apply()
-        }
     }
 }
