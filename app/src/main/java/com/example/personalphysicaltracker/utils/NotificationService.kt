@@ -13,6 +13,7 @@
     import androidx.core.app.ActivityCompat
     import androidx.core.app.NotificationCompat
     import androidx.core.app.NotificationManagerCompat
+    import androidx.core.app.ServiceCompat.startForeground
     import com.example.personalphysicaltracker.MainActivity
     import com.example.personalphysicaltracker.R
 
@@ -153,8 +154,11 @@
 
         fun stopPermanentNotificationActivityRecognition(context: Context) {
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION) // Usa l'ID della notifica che vuoi cancellare
+            notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION)
         }
+
+
+
 
 
     }

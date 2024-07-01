@@ -17,6 +17,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -30,8 +31,11 @@ import com.example.personalphysicaltracker.handlers.StepCounterSensorHandler
 import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
 import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
 import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
+import com.example.personalphysicaltracker.handlers.LocationHandler
 import com.example.personalphysicaltracker.handlers.PermissionsHandler
 import com.example.personalphysicaltracker.utils.Constants
+import com.example.personalphysicaltracker.viewModels.ActivityViewModel
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -104,6 +108,36 @@ class MainActivity : AppCompatActivity() {
             ActivityTransitionHandler.connect()
         }
 
+
+        val sharedPreferencesBackgroundLocation = this.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
+        val  backgroundLocationEnabled = sharedPreferencesBackgroundLocation.getBoolean(
+            Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, false)
+        createNotificationChannelForLocationDetection()
+        Log.d("ENABLED?", "$backgroundLocationEnabled")
+        if (backgroundLocationEnabled){
+            Log.d("AHH", "ENABLED")
+            LocationHandler.startLocationUpdates(this, LocationServices.getFusedLocationProviderClient(this), ViewModelProvider(this)[ActivityViewModel::class.java])
+        }
+
+    }
+
+
+
+    private fun createNotificationChannelForLocationDetection() {
+        val nameLocationDetectionChannel = Constants.CHANNEL_LOCATION_DETECTION_TITLE
+        val descriptionLocationDetectionChannel = Constants.CHANNEL_LOCATION_DETECTION_DESCRIPTION
+        val importanceLocationDetectionChannel = NotificationManager.IMPORTANCE_HIGH
+        val channeLocationDetection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel(Constants.CHANNEL_LOCATION_DETECTION_ID, nameLocationDetectionChannel, importanceLocationDetectionChannel).apply {
+                description = descriptionLocationDetectionChannel
+            }
+        } else {
+            TODO("VERSION.SDK_INT < O")
+        }
+
+        val notificationManagerLocationDetection: NotificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManagerLocationDetection.createNotificationChannel(channeLocationDetection)
     }
 
     private fun createNotificationChannelForActivityRecognition() {

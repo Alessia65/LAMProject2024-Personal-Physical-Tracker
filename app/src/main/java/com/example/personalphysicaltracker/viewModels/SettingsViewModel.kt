@@ -217,6 +217,7 @@ class SettingsViewModel : ViewModel() {
         val editor = sharedPreferencesBackgroundActivities.edit()
         editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, isChecked)
         editor.apply()
+        Log.d("SETTO ENABLED", isChecked.toString())
     }
 
     fun getActivityViewModel(): ActivityViewModel{

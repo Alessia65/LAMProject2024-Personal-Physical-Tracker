@@ -56,7 +56,8 @@ object PermissionsHandler {
                 Constants.ACCESS_BACKGROUND_LOCATION
             ) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
-                    (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
+                    (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.FOREGROUND_SERVICE_LOCATION) == PackageManager.PERMISSION_GRANTED)
         } else {
             locationPermission =  (ActivityCompat.checkSelfPermission(context,
                 Constants.ACCESS_FINE_LOCATION
@@ -76,7 +77,8 @@ object PermissionsHandler {
                 arrayOf(
                     Constants.ACCESS_BACKGROUND_LOCATION,
                     Constants.ACCESS_NETWORK_STATE,
-                    Constants.INTERNET
+                    Constants.INTERNET,
+                    Constants.FOREGROUND_SERVICE_LOCATION
                 ),
                 Constants.PERMISSION_LOCATION_REQUESTS_CODE
             )

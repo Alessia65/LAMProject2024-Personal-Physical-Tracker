@@ -34,6 +34,7 @@ class LocationInfo {
     }
 
 
+
     fun setFinishTime(){
         end = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
         Log.d("LocationHandler", "Exit time recorded: $end")

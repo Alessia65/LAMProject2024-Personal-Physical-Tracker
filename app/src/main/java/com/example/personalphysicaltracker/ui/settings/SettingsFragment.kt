@@ -141,6 +141,7 @@ class SettingsFragment : Fragment() {
                 LocationHandler.startLocationUpdates(requireContext(), LocationServices.getFusedLocationProviderClient(requireActivity()), settingsViewModel.getActivityViewModel())
             } else {
                switchLocation.isChecked = false
+                settingsViewModel.setBackgroundLocationDetection(requireContext(), false)
                 showGeofenceAlert()
 
             }
