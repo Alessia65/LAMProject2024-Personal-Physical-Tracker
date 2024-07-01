@@ -50,7 +50,7 @@ object PermissionsHandler {
 
     fun hasLocationPermissions(context: Context): Boolean {
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
             locationPermission =  (ActivityCompat.checkSelfPermission(
                 context,
                 Constants.ACCESS_BACKGROUND_LOCATION
@@ -58,6 +58,13 @@ object PermissionsHandler {
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.FOREGROUND_SERVICE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+        } else if(Build.VERSION.SDK_INT == Build.VERSION_CODES.Q){
+            locationPermission =  (ActivityCompat.checkSelfPermission(
+                context,
+                Constants.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
         } else {
             locationPermission =  (ActivityCompat.checkSelfPermission(context,
                 Constants.ACCESS_FINE_LOCATION
@@ -70,33 +77,38 @@ object PermissionsHandler {
         return locationPermission
     }
 
-    fun requestLocationPermissions(activity: Activity, context: Context): Boolean{
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(
-                    Constants.ACCESS_BACKGROUND_LOCATION,
-                    Constants.ACCESS_NETWORK_STATE,
-                    Constants.INTERNET,
-                    Constants.FOREGROUND_SERVICE_LOCATION
-                ),
-                Constants.PERMISSION_LOCATION_REQUESTS_CODE
+    fun requestLocationPermissions(activity: Activity, context: Context): Boolean {
+        val permissionsToRequest = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q) {
+            arrayOf(
+                Constants.ACCESS_FINE_LOCATION,
+                Constants.ACCESS_BACKGROUND_LOCATION,
+                Constants.ACCESS_NETWORK_STATE,
+                Constants.INTERNET,
+                Constants.FOREGROUND_SERVICE_LOCATION)
+        }  else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q){
+            arrayOf(
+                Constants.ACCESS_FINE_LOCATION,
+                Constants.ACCESS_BACKGROUND_LOCATION,
+                Constants.ACCESS_NETWORK_STATE,
+                Constants.INTERNET)
+        } else { //Teoricamente non è utilizzabile da versioni sotto Q
+            arrayOf(
+                Constants.ACCESS_FINE_LOCATION,
+                Constants.ACCESS_COARSE_LOCATION,
+                Constants.ACCESS_NETWORK_STATE,
+                Constants.INTERNET
             )
         }
-        else {
-            ActivityCompat.requestPermissions(
-                activity,
-                arrayOf(
-                    Constants.ACCESS_FINE_LOCATION,
-                    Constants.ACCESS_COARSE_LOCATION,
-                    Constants.ACCESS_NETWORK_STATE,
-                    Constants.INTERNET
-                ),
-                Constants.PERMISSION_LOCATION_REQUESTS_CODE
-            )
-        }
+
+        ActivityCompat.requestPermissions(
+            activity,
+            permissionsToRequest,
+            Constants.PERMISSION_LOCATION_REQUESTS_CODE
+        )
+
         return hasLocationPermissions(context)
     }
+
 
 
 

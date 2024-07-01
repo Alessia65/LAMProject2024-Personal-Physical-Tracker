@@ -377,6 +377,8 @@ class SettingsFragment : Fragment() {
         if (!PermissionsHandler.requestLocationPermissions(requireActivity(), requireContext())){
             showDialogSettings()
             switchLocation.isChecked = false
+            settingsViewModel.setBackgroundLocationDetection(requireContext(), false)
+
         }
 
     }
