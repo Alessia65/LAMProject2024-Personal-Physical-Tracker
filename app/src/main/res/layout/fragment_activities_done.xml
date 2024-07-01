@@ -75,6 +75,7 @@
         android:id="@+id/location_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/andika_new_basic"
         app:layout_constraintBottom_toTopOf="@+id/chip_group"
         app:layout_constraintEnd_toStartOf="@+id/button_share"
         app:layout_constraintHorizontal_bias="0.038"

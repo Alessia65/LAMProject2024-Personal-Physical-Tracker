@@ -1,0 +1,11 @@
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Stato normale (non selezionato) -->
+    <item android:color="@color/white" android:state_checked="false" />
+
+    <!-- Stato selezionato -->
+    <item android:color="@color/red_500" android:state_checked="true" />
+
+    <!-- Stato premuto -->
+    <item android:color="@color/red_500" android:state_pressed="true" />
+
+</selector>

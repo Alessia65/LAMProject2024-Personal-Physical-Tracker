@@ -3,12 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="#FFFFFF">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="404dp"
-        android:layout_height="186dp"
+        android:layout_width="399dp"
+        android:layout_height="152dp"
+        android:background="#FFFFFF"
         android:paddingTop="20sp"
         android:paddingRight="10sp"
         android:paddingBottom="20sp"
@@ -20,16 +22,17 @@
 
         <TextView
             android:id="@+id/textViewActivityDetailsActivityType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="123dp"
+            android:layout_height="32dp"
             android:background="#E0E3F8"
-            android:textAlignment="center"
+            android:fontFamily="@font/andika_new_basic"
+            android:textAlignment="textStart"
             android:textColor="#000000"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.493"
+            app:layout_constraintHorizontal_bias="0.06"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
@@ -40,64 +43,68 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#FFFFFF"
+            android:fontFamily="@font/andika_new_basic"
+            android:paddingEnd="1dp"
             android:textAlignment="center"
             android:textColor="#000000"
             android:textSize="15sp"
             android:textStyle="italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintHorizontal_bias="0.047"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.285"
+            app:layout_constraintTop_toBottomOf="@+id/textViewActivityDetailsActivityType"
+            app:layout_constraintVertical_bias="0.342"
             tools:text="Duration" />
 
         <TextView
             android:id="@+id/textViewActivityDetailsDate"
-            android:layout_width="106dp"
-            android:layout_height="48dp"
+            android:layout_width="135dp"
+            android:layout_height="20dp"
             android:background="#FFFFFF"
-            android:textAlignment="center"
+            android:fontFamily="@font/andika_new_basic"
+            android:textAlignment="viewStart"
             android:textColor="#000000"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.086"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewActivityDetailsSteps"
+            app:layout_constraintEnd_toEndOf="@+id/textViewActivityDetailsEndedAt"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/textViewActivityDetailsActivityType"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0"
             tools:text="Date" />
 
         <TextView
             android:id="@+id/textViewActivityDetailsStartedAt"
-            android:layout_width="110dp"
-            android:layout_height="47dp"
+            android:layout_width="138dp"
+            android:layout_height="24dp"
             android:background="#FFFFFF"
-            android:textAlignment="center"
-            android:textColor="#000000"
-            android:textSize="15sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="@+id/textViewActivityDetailsEndedAt"
-            app:layout_constraintHorizontal_bias="0.533"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewActivityDetailsSteps"
-            app:layout_constraintVertical_bias="0.0"
-            tools:text="Started at" />
-
-        <TextView
-            android:id="@+id/textViewActivityDetailsEndedAt"
-            android:layout_width="115dp"
-            android:layout_height="43dp"
-            android:background="#FFFFFF"
-            android:textAlignment="center"
+            android:fontFamily="@font/andika_new_basic"
+            android:textAlignment="viewStart"
             android:textColor="#000000"
             android:textSize="15sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.935"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewActivityDetailsSteps"
-            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/textViewActivityDetailsActivityType"
+            app:layout_constraintTop_toBottomOf="@+id/textViewActivityDetailsDate"
+            app:layout_constraintVertical_bias="0.102"
+            tools:text="Started at" />
+
+        <TextView
+            android:id="@+id/textViewActivityDetailsEndedAt"
+            android:layout_width="136dp"
+            android:layout_height="23dp"
+            android:background="#FFFFFF"
+            android:fontFamily="@font/andika_new_basic"
+            android:textAlignment="viewStart"
+            android:textColor="#000000"
+            android:textSize="15sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.487"
+            app:layout_constraintStart_toEndOf="@+id/textViewActivityDetailsActivityType"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.687"
             tools:text="Ended at" />
 
         <TextView
@@ -105,6 +112,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="#FFFFFF"
+            android:fontFamily="@font/andika_new_basic"
+            android:paddingRight="1dp"
             android:text="steps"
             android:textAlignment="center"
             android:textColor="#000000"
@@ -112,9 +121,11 @@
             android:textStyle="italic"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
+            app:layout_constraintHorizontal_bias="0.044"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@+id/textViewActivityDetailsDuration"
+            app:layout_constraintVertical_bias="1.0" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
