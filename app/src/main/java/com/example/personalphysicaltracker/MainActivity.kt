@@ -386,7 +386,6 @@ class MainActivity : AppCompatActivity() {
     Todo: gestire la chiusura dell'app con attività in corso
      */
     override fun onDestroy() {
-        Log.d("ON DESTROY", "Main activity onDestroy started")
         super.onDestroy()
  /*
         // Gestione delle operazioni asincrone o persistenti

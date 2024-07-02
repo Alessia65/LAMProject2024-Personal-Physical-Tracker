@@ -56,7 +56,9 @@
         <service
             android:name=".utils.NotificationServiceActivityRecognition"
             android:enabled="true"
-            android:exported="false" />
+            android:exported="false"
+            android:foregroundServiceType="location"/>
+
 
 
 

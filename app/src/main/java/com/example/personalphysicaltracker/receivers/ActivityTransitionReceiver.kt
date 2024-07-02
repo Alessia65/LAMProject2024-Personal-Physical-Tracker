@@ -22,7 +22,7 @@ class ActivityTransitionReceiver(
 ) : DefaultLifecycleObserver {
 
     private var isOn = false;
-    private val notificationService = NotificationServiceActivityRecognition()
+    private lateinit var notificationService : NotificationServiceActivityRecognition
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -58,20 +58,24 @@ class ActivityTransitionReceiver(
         }
         isOn = true
         startActivityTransitionService()
+        notificationService = NotificationServiceActivityRecognition()
         //notificationService.createPermanentNotificationActivityRecognition(context)
         Log.d("Activity Transition Receiver", "BroadcastReceiver registered")
     }
 
 
 
+    /*
     override fun onDestroy(owner: LifecycleOwner) {
         if (isOn) {
             //context.unregisterReceiver(broadcastReceiver)
             //isOn = false
         }
         //stopActivityTransitionService()
-        Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
+        //Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
     }
+
+     */
 
     fun stopReceiver() {
         if (isOn) {
@@ -87,6 +91,7 @@ class ActivityTransitionReceiver(
     private fun startActivityTransitionService() {
         val intent = Intent(context, NotificationServiceActivityRecognition::class.java)
         ContextCompat.startForegroundService(context,intent)
+        Log.d("ACT TRAN", "foregound on")
 
     }
 

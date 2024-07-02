@@ -187,10 +187,7 @@ object ActivityTransitionHandler : LifecycleObserver {
         }
     }
 
-    fun handleOnDestroy() {
-        Log.d("ON DESTROY", "Disconnetting")
-        disconnect()
-    }
+
 
 
 }
