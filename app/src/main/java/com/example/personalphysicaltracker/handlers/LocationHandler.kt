@@ -33,12 +33,17 @@ object LocationHandler {
     private var started = false
     private var firstOpen = true
     private lateinit var context: Context
+    private lateinit var notificationServiceLocation: NotificationServiceLocation
+
 
     @SuppressLint("MissingPermission")
     fun startLocationUpdates(context: Context, client: FusedLocationProviderClient, activityViewModel: ActivityViewModel) {
         this.context = context
+        notificationServiceLocation = NotificationServiceLocation()
         if (firstOpen) {
+
             startForegroundService(context)
+
             Log.d("LOCATION HANDLER", "FIRST OPEN")
             firstOpen = false
         }
@@ -66,6 +71,7 @@ object LocationHandler {
         if (fusedLocationClient != null) {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
             stopForegroundService(context)
+            notificationServiceLocation.stopPermanentNotificationLocationDetection()
         } else {
             // Handle the case when fusedLocationClient is null
         }
@@ -99,7 +105,7 @@ object LocationHandler {
                 Log.d("LOCATION HANDLER", "sei nell'area")
                 Log.d("LOCATION HANDLER, geo", "$lat;$lon")
                 Log.d("LOCATION HANDLER, current", "${location.latitude};${location.longitude}")
-                NotificationServiceLocation().showLocationChangesNotification(context, "Your location changed", "you have entered your area of interest")
+                notificationServiceLocation.showLocationChangesNotification(context, "Your location changed", "you have entered your area of interest")
                 currentInfoLocation.initialize(lat, lon, activityViewModel)
                 started = true
                 sharedPreferences.edit().putBoolean(Constants.GEOFENCE_IS_INSIDE, true).apply()
@@ -110,6 +116,8 @@ object LocationHandler {
                     Risalviamo l'orario in cui eravamo entrati.
                     La lat e long non saranno uguali ma l'importante è che eravamo all'interno dell'area
                  */
+                notificationServiceLocation.showLocationChangesNotification(context, "Reminder", "you are in  your area of interest")
+
                 currentInfoLocation.initialize(lat, lon, activityViewModel)
                 val t = sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, "")
                 Log.d("START PRIMA", t.toString())
@@ -127,7 +135,7 @@ object LocationHandler {
                     currentInfoLocation.setFinishTime()
                     started = false
                     Log.d("LOCATION HANDLER", "finito")
-                    NotificationServiceLocation().showLocationChangesNotification(context, "Your location changed", "you are out of your area of interest")
+                    notificationServiceLocation.showLocationChangesNotification(context, "Your location changed", "you are out of your area of interest")
 
                 } else { //Si è entrato in un geofence e poi quello è stato modificato
                     started = false

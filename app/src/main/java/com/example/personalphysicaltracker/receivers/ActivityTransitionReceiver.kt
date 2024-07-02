@@ -7,11 +7,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.ActivityTransitionResult
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
 import com.example.personalphysicaltracker.utils.NotificationService
+import com.example.personalphysicaltracker.utils.NotificationServiceActivityRecognition
 
 class ActivityTransitionReceiver(
     private val context: Context,
@@ -20,7 +22,7 @@ class ActivityTransitionReceiver(
 ) : DefaultLifecycleObserver {
 
     private var isOn = false;
-    private val notificationService = NotificationService()
+    private val notificationService = NotificationServiceActivityRecognition()
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -55,7 +57,8 @@ class ActivityTransitionReceiver(
             context.registerReceiver(broadcastReceiver, IntentFilter(intentAction))
         }
         isOn = true
-        notificationService.createPermanentNotificationActivityRecognition(context)
+        startActivityTransitionService()
+        //notificationService.createPermanentNotificationActivityRecognition(context)
         Log.d("Activity Transition Receiver", "BroadcastReceiver registered")
     }
 
@@ -63,10 +66,10 @@ class ActivityTransitionReceiver(
 
     override fun onDestroy(owner: LifecycleOwner) {
         if (isOn) {
-            context.unregisterReceiver(broadcastReceiver)
-            isOn = false
-            notificationService.stopPermanentNotificationActivityRecognition(context)
+            //context.unregisterReceiver(broadcastReceiver)
+            //isOn = false
         }
+        //stopActivityTransitionService()
         Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
     }
 
@@ -74,11 +77,25 @@ class ActivityTransitionReceiver(
         if (isOn) {
             context.unregisterReceiver(broadcastReceiver)
             isOn = false
+            stopActivityTransitionService()
             Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
-            notificationService.stopPermanentNotificationActivityRecognition(context)
         } else {
             Log.d("Activity Transition Receiver", "BroadcastReceiver not registered")
         }
+    }
+
+    private fun startActivityTransitionService() {
+        val intent = Intent(context, NotificationServiceActivityRecognition::class.java)
+        ContextCompat.startForegroundService(context,intent)
+
+    }
+
+
+    private fun stopActivityTransitionService() {
+        val intent = Intent(context, NotificationServiceActivityRecognition::class.java)
+        context.stopService(intent)
+        notificationService.stopPermanentNotificationActivityRecognition()
+
     }
 
 

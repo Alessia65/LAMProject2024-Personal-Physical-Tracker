@@ -96,7 +96,7 @@ object ActivityTransitionHandler : LifecycleObserver {
         else -> "UNKNOWN"
     }
 
-    fun disconnect(context: Context) {
+    fun disconnect() {
         Log.d("ON DESTROY", "In disconnect()")
         //Prima devo concludere l'attività se è running
         if (started){
@@ -187,9 +187,9 @@ object ActivityTransitionHandler : LifecycleObserver {
         }
     }
 
-    fun handleOnDestroy(context: Context) {
+    fun handleOnDestroy() {
         Log.d("ON DESTROY", "Disconnetting")
-        disconnect(context)
+        disconnect()
     }
 
 

@@ -53,6 +53,13 @@
             android:foregroundServiceType="location"
             android:permission="android.permission.FOREGROUND_SERVICE"/>
 
+        <service
+            android:name=".utils.NotificationServiceActivityRecognition"
+            android:enabled="true"
+            android:exported="false" />
+
+
+
         <receiver
             android:name=".receivers.ActivityTransitionReceiver"
             android:exported="false"
@@ -66,9 +73,6 @@
             android:name=".receivers.StepsReminderReceiver"
             android:exported="false" />
 
-        <receiver
-            android:name=".receivers.GeofenceBroadcastReceiver"
-            android:exported="false"/>
 
 
     </application>

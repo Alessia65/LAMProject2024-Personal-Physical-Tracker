@@ -2,6 +2,7 @@ package com.example.personalphysicaltracker.utils
 
 import android.Manifest
 import android.app.Notification
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
@@ -9,6 +10,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Binder
+import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.ActivityCompat
@@ -20,6 +22,7 @@ import com.example.personalphysicaltracker.R
 class NotificationServiceLocation : Service() {
 
     private val binder = SimpleBinderLoc()
+    private var context: Context? = null
 
     inner class SimpleBinderLoc : Binder() {
         fun getService(): NotificationServiceLocation {
@@ -32,11 +35,47 @@ class NotificationServiceLocation : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        createNotificationChannelForLocationDetection()
         createPermanentNotificationLocationDetection(this)
         return START_STICKY
     }
 
+    private fun createNotificationChannelForLocationDetection() {
+        val channelId = Constants.CHANNEL_LOCATION_DETECTION_ID
+        val nameLocationDetectionChannel = Constants.CHANNEL_LOCATION_DETECTION_TITLE
+        val descriptionLocationDetectionChannel = Constants.CHANNEL_LOCATION_DETECTION_DESCRIPTION
+        val importanceLocationDetectionChannel = NotificationManager.IMPORTANCE_HIGH
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            var channeLocationDetection = notificationManager.getNotificationChannel(channelId)
+            if (channeLocationDetection == null) {
+                channeLocationDetection = NotificationChannel(
+                        channelId,
+                        nameLocationDetectionChannel,
+                        importanceLocationDetectionChannel
+                    ).apply {
+                        description = descriptionLocationDetectionChannel
+                    }
+                notificationManager.createNotificationChannel(channeLocationDetection)
+
+            } else {
+                // Il canale esiste già, non fare nulla
+                Log.d("NotificationChannel", "Channel $channelId already exists")
+            }
+            } else {
+            TODO("VERSION.SDK_INT < O")
+
+        }
+
+
+
+    }
+
     private fun createNotification(context: Context): Notification {
+        this.context = context
+
         val intent = Intent(context, MainActivity::class.java)
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             context,
@@ -56,6 +95,8 @@ class NotificationServiceLocation : Service() {
     }
 
     fun createPermanentNotificationLocationDetection(context: Context) {
+        this.context = context
+
         val notification = createNotification(context)
 
         if (ActivityCompat.checkSelfPermission(
@@ -68,9 +109,13 @@ class NotificationServiceLocation : Service() {
         }
 
         startForeground(Constants.REQUEST_CODE_LOCATION_DETECTION, notification)
+        Log.d("LOC", "created")
+
     }
 
     fun showLocationChangesNotification(context: Context, title: String, message: String) {
+        this.context = context
+
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         val pendingIntent = PendingIntent.getActivity(
@@ -103,9 +148,40 @@ class NotificationServiceLocation : Service() {
         }
     }
 
-    fun stopPermanentNotificationLocationDetection(context: Context) {
-        stopForeground(true)
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
+    /* TODO: quando viene ciamato?
+
+     */
+    fun stopPermanentNotificationLocationDetection() {
+        if (context != null) {
+            deleteChannelLocationDetection()
+            val notificationManager =
+                context!!.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
+            Log.d("CHANNEL LOC", "CHANNEL DELETED")
+
+        }
     }
+
+    private fun deleteChannelLocationDetection() {
+        if (context != null) {
+            val notificationManager =
+                context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            // Cancel the notification
+            notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
+            Log.d("NOT", "deleteChannelLocationDetection")
+        } else {
+            Log.e("NOT", "Application Context is null")
+        }
+    }
+
+    override fun onDestroy() {
+        stopPermanentNotificationLocationDetection()
+
+        super.onDestroy()
+        Log.d("LOC", "Service destroyed")
+
+
+    }
+
+
 }

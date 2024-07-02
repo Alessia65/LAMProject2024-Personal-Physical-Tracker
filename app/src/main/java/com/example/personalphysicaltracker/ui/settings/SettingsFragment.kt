@@ -8,8 +8,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,6 +21,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -40,6 +41,7 @@ import java.util.*
 import org.osmdroid.config.Configuration.*
 import java.util.Date
 import java.util.Locale
+import com.example.personalphysicaltracker.utils.NotificationServiceActivityRecognition
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 class SettingsFragment : Fragment() {
@@ -143,7 +145,7 @@ class SettingsFragment : Fragment() {
                switchLocation.isChecked = false
                 settingsViewModel.setBackgroundLocationDetection(requireContext(), false)
                 showGeofenceAlert()
-
+                LocationHandler.stopLocationUpdates(LocationServices.getFusedLocationProviderClient(requireActivity()))
             }
 
         } else {
@@ -170,10 +172,12 @@ class SettingsFragment : Fragment() {
             ActivityTransitionHandler.connect()
             registerActivityTransitions()
         }else {
-            ActivityTransitionHandler.disconnect(requireContext())
+            ActivityTransitionHandler.disconnect()
             unregisterActivityTransitions()
         }
     }
+
+
 
     private fun handleStepReminderSwitch(isChecked: Boolean, sharedPreferencesSteps: SharedPreferences) {
         val editor = sharedPreferencesSteps.edit()
