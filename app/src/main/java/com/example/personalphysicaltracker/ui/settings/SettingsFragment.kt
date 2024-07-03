@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -21,7 +20,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -41,7 +39,6 @@ import java.util.*
 import org.osmdroid.config.Configuration.*
 import java.util.Date
 import java.util.Locale
-import com.example.personalphysicaltracker.utils.NotificationServiceActivityRecognition
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 class SettingsFragment : Fragment() {
@@ -57,7 +54,7 @@ class SettingsFragment : Fragment() {
     private lateinit var setLocation: TextView
 
     private var dailySteps = 0L
-    private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
         // Check if activity recognition permission is granted
         if (PermissionsHandler.hasLocationPermissions(requireContext())){
             showDialogSettings()
@@ -82,12 +79,13 @@ class SettingsFragment : Fragment() {
 
 
     private fun initializeViews() {
+
         // Initialize switches
         switchDailyReminder = binding.root.findViewById(R.id.switch_notification_daily_reminder)
         switchStepsReminder = binding.root.findViewById(R.id.switch_notification_steps_reminder)
         switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
         switchLocation = binding.root.findViewById(R.id.switch_b_o_location)
-        setLocation = binding.root.findViewById<TextView>(R.id.set_location_text)
+        setLocation = binding.root.findViewById(R.id.set_location_text)
 
         val sharedPreferencesDaily = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
         val dailyReminderEnabled = sharedPreferencesDaily.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
@@ -121,12 +119,10 @@ class SettingsFragment : Fragment() {
         }
 
 
-        setLocation.setOnClickListener(){
+        setLocation.setOnClickListener{
             handlePermissions()
-            //if (selectedLocation != null) {
             if (PermissionsHandler.hasLocationPermissions(requireContext())){
                 goToFragmentMap()
-                //switchLocation.isChecked = false
             }
         }
 
@@ -192,7 +188,6 @@ class SettingsFragment : Fragment() {
                 PermissionsHandler.requestPermissions(requireActivity())
                 if (!PermissionsHandler.notificationPermission ){
                     switchStepsReminder.isChecked = false
-                    val editor = sharedPreferencesSteps.edit()
                     editor.putBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
                     editor.apply()
                 }
@@ -219,7 +214,6 @@ class SettingsFragment : Fragment() {
                 PermissionsHandler.requestPermissions(requireActivity())
                 if (!PermissionsHandler.notificationPermission){
                     switchDailyReminder.isChecked = false
-                    val editor = sharedPreferencesDaily.edit()
                     editor.putBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
                     editor.apply()
                 }
@@ -251,6 +245,7 @@ class SettingsFragment : Fragment() {
 
 
     private fun checkNotificationPermission(): Boolean {
+        Log.d("SETTINGS", "notification permission is: " + PermissionsHandler.notificationPermission)
         return PermissionsHandler.notificationPermission
     }
 
@@ -273,7 +268,7 @@ class SettingsFragment : Fragment() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setView(dialogView)
             .setTitle("Pick steps number")
-            .setPositiveButton("OK") { dialog, which ->
+            .setPositiveButton("OK") { _, _ ->
                 // Ottieni il valore selezionato
                 val selectedNumber = displayValues[numberPicker.value - 1].toInt()
                 // Fai qualcosa con il numero selezionato
@@ -283,7 +278,7 @@ class SettingsFragment : Fragment() {
 
 
             }
-            .setNegativeButton("Cancel") { dialog, which ->
+            .setNegativeButton("Cancel") { dialog, _ ->
                 dialog.dismiss()
                 switchStepsReminder.isChecked = false
             }.setCancelable(false)
@@ -297,6 +292,12 @@ class SettingsFragment : Fragment() {
     }
 
     private fun scheduleStepsNotification(selectedNumber: Int) {
+
+        calculateDailySteps()
+        settingsViewModel.scheduleStepsNotification(selectedNumber, requireContext())
+
+
+
         // Calcola la data di trigger per la notifica
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, Constants.SHARED_PREFERENCES_STEPS_REMINDER_HOUR)
@@ -304,8 +305,6 @@ class SettingsFragment : Fragment() {
             set(Calendar.SECOND, 0)
         }
 
-        calculateDailySteps()
-        settingsViewModel.scheduleStepsNotification(selectedNumber,calendar, dailySteps, requireContext())
 
         val date: Date = calendar.time
         val sdf = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
@@ -315,7 +314,6 @@ class SettingsFragment : Fragment() {
     }
 
     private fun calculateDailySteps() {
-
         settingsViewModel.getTotalStepsFromToday(this.activity, this) { totalSteps ->
             this.dailySteps = totalSteps
         }
@@ -359,15 +357,8 @@ class SettingsFragment : Fragment() {
     }
 
     private fun scheduleDailyNotification(hour: Int, minute: Int, formattedTime: String) {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-        }
-
-        settingsViewModel.scheduleDailyNotification(calendar, requireContext(), hour, minute, formattedTime)
+        settingsViewModel.scheduleDailyNotification(requireContext(), hour, minute, formattedTime)
         Toast.makeText(requireContext(), "Daily reminder set for $formattedTime", Toast.LENGTH_SHORT).show()
-
     }
 
 
@@ -387,14 +378,14 @@ class SettingsFragment : Fragment() {
 
     }
 
-    fun showDialogSettings(){
+    private fun showDialogSettings(){
         val builder = AlertDialog.Builder(requireContext())
         builder.setMessage("You need permissions to detect locations!")
             .setTitle("Permission required")
             .setCancelable(false)
             .setPositiveButton("Settings") { dialog, _ ->
-                val intent: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri: Uri = Uri.fromParts("package", requireActivity().getPackageName(), null)
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", requireActivity().packageName, null)
                 intent.setData(uri)
                 SETTINGS_PERMISSION_REQUEST.launch(intent)
                 dialog.dismiss()
@@ -420,7 +411,7 @@ class SettingsFragment : Fragment() {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
         alertDialogBuilder.setTitle(title)
         alertDialogBuilder.setMessage(message)
-        alertDialogBuilder.setPositiveButton("OK") { dialog, which ->
+        alertDialogBuilder.setPositiveButton("OK") { dialog, _ ->
             dialog.dismiss()
         }
         alertDialogBuilder.setCancelable(false)

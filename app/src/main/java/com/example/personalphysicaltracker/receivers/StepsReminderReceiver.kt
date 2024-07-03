@@ -5,12 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.example.personalphysicaltracker.utils.Constants
-import com.example.personalphysicaltracker.utils.NotificationService
+import com.example.personalphysicaltracker.services.NotificationService
 
 class StepsReminderReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Log.d("STEP REMINDER RECEIVER", "SEND?")
         // Verifica che il contesto non sia nullo prima di procedere
         if (context == null) return
 

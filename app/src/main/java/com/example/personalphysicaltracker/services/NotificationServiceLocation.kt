@@ -1,4 +1,4 @@
-package com.example.personalphysicaltracker.utils
+package com.example.personalphysicaltracker.services
 
 import android.Manifest
 import android.app.Notification
@@ -18,6 +18,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.personalphysicaltracker.MainActivity
 import com.example.personalphysicaltracker.R
+import com.example.personalphysicaltracker.utils.Constants
 
 class NotificationServiceLocation : Service() {
 
@@ -125,7 +126,9 @@ class NotificationServiceLocation : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val notification = NotificationCompat.Builder(context, Constants.CHANNEL_LOCATION_DETECTION_ID)
+        val notification = NotificationCompat.Builder(context,
+            Constants.CHANNEL_LOCATION_DETECTION_ID
+        )
             .setSmallIcon(R.drawable.ic_notifications_black_24dp)
             .setContentTitle(title)
             .setContentText(message)

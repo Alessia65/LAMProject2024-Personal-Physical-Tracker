@@ -1,51 +1,30 @@
 package com.example.personalphysicaltracker
 
-import android.app.AlarmManager
 import android.app.AlertDialog
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.example.personalphysicaltracker.handlers.ActivityHandler
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
-import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
 import com.example.personalphysicaltracker.handlers.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.handlers.StepCounterSensorHandler
-import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
-import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
 import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
-import com.example.personalphysicaltracker.handlers.LocationHandler
+import com.example.personalphysicaltracker.handlers.NotificationHandler
 import com.example.personalphysicaltracker.handlers.PermissionsHandler
 import com.example.personalphysicaltracker.utils.Constants
-import com.example.personalphysicaltracker.utils.NotificationServiceActivityRecognition
-import com.example.personalphysicaltracker.viewModels.ActivityViewModel
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var activityTransitionHandler: ActivityTransitionHandler
-    private lateinit var activityReceiver: ActivityTransitionReceiver
 
 
     // ActivityResultLauncher to handle permission request result
@@ -67,7 +46,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -94,152 +72,26 @@ class MainActivity : AppCompatActivity() {
         // Create notification channel if necessary
         createNotificationChannels()
 
-        // Schedule daily notification if enabled
-        scheduleDailyNotificationIfEnabled()
-
-        // Schedule steps notification if enabled
-        scheduleStepsNotificationIfEnabled()
+        // Schedule notifications
+        NotificationHandler.scheduleDailyNotificationIfEnabled(this)
+        NotificationHandler.scheduleStepsNotificationIfEnabled(this)
 
         initializeObserverActivityTransition()
 
 
     }
 
-
-
-
     private fun createNotificationChannels() {
 
+        NotificationHandler.createDailyReminderChannel(this)
+        NotificationHandler.createStepsReminderChannel(this)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.d("NOTIFICATION CHANNEL", "channels created by MainActivity")
-            //Daily Reminder
-            val nameDailyReminder = Constants.CHANNEL_DAILY_REMINDER_TITLE
-            val descriptionTextDailyReminder = Constants.CHANNEL_DAILY_REMINDER_DESCRIPTION
-            val importanceDailyReminder = NotificationManager.IMPORTANCE_HIGH
-            val channelDailyReminder = NotificationChannel(Constants.CHANNEL_DAILY_REMINDER_ID, nameDailyReminder, importanceDailyReminder).apply {
-                description = descriptionTextDailyReminder
-            }
-
-            val notificationManagerDailyReminder: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManagerDailyReminder.createNotificationChannel(channelDailyReminder)
-
-
-            //Steps Reminder
-            val nameStepsReminder = Constants.CHANNEL_STEPS_REMINDER_TITLE
-            val descriptionTextStepsReminder = Constants.CHANNEL_STEPS_REMINDER_DESCRIPTION
-            val importanceStepsReminder = NotificationManager.IMPORTANCE_HIGH
-            val channelStepsReminder = NotificationChannel(Constants.CHANNEL_STEPS_REMINDER_ID, nameStepsReminder, importanceStepsReminder).apply {
-                description = descriptionTextStepsReminder
-            }
-
-            val notificationManagerStepsReminder: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManagerStepsReminder.createNotificationChannel(channelStepsReminder)
-        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
-
-    private fun scheduleDailyNotificationIfEnabled() {
-            Log.d("SCHEDULE DAILY NOTIFICATION", "FROM MAIN ACTIVITY")
-
-            val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
-            val dailyReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
-
-            if (dailyReminderEnabled) {
-                val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val intent = Intent(this, DailyReminderReceiver::class.java)
-                var pendingIntent = PendingIntent.getBroadcast(
-                    this,
-                    Constants.REQUEST_CODE_DAILY_REMINDER,
-                    intent,
-                    PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE // Check if PendingIntent already exists
-                )
-
-                if (pendingIntent == null) {
-                    Log.d("NOTIFICATION", "pending intent null")
-                    // PendingIntent non esiste, quindi crea un nuovo allarme
-                    val hour = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_HOUR, 8) // Default hour: 8
-                    val minute = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_MINUTE, 0) // Default minute: 0
-
-                    val calendar = Calendar.getInstance().apply {
-                        set(Calendar.HOUR_OF_DAY, hour)
-                        set(Calendar.MINUTE, minute)
-                        set(Calendar.SECOND, 0)
-                    }
-
-                    pendingIntent = PendingIntent.getBroadcast(
-                        this,
-                        Constants.REQUEST_CODE_DAILY_REMINDER,
-                        intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                    )
-
-                    alarmManager.setRepeating(
-                        AlarmManager.RTC_WAKEUP,
-                        calendar.timeInMillis,
-                        AlarmManager.INTERVAL_DAY,
-                        pendingIntent
-                    )
-                } else {
-                    Log.d("SCHEDULE DAILY NOTIFICATION", "Alarm already scheduled")
-                }
-            }
-
-
-    }
-
-    private fun scheduleStepsNotificationIfEnabled() {
-        Log.d("SCHEDULE STEP NOTIFICATION", "FROM MAIN ACTIVITY")
-        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
-        val stepsReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
-
-        if (stepsReminderEnabled) {
-            //val stepsNumber = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_STEPS_REMINDER_NUMBER, 0) // Default days: 3
-
-            // Calcola la data di trigger per la notifica
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, Constants.SHARED_PREFERENCES_STEPS_REMINDER_HOUR)
-                set(Calendar.MINUTE, Constants.SHARED_PREFERENCES_STEPS_REMINDER_MINUTE)
-                set(Calendar.SECOND, 0)
-            }
-
-            val intent = Intent(this, StepsReminderReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(
-                this,
-                Constants.REQUEST_CODE_STEPS_REMINDER,
-                intent,
-                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE // Check if PendingIntent already exists
-            )
-
-            if (pendingIntent == null) {
-                Log.d("NOTIFICATION", "pending intent null")
-                // PendingIntent non esiste, quindi crea un nuovo allarme
-                val pendingIntentNew = PendingIntent.getBroadcast(
-                    this,
-                    Constants.REQUEST_CODE_STEPS_REMINDER,
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-
-                val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
-                    AlarmManager.INTERVAL_DAY,
-                    pendingIntentNew
-                )
-            } else {
-                Log.d("SCHEDULE STEP NOTIFICATION", "Alarm already scheduled")
-            }
-        }
-    }
-
 
 
     private fun initializeNavigation() {
@@ -260,9 +112,6 @@ class MainActivity : AppCompatActivity() {
     private fun initializeObserverActivityTransition() {
         ActivityTransitionHandler.initialize(this, lifecycle)
     }
-
-
-
 
 
     // Handle result of permission request
@@ -289,11 +138,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         when (requestCode) {

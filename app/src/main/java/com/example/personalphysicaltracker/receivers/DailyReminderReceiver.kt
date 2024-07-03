@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.util.Log
-import com.example.personalphysicaltracker.utils.NotificationService
+import com.example.personalphysicaltracker.services.NotificationService
 
 class DailyReminderReceiver : BroadcastReceiver() {
 

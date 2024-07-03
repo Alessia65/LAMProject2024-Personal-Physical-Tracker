@@ -1,4 +1,4 @@
-    package com.example.personalphysicaltracker.utils
+    package com.example.personalphysicaltracker.services
 
     import android.Manifest
     import android.app.NotificationManager
@@ -13,9 +13,9 @@
     import androidx.core.app.ActivityCompat
     import androidx.core.app.NotificationCompat
     import androidx.core.app.NotificationManagerCompat
-    import androidx.core.app.ServiceCompat.startForeground
     import com.example.personalphysicaltracker.MainActivity
     import com.example.personalphysicaltracker.R
+    import com.example.personalphysicaltracker.utils.Constants
 
     class NotificationService : Service() {
 
@@ -41,10 +41,13 @@
 
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            val pendingIntent = PendingIntent.getActivity(context, Constants.REQUEST_CODE_DAILY_REMINDER, intent,
+            val pendingIntent = PendingIntent.getActivity(context,
+                Constants.REQUEST_CODE_DAILY_REMINDER, intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-            val notification = NotificationCompat.Builder(context, Constants.CHANNEL_DAILY_REMINDER_ID)
+            val notification = NotificationCompat.Builder(context,
+                Constants.CHANNEL_DAILY_REMINDER_ID
+            )
                 .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                 .setContentTitle(title)
                 .setContentText(message)
@@ -70,10 +73,13 @@
 
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            val pendingIntent = PendingIntent.getActivity(context, Constants.REQUEST_CODE_STEPS_REMINDER, intent,
+            val pendingIntent = PendingIntent.getActivity(context,
+                Constants.REQUEST_CODE_STEPS_REMINDER, intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-            val notification = NotificationCompat.Builder(context, Constants.CHANNEL_STEPS_REMINDER_ID)
+            val notification = NotificationCompat.Builder(context,
+                Constants.CHANNEL_STEPS_REMINDER_ID
+            )
                 .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                 .setContentTitle(title)
                 .setContentText(message)
@@ -99,10 +105,13 @@
 
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            val pendingIntent = PendingIntent.getActivity(context, Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, intent,
+            val pendingIntent = PendingIntent.getActivity(context,
+                Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, intent,
                 PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
-            val notification = NotificationCompat.Builder(context, Constants.CHANNEL_ACTIVITY_RECOGNITION_ID)
+            val notification = NotificationCompat.Builder(context,
+                Constants.CHANNEL_ACTIVITY_RECOGNITION_ID
+            )
                 .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                 .setContentTitle(title)
                 .setContentText(message)
@@ -128,9 +137,12 @@
          fun createPermanentNotificationActivityRecognition(context: Context) {
 
             val intent = Intent(context, MainActivity::class.java)
-            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, intent, PendingIntent.FLAG_IMMUTABLE)
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(context,
+                Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, intent, PendingIntent.FLAG_IMMUTABLE)
 
-            val notification = NotificationCompat.Builder(context, Constants.CHANNEL_ACTIVITY_RECOGNITION_ID)
+            val notification = NotificationCompat.Builder(context,
+                Constants.CHANNEL_ACTIVITY_RECOGNITION_ID
+            )
                 .setContentTitle("Activity Recognition On")
                 .setContentText("Don't close the app.")
                 .setSmallIcon(R.drawable.ic_notifications_black_24dp)

@@ -3,23 +3,18 @@ package com.example.personalphysicaltracker.handlers
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.location.Location
 import android.os.Looper
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.example.personalphysicaltracker.activities.LocationInfo
 import com.example.personalphysicaltracker.utils.Constants
-import com.example.personalphysicaltracker.utils.NotificationService
-import com.example.personalphysicaltracker.utils.NotificationServiceLocation
+import com.example.personalphysicaltracker.services.NotificationServiceLocation
 import com.example.personalphysicaltracker.viewModels.ActivityViewModel
 import com.google.android.gms.location.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @SuppressLint("StaticFieldLeak")
 // In LocationHandler.kt
