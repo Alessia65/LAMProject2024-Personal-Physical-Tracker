@@ -1,6 +1,7 @@
 package com.example.personalphysicaltracker.activities
 
 
+import android.util.Log
 import com.example.personalphysicaltracker.database.ActivityEntity
 import com.example.personalphysicaltracker.viewModels.ActivityViewModel
 import java.text.SimpleDateFormat
@@ -27,11 +28,23 @@ open class PhysicalActivity : PhysicalActivityInterface {
         end = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
     }
 
+     override fun setFinishTimeWithString(finish: String) {
+        end = finish
+    }
+
+    override fun setStartTimeWIthString(start: String) {
+        this.start = start
+    }
+
     override fun calculateDuration(): Double{
+        Log.d("START TIME", start)
+        Log.d("END TIME", end)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val startTime = dateFormat.parse(start)?.time ?: 0L
         val endTime = dateFormat.parse(end)?.time ?: 0L
         duration =  (endTime - startTime).toDouble() / 1000
+
+        Log.d("DURATION", duration.toString())
         return duration
     }
 

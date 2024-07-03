@@ -226,6 +226,40 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
         //    stopStepCounterSensor()
         //}
 
+        val currentTime = Calendar.getInstance().time
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val startTime = dateFormat.parse(selectedActivity.start) // Converte startTime in Date
+        val endOfDay = Calendar.getInstance().apply {
+            time = startTime
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+        }.time
+
+
+        if (startTime != null) {
+            if (startTime.before(getStartOfToday(currentTime))) {
+                val endOfDayString = dateFormat.format(endOfDay)
+                selectedActivity.setFinishTimeWithString(endOfDayString)
+                selectedActivity.calculateDuration()
+                saveInDb()
+
+                val newActivity = createNewActivityOfSameType(selectedActivity)
+                selectedActivity = newActivity
+                selectedActivity.setActivityViewModelVar(activityViewModel)
+
+                val startOfNextDay = Calendar.getInstance().apply {
+                    time = endOfDay
+                    add(Calendar.SECOND, 1)
+                }.time
+
+                val startOfDayString = dateFormat.format(startOfNextDay)
+                selectedActivity.setStartTimeWIthString(startOfDayString)
+
+
+            }
+        }
+
         selectedActivity.setFinishTime()
         selectedActivity.calculateDuration()
 
@@ -239,6 +273,38 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
         _dailySteps.postValue(_dailySteps.value)
         saveInDb()
         updateDailyValues()
+    }
+
+    // Funzione di utilità per ottenere l'inizio della giornata corrente
+    private fun getStartOfToday(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.time
+    }
+
+    // Funzione di utilità per ottenere la fine della giornata corrente
+    private fun getEndOfToday(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        return calendar.time
+    }
+
+    // Funzione di utilità per creare una nuova attività dello stesso tipo
+    private fun createNewActivityOfSameType(activity: PhysicalActivity): PhysicalActivity {
+        return when (activity) {
+            is WalkingActivity -> WalkingActivity()
+            is StandingActivity -> StandingActivity()
+            is DrivingActivity -> DrivingActivity()
+            else -> PhysicalActivity()
+        }
     }
 
 

@@ -100,59 +100,11 @@ class MainActivity : AppCompatActivity() {
         // Schedule steps notification if enabled
         scheduleStepsNotificationIfEnabled()
 
-        //val sharedPreferencesBackgroundActivities = this.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
-        //val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean( Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
         initializeObserverActivityTransition()
-        /*
-        val notificationServiceActivityRecognition = NotificationServiceActivityRecognition()
-        if (backgroundRecognitionEnabled){
-            //ActivityTransitionHandler.connect()
-            //notificationServiceActivityRecognition.createNotificationChannelForActivityRecognition()
-        } else {
-            //notificationServiceActivityRecognition.stopPermanentNotificationActivityRecognition()
 
-
-        }
-
-         */
-
-
-        /*
-        val sharedPreferencesBackgroundLocation = this.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
-        val  backgroundLocationEnabled = sharedPreferencesBackgroundLocation.getBoolean(
-            Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, false)
-        createNotificationChannelForLocationDetection()
-        Log.d("ENABLED?", "$backgroundLocationEnabled")
-        if (backgroundLocationEnabled){
-            Log.d("AHH", "ENABLED")
-            LocationHandler.startLocationUpdates(this, LocationServices.getFusedLocationProviderClient(this), ViewModelProvider(this)[ActivityViewModel::class.java])
-        }
-
-         */
 
     }
 
-
-
-
-
-/*
-    private fun createNotificationChannelForLocationDetection() {
-        val nameLocationDetectionChannel = Constants.CHANNEL_LOCATION_DETECTION_TITLE
-        val descriptionLocationDetectionChannel = Constants.CHANNEL_LOCATION_DETECTION_DESCRIPTION
-        val importanceLocationDetectionChannel = NotificationManager.IMPORTANCE_HIGH
-        val channeLocationDetection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel(Constants.CHANNEL_LOCATION_DETECTION_ID, nameLocationDetectionChannel, importanceLocationDetectionChannel).apply {
-                description = descriptionLocationDetectionChannel
-            }
-        } else {
-            TODO("VERSION.SDK_INT < O")
-        }
-
-        val notificationManagerLocationDetection: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManagerLocationDetection.createNotificationChannel(channeLocationDetection)
-    }*/
 
 
 
@@ -381,35 +333,8 @@ class MainActivity : AppCompatActivity() {
         builder.show()
     }
 
-
-    /*
-    Todo: gestire la chiusura dell'app con attività in corso
-     */
     override fun onDestroy() {
         super.onDestroy()
- /*
-        // Gestione delle operazioni asincrone o persistenti
-        lifecycleScope.launch {
-            // Gestione della distruzione dell'attività principale
-            //ActivityHandler.handleDestroy()
-
-            // Gestione della terminazione di servizi o attività in background, se necessario
-            val sharedPreferencesBackgroundActivities = this@MainActivity.getSharedPreferences(
-                Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
-            val backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(
-                Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
-
-            if (backgroundRecognitionEnabled) {
-                ActivityTransitionHandler.handleOnDestroy()
-            }
-
-            // Altre operazioni di pulizia o persistenza
-            // Assicurati che tutte le risorse siano liberate correttamente
-        }
-
-        Log.d("ON DESTROY", "Main activity onDestroy finished")
-
-  */
     }
 
 }

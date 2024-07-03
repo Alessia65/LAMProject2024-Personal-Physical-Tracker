@@ -65,18 +65,6 @@ class ActivityTransitionReceiver(
 
 
 
-    /*
-    override fun onDestroy(owner: LifecycleOwner) {
-        if (isOn) {
-            //context.unregisterReceiver(broadcastReceiver)
-            //isOn = false
-        }
-        //stopActivityTransitionService()
-        //Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
-    }
-
-     */
-
     fun stopReceiver() {
         if (isOn) {
             context.unregisterReceiver(broadcastReceiver)
@@ -91,7 +79,7 @@ class ActivityTransitionReceiver(
     private fun startActivityTransitionService() {
         val intent = Intent(context, NotificationServiceActivityRecognition::class.java)
         ContextCompat.startForegroundService(context,intent)
-        Log.d("ACT TRAN", "foregound on")
+        Log.d("ACT TRAN", "foreground on")
 
     }
 

@@ -10,6 +10,9 @@ interface PhysicalActivityInterface {
 
     fun calculateDuration(): Double
 
+    fun setFinishTimeWithString(finish: String)
+
+    fun setStartTimeWIthString(start: String)
     suspend fun saveInDb()
 
 
