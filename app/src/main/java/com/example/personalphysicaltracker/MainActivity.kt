@@ -1,6 +1,8 @@
 package com.example.personalphysicaltracker
 
+import android.app.AlarmManager
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -82,8 +84,9 @@ class MainActivity : AppCompatActivity() {
 
         // Schedule notifications
 
-        NotificationHandler.scheduleDailyNotificationIfEnabled(this)
-        NotificationHandler.scheduleStepsNotificationIfEnabled(this)
+
+        //NotificationHandler.scheduleDailyNotificationIfEnabled(this)
+        //NotificationHandler.scheduleStepsNotificationIfEnabled(this)
 
 
         initializeObserverActivityTransition()

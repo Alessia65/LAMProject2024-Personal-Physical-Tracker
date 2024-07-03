@@ -80,7 +80,14 @@ object NotificationHandler {
 
         if (dailyReminderEnabled) {
 
+
                 val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                // Cancella eventuali PendingIntent esistenti
+                if (::actualIntentDailyReminder.isInitialized) {
+                    Log.d("NOTIFICATION HANDLER", "CANCELLO actualIntentDailyReminder")
+                    alarmManager.cancel(actualIntentDailyReminder)
+                }
+
                 val intent = Intent(context, DailyReminderReceiver::class.java)
 
                 val hour = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_HOUR, 8) // Default hour: 8
@@ -92,6 +99,8 @@ object NotificationHandler {
                     set(Calendar.SECOND, 0)
                 }
 
+
+
                 this.actualIntentDailyReminder  = PendingIntent.getBroadcast(
                     context,
                     Constants.REQUEST_CODE_DAILY_REMINDER,
@@ -99,11 +108,13 @@ object NotificationHandler {
                     PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
+            val intervalMillis = 24 * 60 * 60 * 1000L // 24 ore in millisecondi
 
-                alarmManager.setRepeating(
+
+            alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis,
-                    AlarmManager.INTERVAL_DAY,
+                    intervalMillis,
                     this.actualIntentDailyReminder
                 )
 
@@ -125,6 +136,12 @@ object NotificationHandler {
         val stepsReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
 
         if (stepsReminderEnabled) {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+
+            if (::actualIntentStepsReminder.isInitialized) {
+                Log.d("NOTIFICATION HANDLER", "CANCELLO actualIntentStepsReminder")
+                alarmManager.cancel(actualIntentStepsReminder)
+            }
 
             // Calcola la data di trigger per la notifica
             val calendar = Calendar.getInstance().apply {
@@ -141,7 +158,6 @@ object NotificationHandler {
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE // Check if PendingIntent already exists
             )
 
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarmManager.setRepeating(
                 AlarmManager.RTC_WAKEUP,
                 calendar.timeInMillis,
@@ -160,12 +176,9 @@ object NotificationHandler {
 
         // Get AlarmManager service to cancel the pending intent
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        try{
+        if (::actualIntentDailyReminder.isInitialized) {
+            Log.d("NOTIFICATION HANDLER", "cancelDailyNotification")
             alarmManager.cancel(actualIntentDailyReminder)
-            Log.d("NOTIFICATION HANDLER", "daily notification canceled")
-
-        } catch(e: Exception){
-            Log.d("NOTIFICATION HANDLER", "ERRORE")
         }
 
         cancelDailyNotificationChannel(context)
@@ -175,11 +188,9 @@ object NotificationHandler {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        try {
+        if (::actualIntentStepsReminder.isInitialized) {
+            Log.d("NOTIFICATION HANDLER", "cancelStepsNotification")
             alarmManager.cancel(actualIntentStepsReminder)
-            Log.d("NOTIFICATION HANDLER", "steps notification canceled")
-        } catch (e: Exception){
-            Log.d("NOTIFICATION HANDLER", "ERRORE")
         }
 
         cancelStepsNotificationChannel(context)

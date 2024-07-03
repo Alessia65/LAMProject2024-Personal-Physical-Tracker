@@ -60,8 +60,6 @@
             android:foregroundServiceType="location"/>
 
 
-
-
         <receiver
             android:name=".receivers.ActivityTransitionReceiver"
             android:exported="false"
@@ -69,11 +67,13 @@
 
         <receiver
             android:name=".receivers.DailyReminderReceiver"
-            android:exported="false" />
+            android:exported="false"
+            android:enabled="true"/>
 
         <receiver
             android:name=".receivers.StepsReminderReceiver"
-            android:exported="false" />
+            android:exported="false"
+            android:enabled="true"/>
 
 
 

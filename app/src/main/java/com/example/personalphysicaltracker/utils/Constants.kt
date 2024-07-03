@@ -3,6 +3,7 @@ package com.example.personalphysicaltracker.utils
 object Constants {
 
 
+    const val PERMISSION_ACTIVITY_BACKGROUND = 4
     const val PERMISSION_REQUESTS_CODE = 100
 
     const val REQUEST_CODE_DAILY_REMINDER = 0

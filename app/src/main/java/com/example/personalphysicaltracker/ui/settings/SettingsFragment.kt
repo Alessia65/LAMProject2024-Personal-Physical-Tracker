@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
@@ -164,9 +165,26 @@ class SettingsFragment : Fragment() {
 
     private fun handleActivityRecognitionSwitch(isChecked: Boolean) {
         settingsViewModel.setBackgroundRecogniseActivies(requireContext(), isChecked)
+
         if (isChecked) {
-            ActivityTransitionHandler.connect()
-            registerActivityTransitions()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+                Log.d("SETTINGS", "here S")
+                if (PermissionsHandler.hasLocationPermissions(requireContext())) {
+                    ActivityTransitionHandler.connect()
+                    registerActivityTransitions()
+                } else {
+                    PermissionsHandler.requestLocationPermissions(requireActivity(), requireContext())
+                    if (!PermissionsHandler.locationPermission){
+                        settingsViewModel.setBackgroundRecogniseActivies(requireContext(), false)
+                        switchActivityRecognition.isChecked = false
+                    }
+                }
+            } else {
+                Log.d("SETTINGS", "here")
+                ActivityTransitionHandler.connect()
+                registerActivityTransitions()
+            }
+
         }else {
             ActivityTransitionHandler.disconnect()
             unregisterActivityTransitions()

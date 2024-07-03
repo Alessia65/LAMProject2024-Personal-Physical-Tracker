@@ -7,7 +7,9 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.example.personalphysicaltracker.utils.Constants
+
 
 @SuppressLint("StaticFieldLeak")
 object PermissionsHandler {
@@ -48,6 +50,9 @@ object PermissionsHandler {
     }
 
 
+    fun hasPermissionsForActivityBackground(context: Context): Boolean{
+        return (ContextCompat.checkSelfPermission(context, Constants.FOREGROUND_SERVICE_LOCATION) == PackageManager.PERMISSION_GRANTED)
+    }
     fun hasLocationPermissions(context: Context): Boolean {
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
@@ -109,10 +114,9 @@ object PermissionsHandler {
         return hasLocationPermissions(context)
     }
 
-
-
-
-
+    fun requestForegroundPermission(activity: Activity) {
+        ActivityCompat.requestPermissions(activity, arrayOf(Constants.FOREGROUND_SERVICE_LOCATION),Constants.PERMISSION_ACTIVITY_BACKGROUND)
+    }
 
 
 }
