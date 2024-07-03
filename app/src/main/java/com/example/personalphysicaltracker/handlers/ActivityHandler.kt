@@ -36,7 +36,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     private var started = false
 
     private var date: String = ""
-    private var totalSteps: Long = 0
+    private var totalSteps: Long = 0 //fatti ora
 
     private val _dailyTime = MutableLiveData<List<Double?>>(listOf(null, null, null, null))
     val dailyTime: LiveData<List<Double?>>
@@ -46,7 +46,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     val dailySteps: LiveData<Long>
         get() = _dailySteps
 
-    private val _actualSteps = MutableLiveData<Long>()
+    private val _actualSteps = MutableLiveData<Long>() //actual steps + passi totali
     val actualSteps: LiveData<Long>
         get() = _actualSteps
 

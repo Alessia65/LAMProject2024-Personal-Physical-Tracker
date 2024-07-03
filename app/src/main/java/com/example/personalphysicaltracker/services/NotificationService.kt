@@ -43,7 +43,7 @@
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             val pendingIntent = PendingIntent.getActivity(context,
                 Constants.REQUEST_CODE_DAILY_REMINDER, intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT)
 
             val notification = NotificationCompat.Builder(context,
                 Constants.CHANNEL_DAILY_REMINDER_ID
@@ -75,7 +75,7 @@
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             val pendingIntent = PendingIntent.getActivity(context,
                 Constants.REQUEST_CODE_STEPS_REMINDER, intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_CANCEL_CURRENT)
 
             val notification = NotificationCompat.Builder(context,
                 Constants.CHANNEL_STEPS_REMINDER_ID
@@ -99,77 +99,6 @@
                 notify(Constants.REQUEST_CODE_STEPS_REMINDER, notification)
             }
         }
-
-        fun showActivityChangesNotification(context: Context, title: String, message: String){
-            Log.d("SHOW ACTIVITY RECOGNITION NOTIFICATION","FROM NOTIFICATION SERVICE")
-
-            val intent = Intent(context, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            val pendingIntent = PendingIntent.getActivity(context,
-                Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-
-            val notification = NotificationCompat.Builder(context,
-                Constants.CHANNEL_ACTIVITY_RECOGNITION_ID
-            )
-                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-                .setContentTitle(title)
-                .setContentText(message)
-                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-                .setContentIntent(pendingIntent)
-                .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .build()
-
-            with(NotificationManagerCompat.from(context)) {
-                if (ActivityCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    Log.d("NOTIFICATION SERVICE","Permission not Granted")
-                    return
-                }
-                notify(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, notification)
-            }
-        }
-
-         fun createPermanentNotificationActivityRecognition(context: Context) {
-
-            val intent = Intent(context, MainActivity::class.java)
-            val pendingIntent: PendingIntent = PendingIntent.getActivity(context,
-                Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, intent, PendingIntent.FLAG_IMMUTABLE)
-
-            val notification = NotificationCompat.Builder(context,
-                Constants.CHANNEL_ACTIVITY_RECOGNITION_ID
-            )
-                .setContentTitle("Activity Recognition On")
-                .setContentText("Don't close the app.")
-                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-                .setContentIntent(pendingIntent)
-                .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .build()
-
-             with(NotificationManagerCompat.from(context)) {
-                 if (ActivityCompat.checkSelfPermission(
-                         context,
-                         Manifest.permission.POST_NOTIFICATIONS
-                     ) != PackageManager.PERMISSION_GRANTED
-                 ) {
-                     Log.d("NOTIFICATION SERVICE","Permission not Granted")
-                     return
-                 }
-                 notify(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, notification)
-             }
-        }
-
-        fun stopPermanentNotificationActivityRecognition(context: Context) {
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION)
-        }
-
-
 
 
 

@@ -152,7 +152,7 @@ class HomeFragment : Fragment() {
         ActivityHandler.actualSteps.observe(viewLifecycleOwner){ actualStepsList ->
             actualStepsList?.let {
                 requireActivity().runOnUiThread {
-                    homeViewModel.setSteps(totalSteps)
+                    //homeViewModel.setSteps(totalSteps)
                     currentStepsText.text = "Current steps: $actualStepsList"
                     totalSteps = actualStepsList.toLong()
                 }
