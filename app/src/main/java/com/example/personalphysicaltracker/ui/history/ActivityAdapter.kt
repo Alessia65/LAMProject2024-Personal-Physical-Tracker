@@ -13,6 +13,7 @@ import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import android.graphics.Typeface
+import android.util.Log
 
 
 class ActivityAdapter : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>() {
@@ -48,6 +49,7 @@ class ActivityAdapter : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>
 
         fun bind(activity: PhysicalActivity) {
             val startTime = activity.start.substring(11)
+
             val endTime = activity.end.substring(11)
 
             val builderActivityType = SpannableStringBuilder()

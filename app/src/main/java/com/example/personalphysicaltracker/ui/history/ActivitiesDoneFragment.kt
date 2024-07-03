@@ -110,8 +110,12 @@ class ActivitiesDoneFragment : Fragment() {
     }
 
     private fun getTotalPresenceInLocation() {
-        var hours = (calendarViewModel.getDurationAtLocationInHours()).toString().substring(0,6)
-        locationDetection.text = "You were detected in your interest's location for:\n" + hours + " hours"
+        var duration = (calendarViewModel.getDurationAtLocationInHours())
+        var text = "0.0"
+        if (duration!=0.0){
+            text = duration.toString().substring(0,6)
+        }
+        locationDetection.text = "You were detected in your interest's location for:\n" + text + " hours"
 
     }
 

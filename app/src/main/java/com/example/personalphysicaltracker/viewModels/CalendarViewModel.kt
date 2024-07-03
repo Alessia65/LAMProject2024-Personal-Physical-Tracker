@@ -23,7 +23,7 @@ class CalendarViewModel : ViewModel() {
 
     private var endDate: String = ""
     private var startDate: String = ""
-    private var durationAtLocation: Double = 0.0
+    private var durationAtLocation: Double? = 0.0
     // ViewModel to interact with activity data
     private lateinit var activityViewModel: ActivityViewModel
 
@@ -174,14 +174,18 @@ class CalendarViewModel : ViewModel() {
         val longitude = sharedPreferences.getFloat(Constants.GEOFENCE_LONGITUDE, 0.0f).toDouble()
         viewModelScope.launch {
             durationAtLocation =
-                activityViewModel.getTotalPresenceInLocation(latitude, longitude,startDate, endDate)!!
+                activityViewModel.getTotalPresenceInLocation(latitude, longitude,startDate, endDate)
             locationInfos = activityViewModel.getAllLocationsInDate(startDate, endDate) //Per sfruttare per il popolamento
             Log.d("SIZE", locationInfos.size.toString())
         }
     }
 
     fun getDurationAtLocationInHours(): Double{
-        return durationAtLocation/3600
+        return if (durationAtLocation!=null) {
+            durationAtLocation!! / 3600
+        } else {
+            0.0
+        }
     }
 
 
