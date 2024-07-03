@@ -42,7 +42,7 @@ class ChartsViewModel : ViewModel() {
     private var days = 0
     private var currentYear = Calendar.getInstance().get(Calendar.YEAR)
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-
+    private lateinit var activityType: ActivityType
 
     fun initializeActivityViewModel(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner) {
         val application = requireNotNull(activity).application
@@ -75,9 +75,7 @@ class ChartsViewModel : ViewModel() {
     private fun updateFromDatabase(): List<PhysicalActivity> {
         viewModelScope.launch(Dispatchers.IO) {
             activitiesOnDb = activityViewModel.getListOfPhysicalActivities()
-            for (a in activitiesOnDb){
-                Log.d("DB", a.getActivityTypeName().toString() + ", " + a.start + ", " + a.end + ", " + a.date + ", " + a.duration)
-            }
+
         }
         return activitiesOnDb
     }
@@ -111,6 +109,7 @@ class ChartsViewModel : ViewModel() {
     }
 
     fun handleSelectedDateRange(activityType: ActivityType): List<PhysicalActivity> {
+        this.activityType = activityType
         // Filtra le attività in base all'intervallo di date selezionato
         val physicalActivities = activitiesOnDb.filter { activity ->
             activity.date >= startDate.toString() && activity.date <= endDate &&
@@ -303,7 +302,7 @@ class ChartsViewModel : ViewModel() {
 
     private fun configureBarData(entries: ArrayList<BarEntry>): BarData {
         val barDataSet = BarDataSet(entries, "")
-        barDataSet.color = ColorTemplate.MATERIAL_COLORS[0]
+        barDataSet.color = getColorByType()
         barDataSet.valueTextColor = Color.BLACK
         barDataSet.barBorderWidth = 0f
         barDataSet.setDrawValues(false) // Disable values above bars
@@ -314,6 +313,16 @@ class ChartsViewModel : ViewModel() {
         barData.isHighlightEnabled = false // Disable bar highlights
 
         return barData
+    }
+
+    private fun getColorByType(): Int {
+        if (activityType == ActivityType.WALKING){
+            return Color.GREEN
+        } else if (activityType == ActivityType.DRIVING){
+            return Color.BLUE
+        } else{
+            return Color.RED
+        }
     }
 
     private fun getWeeklyDates(): Array<String> {
