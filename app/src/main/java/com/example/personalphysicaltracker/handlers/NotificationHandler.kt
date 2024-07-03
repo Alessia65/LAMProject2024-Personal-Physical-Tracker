@@ -16,6 +16,8 @@ import java.util.Calendar
 
 object NotificationHandler {
 
+    private lateinit var actualIntentDailyReminder: PendingIntent
+    private lateinit var actualIntentStepsReminder: PendingIntent
     fun createDailyReminderChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager: NotificationManager =
@@ -90,22 +92,25 @@ object NotificationHandler {
                     set(Calendar.SECOND, 0)
                 }
 
-                val pendingIntent = PendingIntent.getBroadcast(
+                this.actualIntentDailyReminder  = PendingIntent.getBroadcast(
                     context,
                     Constants.REQUEST_CODE_DAILY_REMINDER,
                     intent,
                     PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
+
                 alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,
                     calendar.timeInMillis,
                     AlarmManager.INTERVAL_DAY,
-                    pendingIntent
+                    this.actualIntentDailyReminder
                 )
 
-
                 Log.d("NOTIFICATION HANDLER", "New Alarm Created (daily reminder) at $hour:$minute")
+
+        } else {
+            Log.d("NOTIFICATION HANDLER", "New Alarm NOT Created (daily reminder)")
 
         }
     }
@@ -129,23 +134,19 @@ object NotificationHandler {
             }
 
             val intent = Intent(context, StepsReminderReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(
+            actualIntentStepsReminder = PendingIntent.getBroadcast(
                 context,
                 Constants.REQUEST_CODE_STEPS_REMINDER,
                 intent,
                 PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE // Check if PendingIntent already exists
             )
 
-
-            Log.d("NOTIFICATION", "pending intent null")
-            // PendingIntent non esiste, quindi crea un nuovo allarme
-
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             alarmManager.setRepeating(
                 AlarmManager.RTC_WAKEUP,
                 calendar.timeInMillis,
                 AlarmManager.INTERVAL_DAY,
-                pendingIntent
+                actualIntentStepsReminder
             )
 
             Log.d("NOTIFICATION HANDLER", "New Alarm Created (steps reminder)")
@@ -157,49 +158,28 @@ object NotificationHandler {
 
     fun cancelDailyNotification(context: Context) {
 
-        // Create an intent for DailyReminderReceiver
-        val intent = Intent(context, DailyReminderReceiver::class.java)
-        // Create a PendingIntent to be cancelled
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            Constants.REQUEST_CODE_DAILY_REMINDER, //0 per daily reminder
-            intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        )
-
         // Get AlarmManager service to cancel the pending intent
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        if (pendingIntent!=null) {
-            alarmManager.cancel(pendingIntent)
+        try{
+            alarmManager.cancel(actualIntentDailyReminder)
             Log.d("NOTIFICATION HANDLER", "daily notification canceled")
 
-        } else {
-            Log.d("NOTIFICATION HANDLER", "daily notification not canceled")
+        } catch(e: Exception){
+            Log.d("NOTIFICATION HANDLER", "ERRORE")
         }
 
         cancelDailyNotificationChannel(context)
     }
 
     fun cancelStepsNotification(context: Context){
-        // Create an intent for DailyReminderReceiver
-        val intent = Intent(context, StepsReminderReceiver::class.java)
-        // Create a PendingIntent to be cancelled
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            Constants.REQUEST_CODE_STEPS_REMINDER, //1 per steps
-            intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        )
 
-        // Get AlarmManager service to cancel the pending intent
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        if (pendingIntent!=null) {
-            alarmManager.cancel(pendingIntent)
+        try {
+            alarmManager.cancel(actualIntentStepsReminder)
             Log.d("NOTIFICATION HANDLER", "steps notification canceled")
-
-        } else {
-            Log.d("NOTIFICATION HANDLER", "steps notification not canceled")
+        } catch (e: Exception){
+            Log.d("NOTIFICATION HANDLER", "ERRORE")
         }
 
         cancelStepsNotificationChannel(context)
@@ -224,5 +204,6 @@ object NotificationHandler {
         }
 
     }
+
 
 }

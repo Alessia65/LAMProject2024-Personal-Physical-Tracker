@@ -32,6 +32,7 @@ object Constants {
     const val SHARED_PREFERENCES_DAILY_REMINDER_HOUR = "daily_reminder_hour"
     const val SHARED_PREFERENCES_DAILY_REMINDER_MINUTE = "daily_reminder_minute"
     const val SHARED_PREFERENCES_DAILY_REMINDER_FORMATTED_TIME = "daily_reminder_formatted_time"
+    const val SHARED_PREFERENCES_DAILY_REMINDER_CREATED = "daily_reminder_created"
 
     const val SHARED_PREFERENCES_STEPS_REMINDER = "settings minimum steps reminder notification"
     const val SHARED_PREFERENCES_STEPS_REMINDER_ENABLED = "steps_reminder_enabled"
