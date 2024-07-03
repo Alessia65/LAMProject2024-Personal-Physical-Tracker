@@ -228,37 +228,31 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
         val currentTime = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val startTime = dateFormat.parse(selectedActivity.start) // Converte startTime in Date
-        val endOfDay = Calendar.getInstance().apply {
-            time = startTime
-            set(Calendar.HOUR_OF_DAY, 23)
-            set(Calendar.MINUTE, 59)
-            set(Calendar.SECOND, 59)
-        }.time
+        val startTime = dateFormat.parse(selectedActivity.start) ?: return // Converte startTime in Date
 
+        // Fine del giorno in cui è iniziata l'attività
+        val endOfDay = getEndOfToday(startTime)
 
-        if (startTime != null) {
-            if (startTime.before(getStartOfToday(currentTime))) {
-                val endOfDayString = dateFormat.format(endOfDay)
-                selectedActivity.setFinishTimeWithString(endOfDayString)
-                selectedActivity.calculateDuration()
-                saveInDb()
+        if (startTime.before(getStartOfToday(currentTime))) {
+            val endOfDayString = dateFormat.format(endOfDay)
+            selectedActivity.setFinishTimeWithString(endOfDayString)
+            selectedActivity.calculateDuration()
+            saveInDb()
 
-                val newActivity = createNewActivityOfSameType(selectedActivity)
-                selectedActivity = newActivity
-                selectedActivity.setActivityViewModelVar(activityViewModel)
+            val newActivity = createNewActivityOfSameType(selectedActivity)
+            selectedActivity = newActivity
+            selectedActivity.setActivityViewModelVar(activityViewModel)
 
-                val startOfNextDay = Calendar.getInstance().apply {
-                    time = endOfDay
-                    add(Calendar.SECOND, 1)
-                }.time
+            val startOfNextDay = Calendar.getInstance().apply {
+                time = endOfDay
+                add(Calendar.SECOND, 1)
+            }.time
 
                 val startOfDayString = dateFormat.format(startOfNextDay)
                 selectedActivity.setStartTimeWIthString(startOfDayString)
 
 
             }
-        }
 
         selectedActivity.setFinishTime()
         selectedActivity.calculateDuration()
