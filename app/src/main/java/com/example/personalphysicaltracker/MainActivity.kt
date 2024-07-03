@@ -7,21 +7,28 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.handlers.AccelerometerSensorHandler
+import com.example.personalphysicaltracker.handlers.ActivityHandler
 import com.example.personalphysicaltracker.handlers.StepCounterSensorHandler
 import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
 import com.example.personalphysicaltracker.handlers.NotificationHandler
 import com.example.personalphysicaltracker.handlers.PermissionsHandler
 import com.example.personalphysicaltracker.utils.Constants
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -182,8 +189,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                ActivityHandler.handleDestroy(this@MainActivity)
+            } catch (e: Exception) {
+                Log.e("CIAO", "Exception in onDestroy: ${e.message}", e)
+            }
+        }
         super.onDestroy()
     }
+
+
+
+
 
 }
 

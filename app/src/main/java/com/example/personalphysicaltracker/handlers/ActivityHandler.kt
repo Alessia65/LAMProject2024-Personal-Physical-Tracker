@@ -18,6 +18,7 @@ import com.example.personalphysicaltracker.viewModels.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.listeners.AccelerometerListener
 import com.example.personalphysicaltracker.listeners.StepCounterListener
+import com.example.personalphysicaltracker.utils.Constants
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.text.ParseException
@@ -410,11 +411,15 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
         onStepCounterDataReceived(step.toString())
     }
 
-    suspend fun handleDestroy(){
-        if (started){
+    suspend fun handleDestroy(context: Context){
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
+        val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(
+            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+
+        if (!backgroundRecognitionEnabled && started){
             stopSelectedActivity(isWalkingActivity)
-            stopStepCounterSensor()
-            stopAccelerometerSensor()
+            Log.d("ACTIVITY HANDLER", "STOPPED")
+
         }
     }
 
