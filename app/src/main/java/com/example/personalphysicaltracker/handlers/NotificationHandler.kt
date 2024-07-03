@@ -69,6 +69,7 @@ object NotificationHandler {
     }
 
 
+
     fun scheduleDailyNotificationIfEnabled(context: Context) {
         createDailyReminderChannel(context)
 
@@ -76,39 +77,42 @@ object NotificationHandler {
         val dailyReminderEnabled = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
 
         if (dailyReminderEnabled) {
-            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, DailyReminderReceiver::class.java)
 
-            // PendingIntent non esiste, quindi crea un nuovo allarme
-            val hour = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_HOUR, 8) // Default hour: 8
-            val minute = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_MINUTE, 0) // Default minute: 0
+                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val intent = Intent(context, DailyReminderReceiver::class.java)
 
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.HOUR_OF_DAY, hour)
-                set(Calendar.MINUTE, minute)
-                set(Calendar.SECOND, 0)
-            }
+                val hour = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_HOUR, 8) // Default hour: 8
+                val minute = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_MINUTE, 0) // Default minute: 0
 
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                Constants.REQUEST_CODE_DAILY_REMINDER,
-                intent,
-                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
+                val calendar = Calendar.getInstance().apply {
+                    set(Calendar.HOUR_OF_DAY, hour)
+                    set(Calendar.MINUTE, minute)
+                    set(Calendar.SECOND, 0)
+                }
 
-            alarmManager.setRepeating(
-                AlarmManager.RTC_WAKEUP,
-                calendar.timeInMillis,
-                AlarmManager.INTERVAL_DAY,
-                pendingIntent
-            )
-            Log.d("NOTIFICATION HANDLER", "New Alarm Created (daily reminder)")
+                val pendingIntent = PendingIntent.getBroadcast(
+                    context,
+                    Constants.REQUEST_CODE_DAILY_REMINDER,
+                    intent,
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
 
+                alarmManager.setRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    AlarmManager.INTERVAL_DAY,
+                    pendingIntent
+                )
+
+
+                Log.d("NOTIFICATION HANDLER", "New Alarm Created (daily reminder) at $hour:$minute")
 
         }
-
-
     }
+
+
+
+
 
     fun scheduleStepsNotificationIfEnabled(context: Context) {
         createStepsReminderChannel(context)
@@ -133,25 +137,18 @@ object NotificationHandler {
             )
 
 
-                Log.d("NOTIFICATION", "pending intent null")
-                // PendingIntent non esiste, quindi crea un nuovo allarme
-                val pendingIntentNew = PendingIntent.getBroadcast(
-                    context,
-                    Constants.REQUEST_CODE_STEPS_REMINDER,
-                    intent,
-                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
+            Log.d("NOTIFICATION", "pending intent null")
+            // PendingIntent non esiste, quindi crea un nuovo allarme
 
-                val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                alarmManager.setRepeating(
-                    AlarmManager.RTC_WAKEUP,
-                    calendar.timeInMillis,
-                    AlarmManager.INTERVAL_DAY,
-                    pendingIntentNew
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            alarmManager.setRepeating(
+                AlarmManager.RTC_WAKEUP,
+                calendar.timeInMillis,
+                AlarmManager.INTERVAL_DAY,
+                pendingIntent
+            )
 
-                )
-
-                Log.d("NOTIFICATION HANDLER", "New Alarm Created (steps reminder)")
+            Log.d("NOTIFICATION HANDLER", "New Alarm Created (steps reminder)")
 
 
         }
@@ -167,14 +164,19 @@ object NotificationHandler {
             context,
             Constants.REQUEST_CODE_DAILY_REMINDER, //0 per daily reminder
             intent,
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
         )
 
         // Get AlarmManager service to cancel the pending intent
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.cancel(pendingIntent)
+        if (pendingIntent!=null) {
+            alarmManager.cancel(pendingIntent)
+            Log.d("NOTIFICATION HANDLER", "daily notification canceled")
 
-        Log.d("NOTIFICATION HANDLER", "daily notification canceled")
+        } else {
+            Log.d("NOTIFICATION HANDLER", "daily notification not canceled")
+        }
+
         cancelDailyNotificationChannel(context)
     }
 
@@ -186,14 +188,20 @@ object NotificationHandler {
             context,
             Constants.REQUEST_CODE_STEPS_REMINDER, //1 per steps
             intent,
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
         )
 
         // Get AlarmManager service to cancel the pending intent
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-        alarmManager.cancel(pendingIntent)
-        Log.d("NOTIFICATION HANDLER", "steps notification canceled")
+        if (pendingIntent!=null) {
+            alarmManager.cancel(pendingIntent)
+            Log.d("NOTIFICATION HANDLER", "steps notification canceled")
+
+        } else {
+            Log.d("NOTIFICATION HANDLER", "steps notification not canceled")
+        }
+
         cancelStepsNotificationChannel(context)
 
     }
