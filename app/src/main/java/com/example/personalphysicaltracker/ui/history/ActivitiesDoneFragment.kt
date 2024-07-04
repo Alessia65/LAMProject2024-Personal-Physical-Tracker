@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.databinding.FragmentActivitiesDoneBinding
+import com.example.personalphysicaltracker.databinding.FragmentChartsBinding
 import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.viewModels.HistoryViewModel
 import com.google.android.material.chip.Chip
@@ -26,6 +27,7 @@ import kotlinx.coroutines.launch
 class ActivitiesDoneFragment : Fragment() {
 
     private var _binding: FragmentActivitiesDoneBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var activities: List<PhysicalActivity>
     private lateinit var historyViewModel: HistoryViewModel
@@ -42,12 +44,15 @@ class ActivitiesDoneFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_activities_done, container, false)
+    ): View {
+        //val view = inflater.inflate(R.layout.fragment_activities_done, container, false)
+        _binding = FragmentActivitiesDoneBinding.inflate(inflater, container, false)
+        val root: View = binding.root
+
         initializeViewModels()
-        initializeViews(view)
+        initializeViews(root)
         obtainDates()
-        return view
+        return root
     }
 
     private fun initializeViewModels() {
@@ -55,11 +60,11 @@ class ActivitiesDoneFragment : Fragment() {
     }
 
     // Initialize views from binding
-    private fun initializeViews(view: View) {
-        chipGroup = view.findViewById(R.id.chip_group)
-        recyclerView = view.findViewById(R.id.recycler_view)
-        shareButton = view.findViewById(R.id.button_share)
-        locationDetection = view.findViewById(R.id.location_text)
+    private fun initializeViews(root: View) {
+        chipGroup = root.findViewById(R.id.chip_group)
+        recyclerView = root.findViewById(R.id.recycler_view)
+        shareButton = root.findViewById(R.id.button_share)
+        locationDetection = root.findViewById(R.id.location_text)
 
         // Setup RecyclerView
         recyclerView.layoutManager = LinearLayoutManager(requireContext())

@@ -54,21 +54,21 @@ class ChartsFragment : Fragment() {
         _binding = FragmentChartsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        chartsViewModel = ViewModelProvider(requireActivity())[ChartsViewModel::class.java]
-        chartsViewModel.initializeActivityViewModel(this.activity, this)
 
+        initializeViewModel()
         initializeViews(root)
         return root
     }
 
+    private fun initializeViewModel(){
+        chartsViewModel = ViewModelProvider(requireActivity())[ChartsViewModel::class.java]
+        chartsViewModel.initializeActivityViewModel(this.activity, this)
+    }
 
     private fun initializeViews(root: View) {
         textDate = root.findViewById(R.id.text_date)
-        // Ottieni la data corrente
-
         val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        // Imposta il testo della TextView alla data corrente
         textDate.text = currentDate
         textDate.setOnClickListener {
             showDateRangePicker()
@@ -104,53 +104,27 @@ class ChartsFragment : Fragment() {
         pieChart.isHighlightPerTapEnabled = false // Deprecated, use isHighlightPerTapEnabled
 
         // Listener per gestire il tap sul grafico
-        pieChart.setOnChartGestureListener(object : OnChartGestureListener {
-            override fun onChartGestureStart(
-                me: MotionEvent?,
-                lastPerformedGesture: ChartTouchListener.ChartGesture?
-            ) {
-                // Non necessario implementare
-            }
+        pieChart.onChartGestureListener = object : OnChartGestureListener {
+            override fun onChartGestureStart(me: MotionEvent?,lastPerformedGesture: ChartTouchListener.ChartGesture) {}
 
-            override fun onChartGestureEnd(
-                me: MotionEvent?,
-                lastPerformedGesture: ChartTouchListener.ChartGesture?
-            ) {
-                // Non necessario implementare
-            }
+            override fun onChartGestureEnd( me: MotionEvent?,lastPerformedGesture: ChartTouchListener.ChartGesture?) { }
 
-            override fun onChartLongPressed(me: MotionEvent?) {
-                // Non necessario implementare
-            }
+            override fun onChartLongPressed(me: MotionEvent?) {}
 
-            override fun onChartDoubleTapped(me: MotionEvent?) {
-                // Non necessario implementare
-            }
+            override fun onChartDoubleTapped(me: MotionEvent?) {}
 
             override fun onChartSingleTapped(me: MotionEvent?) {
-                // Mostra il dialog del PieChart
                 chartsViewModel.saveDatesForDialog(sumsPieChart)
                 val dialog = PieChartDialogFragment()
                 dialog.show(parentFragmentManager, "PieChartDialogFragment")
             }
 
-            override fun onChartFling(
-                me1: MotionEvent?,
-                me2: MotionEvent?,
-                velocityX: Float,
-                velocityY: Float
-            ) {
-                // Non necessario implementare
-            }
+            override fun onChartFling(me1: MotionEvent?, me2: MotionEvent?,velocityX: Float,velocityY: Float) {}
 
-            override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) {
-                // Non necessario implementare
-            }
+            override fun onChartScale(me: MotionEvent?, scaleX: Float, scaleY: Float) { }
 
-            override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {
-                // Non necessario implementare
-            }
-        })
+            override fun onChartTranslate(me: MotionEvent?, dX: Float, dY: Float) {}
+        }
     }
 
 
