@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.activities
 
+import android.util.Log
 import com.example.personalphysicaltracker.database.ActivityEntity
 
 class DrivingActivity: PhysicalActivity() {
@@ -16,7 +17,10 @@ class DrivingActivity: PhysicalActivity() {
             timeFinish = end,
             duration = duration
         )
-        activityViewModel.insertActivityEntity(activityEntity)
+        activityDBViewModel.insertActivityEntity(activityEntity)
+
+        Log.d("DATABASE", "saved driving activity: $start, $end, $duration")
+
     }
 
 }

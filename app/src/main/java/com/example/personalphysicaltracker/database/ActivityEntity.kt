@@ -8,13 +8,11 @@ import androidx.room.PrimaryKey
 data class ActivityEntity(
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
     val id: Int = 0,
 
     @ColumnInfo(name = "activity_type")
     var activityType: String,
 
-    @ColumnInfo(name = "date")
     var date: String,
 
     @ColumnInfo(name = "time_start")
@@ -23,6 +21,5 @@ data class ActivityEntity(
     @ColumnInfo(name = "time_finish")
     var timeFinish: String,
 
-    @ColumnInfo(name = "duration")
     var duration: Double
 )

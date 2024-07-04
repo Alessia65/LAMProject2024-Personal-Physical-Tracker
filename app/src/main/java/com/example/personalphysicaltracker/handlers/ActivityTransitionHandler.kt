@@ -1,6 +1,7 @@
 package com.example.personalphysicaltracker.handlers
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -9,12 +10,15 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.receivers.ActivityTransitionReceiver
+import com.example.personalphysicaltracker.viewModels.ActivityHandlerViewModel
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
@@ -28,16 +32,19 @@ import kotlinx.coroutines.tasks.await
 object ActivityTransitionHandler : LifecycleObserver {
 
     private lateinit var activityReceiver: ActivityTransitionReceiver
+    private lateinit var activityHandlerViewModel: ActivityHandlerViewModel
     private lateinit var context: Context
     private lateinit var lifecycle: Lifecycle
     private var started = false
     private var stopped = false
     private var isWalkingType  = false
 
-    fun initialize(context: Context, lifecycle: Lifecycle) {
+    fun initialize(context: Context, lifecycle: Lifecycle, storeOwner: ViewModelStoreOwner) {
         ActivityTransitionHandler.context = context.applicationContext
         ActivityTransitionHandler.lifecycle = lifecycle
-        activityReceiver = ActivityTransitionReceiver(context, Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION) { userActivity -> }
+        activityReceiver = ActivityTransitionReceiver(context, Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION) { }
+        activityHandlerViewModel = ViewModelProvider(storeOwner)[ActivityHandlerViewModel::class.java]
+
 
     }
 
@@ -102,7 +109,7 @@ object ActivityTransitionHandler : LifecycleObserver {
         if (started){
             try {
                 CoroutineScope(Dispatchers.IO).launch {
-                    ActivityHandler.stopSelectedActivity(isWalkingType)
+                    activityHandlerViewModel.stopSelectedActivity(isWalkingType)
                 }
                 started = false
                 stopped = true
@@ -147,18 +154,18 @@ object ActivityTransitionHandler : LifecycleObserver {
         if (transitionType == "START"){
             CoroutineScope(Dispatchers.IO).launch{
                 if (stopped) {
-                    ActivityHandler.startSelectedActivity(activity)
+                    activityHandlerViewModel.startSelectedActivity(activity)
                     started = true
                     stopped = false
                 } else {
                     try {
-                        ActivityHandler.stopSelectedActivity(isWalkingType)
+                        activityHandlerViewModel.stopSelectedActivity(isWalkingType)
                         stopped = true
                     } catch (e: Exception){
                         //Concludo attività
                         Log.d("MESSAGGIO DI ERRORE", e.message.toString()) //COSA SUCCEDE?
                     } finally {
-                        ActivityHandler.startSelectedActivity(activity)
+                        activityHandlerViewModel.startSelectedActivity(activity)
                         started = true
                     }
 
@@ -171,7 +178,7 @@ object ActivityTransitionHandler : LifecycleObserver {
 
             if (started) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    ActivityHandler.stopSelectedActivity(isWalkingType)
+                    activityHandlerViewModel.stopSelectedActivity(isWalkingType)
                     started = false
                     stopped = true
                 }

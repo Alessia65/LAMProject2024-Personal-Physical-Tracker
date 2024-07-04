@@ -2,9 +2,6 @@ package com.example.personalphysicaltracker.database
 
 import android.app.Application
 import android.util.Log
-import androidx.lifecycle.LiveData
-import com.example.personalphysicaltracker.activities.PhysicalActivity
-import com.example.personalphysicaltracker.activities.WalkingActivity
 
 
 class TrackingRepository(app: Application) {
@@ -33,9 +30,6 @@ class TrackingRepository(app: Application) {
         return trackingDao.getTotalDurationByActivityTypeInDay(day, activityType)
     }
 
-    suspend fun getLastWalkingId(): Int{
-        return trackingDao.getLastWalkingId()
-    }
 
     suspend fun insertWalkingActivity(activityEntity: ActivityEntity, steps: Long) {
         // Insert the activity entity

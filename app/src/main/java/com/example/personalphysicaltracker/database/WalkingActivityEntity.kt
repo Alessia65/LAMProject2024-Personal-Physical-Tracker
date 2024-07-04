@@ -24,6 +24,5 @@ data class WalkingActivityEntity(
     @ColumnInfo(name = "walkingActivityId")
     val walkingId: Int,
 
-    @ColumnInfo(name = "steps")
     var steps: Long
 )

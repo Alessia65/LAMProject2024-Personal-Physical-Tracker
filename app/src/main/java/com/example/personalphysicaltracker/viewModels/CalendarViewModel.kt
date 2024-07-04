@@ -25,7 +25,7 @@ class CalendarViewModel : ViewModel() {
     private var startDate: String = ""
     private var durationAtLocation: Double? = 0.0
     // ViewModel to interact with activity data
-    private lateinit var activityViewModel: ActivityViewModel
+    private lateinit var activityViewModel: ActivityDBViewModel
 
     // List to hold activities fetched from the database
     var activitiesOnDb: List<PhysicalActivity> = emptyList()
@@ -50,7 +50,7 @@ class CalendarViewModel : ViewModel() {
         val viewModelFactory = ActivityViewModelFactory(repository)
 
         // Initialize the ActivityViewModel
-        activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityViewModel::class.java]
+        activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityDBViewModel::class.java]
 
         // Load daily data from the database when ViewModel is initialized
         updateFromDatabase()

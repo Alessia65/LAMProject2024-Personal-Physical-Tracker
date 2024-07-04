@@ -2,7 +2,7 @@ package com.example.personalphysicaltracker.activities
 
 import android.util.Log
 import com.example.personalphysicaltracker.database.LocationEntity
-import com.example.personalphysicaltracker.viewModels.ActivityViewModel
+import com.example.personalphysicaltracker.viewModels.ActivityDBViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,14 +21,14 @@ class LocationInfo {
 
 
     var duration: Double = 0.0
-    protected lateinit var activityViewModel: ActivityViewModel
+    protected lateinit var activityDBViewModel: ActivityDBViewModel
 
-    fun initialize(lat: Double, long: Double, activityViewModel: ActivityViewModel){
+    fun initialize(lat: Double, long: Double, activityViewModel: ActivityDBViewModel){
         latitude = lat
         longitude = long
         start = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
         date = start.substring(0,10)
-        this.activityViewModel = activityViewModel
+        this.activityDBViewModel = activityViewModel
         Log.d("LocationHandler", "Entrance time recorded: $start at $date")
 
     }
@@ -44,7 +44,7 @@ class LocationInfo {
         }
     }
 
-    fun calculateDuration(){
+    private fun calculateDuration(){
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val startTime = dateFormat.parse(start)?.time ?: 0L
         val endTime = dateFormat.parse(end)?.time ?: 0L
@@ -53,7 +53,7 @@ class LocationInfo {
 
     }
 
-     fun saveInDb(){
+     private fun saveInDb(){
         val locationEntity = LocationEntity(
             latitude = this.latitude,
             longitude = this.longitude,
@@ -62,7 +62,7 @@ class LocationInfo {
             timeFinish = end,
             duration = duration
         )
-        activityViewModel.insertLocationInfo(locationEntity)
+         activityDBViewModel.insertLocationInfo(locationEntity)
     }
 
 

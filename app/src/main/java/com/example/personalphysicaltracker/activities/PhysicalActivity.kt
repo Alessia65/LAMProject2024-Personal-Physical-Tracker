@@ -1,9 +1,8 @@
 package com.example.personalphysicaltracker.activities
 
-
 import android.util.Log
 import com.example.personalphysicaltracker.database.ActivityEntity
-import com.example.personalphysicaltracker.viewModels.ActivityViewModel
+import com.example.personalphysicaltracker.viewModels.ActivityDBViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -14,11 +13,11 @@ open class PhysicalActivity : PhysicalActivityInterface {
     var start: String = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
     lateinit var end: String
     var duration: Double = 0.0
-    protected lateinit var activityViewModel: ActivityViewModel
+    protected lateinit var activityDBViewModel: ActivityDBViewModel
     protected var activityType: ActivityType = ActivityType.UNKNOWN
 
-    override fun setActivityViewModelVar(activityViewModel: ActivityViewModel){
-        this.activityViewModel = activityViewModel
+    override fun setActivityViewModelVar(activityViewModel: ActivityDBViewModel){
+        this.activityDBViewModel = activityViewModel
     }
     override fun getActivityTypeName(): ActivityType {
         return activityType
@@ -56,7 +55,10 @@ open class PhysicalActivity : PhysicalActivityInterface {
             timeFinish = end,
             duration = duration
         )
-        activityViewModel.insertActivityEntity(activityEntity)
+        activityDBViewModel.insertActivityEntity(activityEntity)
+
+        Log.d("DATABASE", "saved UNKNOWN activity: $start, $end, $duration")
+
     }
 
 

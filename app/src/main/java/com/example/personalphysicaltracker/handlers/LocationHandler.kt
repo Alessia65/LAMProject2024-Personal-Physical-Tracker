@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat
 import com.example.personalphysicaltracker.activities.LocationInfo
 import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.services.NotificationServiceLocation
-import com.example.personalphysicaltracker.viewModels.ActivityViewModel
+import com.example.personalphysicaltracker.viewModels.ActivityDBViewModel
 import com.google.android.gms.location.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,7 +24,7 @@ object LocationHandler {
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private lateinit var locationCallback: LocationCallback
     private var currentInfoLocation: LocationInfo = LocationInfo()
-    private lateinit var activityViewModel: ActivityViewModel
+    private lateinit var activityDBViewModel: ActivityDBViewModel
     private var started = false
     private var firstOpen = true
     private lateinit var context: Context
@@ -32,7 +32,7 @@ object LocationHandler {
 
 
     @SuppressLint("MissingPermission")
-    fun startLocationUpdates(context: Context, client: FusedLocationProviderClient, activityViewModel: ActivityViewModel) {
+    fun startLocationUpdates(context: Context, client: FusedLocationProviderClient, activityViewModel: ActivityDBViewModel) {
         this.context = context
         notificationServiceLocation = NotificationServiceLocation()
         if (firstOpen) {
@@ -43,7 +43,7 @@ object LocationHandler {
             firstOpen = false
         }
         fusedLocationClient = client
-        this.activityViewModel = activityViewModel
+        this.activityDBViewModel = activityViewModel
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 60000)
             .setMinUpdateIntervalMillis(30000)
             .build()
@@ -101,7 +101,7 @@ object LocationHandler {
                 Log.d("LOCATION HANDLER, geo", "$lat;$lon")
                 Log.d("LOCATION HANDLER, current", "${location.latitude};${location.longitude}")
                 notificationServiceLocation.showLocationChangesNotification(context, "Your location changed", "you have entered your area of interest")
-                currentInfoLocation.initialize(lat, lon, activityViewModel)
+                currentInfoLocation.initialize(lat, lon, activityDBViewModel)
                 started = true
                 sharedPreferences.edit().putBoolean(Constants.GEOFENCE_IS_INSIDE, true).apply()
                 sharedPreferences.edit().putString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start).apply()
@@ -113,7 +113,7 @@ object LocationHandler {
                  */
                 notificationServiceLocation.showLocationChangesNotification(context, "Reminder", "you are in  your area of interest")
 
-                currentInfoLocation.initialize(lat, lon, activityViewModel)
+                currentInfoLocation.initialize(lat, lon, activityDBViewModel)
                 val t = sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, "")
                 Log.d("START PRIMA", t.toString())
                 currentInfoLocation.start =

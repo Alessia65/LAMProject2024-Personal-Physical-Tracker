@@ -1,6 +1,5 @@
 package com.example.personalphysicaltracker.viewModels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.activities.DrivingActivity
@@ -13,7 +12,7 @@ import com.example.personalphysicaltracker.database.LocationEntity
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.database.WalkingActivityEntity
 
-class ActivityViewModel(private val repository: TrackingRepository) : ViewModel() {
+class ActivityDBViewModel(private val repository: TrackingRepository) : ViewModel() {
 
 
     fun insertActivityEntity (activityEntity: ActivityEntity) {
@@ -155,11 +154,11 @@ class ActivityViewModelFactory(private val repository: TrackingRepository) : Vie
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
         // Check if the ViewModel class is assignable from ActivityViewModel
-        if (modelClass.isAssignableFrom(ActivityViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(ActivityDBViewModel::class.java)) {
 
 
             // Return a new instance of ActivityViewModel with the provided repository
-            return ActivityViewModel(repository) as T
+            return ActivityDBViewModel(repository) as T
         }
 
         // If the class is not recognized, throw an exception

@@ -28,7 +28,7 @@ import java.util.TimeZone
 
 class ChartsViewModel : ViewModel() {
 
-    private lateinit var activityViewModel: ActivityViewModel
+    private lateinit var activityViewModel: ActivityDBViewModel
 
     var activitiesOnDb: List<PhysicalActivity> = emptyList() //Da non modificare
     var sumsPieChart: Array<Float> = emptyArray()
@@ -49,7 +49,7 @@ class ChartsViewModel : ViewModel() {
         val repository = TrackingRepository(application)
         val viewModelFactory = ActivityViewModelFactory(repository)
 
-        activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityViewModel::class.java]
+        activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityDBViewModel::class.java]
         updateFromDatabase()
     }
 

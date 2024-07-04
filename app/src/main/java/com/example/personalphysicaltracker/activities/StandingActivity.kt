@@ -1,6 +1,7 @@
 package com.example.personalphysicaltracker.activities
 
 
+import android.util.Log
 import com.example.personalphysicaltracker.database.ActivityEntity
 
 class StandingActivity : PhysicalActivity() {
@@ -17,7 +18,10 @@ class StandingActivity : PhysicalActivity() {
             timeFinish = end,
             duration = duration
         )
-        activityViewModel.insertActivityEntity(activityEntity)
+        activityDBViewModel.insertActivityEntity(activityEntity)
+
+        Log.d("DATABASE", "saved standing activity: $start, $end, $duration")
+
     }
 
 

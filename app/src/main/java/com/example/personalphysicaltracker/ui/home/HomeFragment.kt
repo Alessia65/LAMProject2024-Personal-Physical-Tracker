@@ -1,6 +1,5 @@
 package com.example.personalphysicaltracker.ui.home
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -14,17 +13,17 @@ import androidx.appcompat.app.AlertDialog
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.R
-import com.example.personalphysicaltracker.handlers.ActivityHandler
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
+import com.example.personalphysicaltracker.viewModels.ActivityHandlerViewModel
 import com.example.personalphysicaltracker.viewModels.CalendarViewModel
-import com.example.personalphysicaltracker.viewModels.HomeViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +39,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var homeViewModel: HomeViewModel
+    private lateinit var activityHandlerViewModel: ActivityHandlerViewModel
     private lateinit var calendarViewModel: CalendarViewModel
 
     private lateinit var buttonStartActivity: Button
@@ -81,9 +80,9 @@ class HomeFragment : Fragment() {
         // Initialize buttons
         initializeButtons(root)
 
-        if(ActivityHandler.stepCounterActive() || ActivityHandler.accelerometerActive()!=null){
+        if(activityHandlerViewModel.stepCounterActive() || activityHandlerViewModel.accelerometerActive()!=null){
             changeButtonToStop()
-            val text = ActivityHandler.accelerometerActive().toString() + " Activity Running"
+            val text = activityHandlerViewModel.accelerometerActive().toString() + " Activity Running"
             descriptionActivityText.text = text
         } else {
             val text = "No activity running"
@@ -107,9 +106,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun initializeViewModel() {
-        homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
-        homeViewModel.initializeActivityHandler(this.activity, this, requireContext())
-
+        activityHandlerViewModel = ViewModelProvider(requireActivity())[ActivityHandlerViewModel::class.java]
+        val viewModelStoreOwner: ViewModelStoreOwner = this
+        viewLifecycleOwner.lifecycleScope.launch {
+            activityHandlerViewModel.initialize(requireActivity(), viewModelStoreOwner, requireContext())
+        }
         calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
         calendarViewModel.initializeActivityViewModel(requireActivity())
     }
@@ -126,7 +127,7 @@ class HomeFragment : Fragment() {
 
     // Observe changes in dailyTime LiveData and update UI accordingly
     private fun observeDailyTimeChanges() {
-        ActivityHandler.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
+        activityHandlerViewModel.dailyTime.observe(viewLifecycleOwner) { dailyTimeList ->
             dailyTimeList?.let {
                 val currentProgressWalking = dailyTimeList[0] ?: 0.0
                 val currentProgressDriving = dailyTimeList[1] ?: 0.0
@@ -141,7 +142,7 @@ class HomeFragment : Fragment() {
     
     private fun observeDailyStepsChanges(){
 
-        ActivityHandler.actualSteps.observe(viewLifecycleOwner){ actualStepsList ->
+        activityHandlerViewModel.actualSteps.observe(viewLifecycleOwner){ actualStepsList ->
             actualStepsList?.let {
                 requireActivity().runOnUiThread {
                     val text = "Current steps: $actualStepsList"
@@ -150,8 +151,8 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-        
-        ActivityHandler.dailySteps.observe(viewLifecycleOwner){ dailyStepsList ->
+
+        activityHandlerViewModel.dailySteps.observe(viewLifecycleOwner){ dailyStepsList ->
             dailyStepsList?.let{
                 val text = "Daily steps: $dailyStepsList"
                 dailyStepsText.text = text
@@ -245,7 +246,9 @@ class HomeFragment : Fragment() {
 
     // Start the walking activity and change button to "Stop Activity"
     private fun startWalkingActivity() {
-        homeViewModel.startSelectedActivity(WalkingActivity())
+        viewLifecycleOwner.lifecycleScope.launch {
+            activityHandlerViewModel.startSelectedActivity(WalkingActivity())
+        }
         startStepCounterSensor()
         changeButtonToStop()
         isWalkingActivity = true
@@ -256,7 +259,9 @@ class HomeFragment : Fragment() {
 
     // Start the driving activity and change button to "Stop Activity"
     private fun startDrivingActivity() {
-        homeViewModel.startSelectedActivity(DrivingActivity())
+        viewLifecycleOwner.lifecycleScope.launch {
+            activityHandlerViewModel.startSelectedActivity(DrivingActivity())
+        }
         changeButtonToStop()
         isWalkingActivity = false
         val text = "Driving Activity Running"
@@ -267,7 +272,9 @@ class HomeFragment : Fragment() {
 
     // Start the standing activity and change button to "Stop Activity"
     private fun startStandingActivity() {
-        homeViewModel.startSelectedActivity(StandingActivity())
+        viewLifecycleOwner.lifecycleScope.launch {
+            activityHandlerViewModel.startSelectedActivity(StandingActivity())
+        }
         changeButtonToStop()
         isWalkingActivity = false
         val text = "Standing Activity Running"
@@ -276,7 +283,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun startStepCounterSensor(){
-        val presenceStepCounterSensor = ActivityHandler.getStepCounterSensorHandler()
+        val presenceStepCounterSensor = activityHandlerViewModel.getStepCounterSensorHandler()
         if (!presenceStepCounterSensor){
             showAlert()
         }
@@ -288,12 +295,12 @@ class HomeFragment : Fragment() {
         builder.setTitle("Attention")
             .setMessage("Warning: Your device does not have a step counter sensor. The step count might be approximate. Do you still want to enable the step counter?")
             .setPositiveButton("Yes") { _, _ ->
-                ActivityHandler.setStepCounterOnValue(true)
-                ActivityHandler.setStepCounterWithAccValue(true)
+                activityHandlerViewModel.setStepCounterOnValue(true)
+                activityHandlerViewModel.setStepCounterWithAccValue(true)
             }
             .setNegativeButton("No") { _, _ ->
-                ActivityHandler.setStepCounterOnValue(false)
-                ActivityHandler.setStepCounterWithAccValue(false)
+                activityHandlerViewModel.setStepCounterOnValue(false)
+                activityHandlerViewModel.setStepCounterWithAccValue(false)
             }
             .setCancelable(false)
 
@@ -316,7 +323,7 @@ class HomeFragment : Fragment() {
     // Stop the currently selected activity and reset the button to "Start Activity"
     private fun stopSelectedActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
-            ActivityHandler.stopSelectedActivity(isWalkingActivity)
+            activityHandlerViewModel.stopSelectedActivity(isWalkingActivity)
         }
         resetButtonToStart()
         requireActivity().runOnUiThread {
@@ -336,16 +343,7 @@ class HomeFragment : Fragment() {
 
 
 
-
-
-
-
-
-
-
-    /**
-     * Show the Material Date Range Picker dialog.
-     */
+    // Show the Material Date Range Picker dialog.
     private fun showDateRangePicker() {
         val picker = MaterialDatePicker.Builder.dateRangePicker()
             .setTheme(R.style.ThemeCalendar)
@@ -384,8 +382,6 @@ class HomeFragment : Fragment() {
 
 
     private fun changeFragment() {
-        //calendarViewModel.saveActivitiesForTransaction(activities)
-
         // Navigate to ActivitiesDoneFragment using NavController
         val navController = findNavController()
         navController.navigate(R.id.activitiesDoneFragment)
@@ -394,13 +390,7 @@ class HomeFragment : Fragment() {
     // Clean up bindings and stop the activity on view destruction
     override fun onDestroyView() {
         super.onDestroyView()
-        //stopAccelerometerSensor()
         _binding = null
     }
-
-
-
-
-
 
 }

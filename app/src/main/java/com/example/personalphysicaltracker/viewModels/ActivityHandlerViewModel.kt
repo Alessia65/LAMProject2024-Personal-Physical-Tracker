@@ -1,10 +1,11 @@
-package com.example.personalphysicaltracker.handlers
+package com.example.personalphysicaltracker.viewModels
 
 import android.content.Context
 import android.util.Log
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.example.personalphysicaltracker.activities.ActivityType
@@ -13,9 +14,9 @@ import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityEntity
-import com.example.personalphysicaltracker.viewModels.ActivityViewModel
-import com.example.personalphysicaltracker.viewModels.ActivityViewModelFactory
 import com.example.personalphysicaltracker.database.TrackingRepository
+import com.example.personalphysicaltracker.handlers.AccelerometerSensorHandler
+import com.example.personalphysicaltracker.handlers.StepCounterSensorHandler
 import com.example.personalphysicaltracker.listeners.AccelerometerListener
 import com.example.personalphysicaltracker.listeners.StepCounterListener
 import com.example.personalphysicaltracker.utils.Constants
@@ -27,10 +28,10 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-object ActivityHandler :  AccelerometerListener, StepCounterListener {
+class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounterListener {
 
-    private lateinit var activityViewModel: ActivityViewModel
-    public lateinit var selectedActivity: PhysicalActivity
+    private lateinit var activityDBViewModel: ActivityDBViewModel
+    lateinit var selectedActivity: PhysicalActivity
     private lateinit var accelerometerSensorHandler: AccelerometerSensorHandler
     private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
     private var isWalkingActivity = false
@@ -55,11 +56,11 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     public var stepCounterWithAcc = false
 
     suspend fun initialize(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner, context: Context) {
-        if (!this::activityViewModel.isInitialized) {
+        if (!this::activityDBViewModel.isInitialized) {
             val application = requireNotNull(activity).application
             val repository = TrackingRepository(application)
             val viewModelFactory = ActivityViewModelFactory(repository)
-            activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityViewModel::class.java]
+            activityDBViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityDBViewModel::class.java]
         }
 
         accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(context)
@@ -93,7 +94,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
         try {
             // Execute the query in the IO thread to get the duration
             duration = withContext(Dispatchers.IO) {
-                activityViewModel.getTotalDurationByActivityTypeInDay(today, activityType.toString())
+                activityDBViewModel.getTotalDurationByActivityTypeInDay(today, activityType.toString())
             }
         } catch (e: Exception) {
             // Exception handling, such as logging or other types of handling
@@ -109,7 +110,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
         try {
             // Execute the query in the IO thread to get the duration
             totalSteps = withContext(Dispatchers.IO) {
-                activityViewModel.getTotalStepsFromToday(today)
+                activityDBViewModel.getTotalStepsFromToday(today)
             }
         } catch (e: Exception) {
             // Exception handling, such as logging or other types of handling
@@ -151,7 +152,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
         //Create Activity
         selectedActivity = activity
-        selectedActivity.setActivityViewModelVar(activityViewModel)
+        selectedActivity.setActivityViewModelVar(activityDBViewModel)
 
         val typeForLog = activity.getActivityTypeName()
         Log.d("PHYSICAL ACTIVITY", "$typeForLog Activity Started")
@@ -173,7 +174,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     // Get the last saved activity
     private suspend fun getLastActivity(): ActivityEntity? {
         return withContext(Dispatchers.IO) {
-            activityViewModel.getLastActivity()
+            activityDBViewModel.getLastActivity()
         }
     }
 
@@ -193,9 +194,18 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
 
     // Save an unknown activity
-    private fun saveUnknownActivity(lastEndTime: String, currentTime: String) {
+    private suspend fun saveUnknownActivity(lastEndTime: String, currentTime: String) {
+        val unknownActivity = PhysicalActivity()
+        unknownActivity.setActivityViewModelVar(activityDBViewModel)
         val duration = calculateDuration(lastEndTime, currentTime)
-        val unknownActivity = ActivityEntity(
+        unknownActivity.date = date
+        unknownActivity.start = lastEndTime
+        unknownActivity.end = currentTime
+        unknownActivity.duration = duration
+        unknownActivity.saveInDb()
+
+        /*
+        val unknownActivityEntity = ActivityEntity(
             activityType = "UNKNOWN",
             date = date,
             timeStart = lastEndTime,
@@ -203,7 +213,10 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
             duration = duration
         )
 
-        activityViewModel.insertActivityEntity(unknownActivity)
+        activityDBViewModel.insertActivityEntity(unknownActivity)
+
+         */
+
 
     }
 
@@ -220,13 +233,10 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
     suspend fun stopSelectedActivity(isWalkingActivity: Boolean) {
         started = false
-        ActivityHandler.isWalkingActivity = isWalkingActivity
+        this.isWalkingActivity = isWalkingActivity
         stopStepCounterSensor()
         stopAccelerometerSensor()
-        //if (isWalkingActivity){
-        //    stopStepCounterSensor()
-        //}
-
+        Log.d("CIAO","CIAO")
         val currentTime = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val startTime = dateFormat.parse(selectedActivity.start) ?: return // Converte startTime in Date
@@ -242,18 +252,18 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
             val newActivity = createNewActivityOfSameType(selectedActivity)
             selectedActivity = newActivity
-            selectedActivity.setActivityViewModelVar(activityViewModel)
+            selectedActivity.setActivityViewModelVar(activityDBViewModel)
 
             val startOfNextDay = Calendar.getInstance().apply {
                 time = endOfDay
                 add(Calendar.SECOND, 1)
             }.time
 
-                val startOfDayString = dateFormat.format(startOfNextDay)
-                selectedActivity.setStartTimeWIthString(startOfDayString)
+            val startOfDayString = dateFormat.format(startOfNextDay)
+            selectedActivity.setStartTimeWIthString(startOfDayString)
 
 
-            }
+        }
 
         selectedActivity.setFinishTime()
         selectedActivity.calculateDuration()
@@ -330,8 +340,8 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
         updateDailyTimeFromDatabase()
     }
 
-    fun setSteps(totalSteps: Long) {
-        ActivityHandler.totalSteps = totalSteps
+    private fun setSteps(totalSteps: Long) {
+        this.totalSteps = totalSteps
         _actualSteps.postValue(totalSteps)
     }
 
@@ -403,7 +413,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
     }
 
     override fun onStepCounterDataReceived(data: String) {
-       setSteps(data.toLong())
+        setSteps(data.toLong())
     }
 
     private fun registerStep(data: String) {
@@ -418,7 +428,7 @@ object ActivityHandler :  AccelerometerListener, StepCounterListener {
 
         if (!backgroundRecognitionEnabled && started){
             stopSelectedActivity(isWalkingActivity)
-            Log.d("ACTIVITY HANDLER", "STOPPED")
+            Log.d("ACTIVITY HANDLER", "STOPPED, started: $started")
 
         }
     }

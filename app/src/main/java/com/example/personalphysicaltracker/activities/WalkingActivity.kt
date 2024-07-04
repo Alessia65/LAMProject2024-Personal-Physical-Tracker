@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.activities
 
+import android.util.Log
 import com.example.personalphysicaltracker.database.ActivityEntity
 import kotlinx.coroutines.*
 
@@ -29,8 +30,10 @@ class WalkingActivity : PhysicalActivity() {
         )
 
         withContext(Dispatchers.IO) {
-            activityViewModel.insertWalkingActivity(activityEntity, steps)
+            activityDBViewModel.insertWalkingActivity(activityEntity, steps)
         }
+
+        Log.d("DATABASE", "saved walking activity: $start, $end, $duration, $steps")
     }
 
 

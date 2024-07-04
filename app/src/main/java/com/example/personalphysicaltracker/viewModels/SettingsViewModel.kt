@@ -20,7 +20,7 @@ import java.util.Locale
 // Communication ActivityViewModel and HomeFragment
 class SettingsViewModel : ViewModel() {
 
-    private lateinit var activityViewModel: ActivityViewModel
+    private lateinit var activityViewModel: ActivityDBViewModel
 
 
     // Initialize the ViewModel with the necessary repository for database operations
@@ -29,7 +29,7 @@ class SettingsViewModel : ViewModel() {
         val application = requireNotNull(activity).application
         val repository = TrackingRepository(application)
         val viewModelFactory = ActivityViewModelFactory(repository)
-        activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityViewModel::class.java]
+        activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityDBViewModel::class.java]
     }
 
     fun getTotalStepsFromToday(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner, callback: (Long) -> Unit) {
@@ -126,7 +126,7 @@ class SettingsViewModel : ViewModel() {
         Log.d("SETTO ENABLED", isChecked.toString())
     }
 
-    fun getActivityViewModel(): ActivityViewModel{
+    fun getActivityViewModel(): ActivityDBViewModel{
         return activityViewModel
     }
 

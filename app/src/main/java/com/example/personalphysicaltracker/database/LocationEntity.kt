@@ -8,16 +8,12 @@ import androidx.room.PrimaryKey
 data class LocationEntity(
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
     val id: Int = 0,
 
-    @ColumnInfo(name = "latitude")
     var latitude: Double,
 
-    @ColumnInfo(name = "longitude")
     var longitude: Double,
 
-    @ColumnInfo(name = "date")
     val date: String,
 
     @ColumnInfo(name = "date_time_start")
@@ -26,6 +22,5 @@ data class LocationEntity(
     @ColumnInfo(name = "date_time_finish")
     var timeFinish: String,
 
-    @ColumnInfo(name = "duration")
     var duration: Double
 )
