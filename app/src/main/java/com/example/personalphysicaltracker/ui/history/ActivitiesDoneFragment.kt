@@ -2,13 +2,10 @@ package com.example.personalphysicaltracker.ui.history
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.ScrollView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -18,7 +15,7 @@ import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.databinding.FragmentActivitiesDoneBinding
 import com.example.personalphysicaltracker.utils.Constants
-import com.example.personalphysicaltracker.viewModels.CalendarViewModel
+import com.example.personalphysicaltracker.viewModels.HistoryViewModel
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
 import kotlinx.coroutines.CoroutineScope
@@ -29,15 +26,14 @@ import kotlinx.coroutines.launch
 class ActivitiesDoneFragment : Fragment() {
 
     private var _binding: FragmentActivitiesDoneBinding? = null
-    private val binding get() = _binding!!
 
     private lateinit var activities: List<PhysicalActivity>
-    private lateinit var calendarViewModel: CalendarViewModel
+    private lateinit var historyViewModel: HistoryViewModel
+
+    private lateinit var adapter: ActivityAdapter
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var adapter: ActivityAdapter
     private lateinit var shareButton: ImageButton
-
     private lateinit var locationDetection: TextView
     private lateinit var chipGroup: ChipGroup
 
@@ -54,21 +50,9 @@ class ActivitiesDoneFragment : Fragment() {
         return view
     }
 
-
-    private fun obtainDates() {
-        activities = calendarViewModel.obtainActivitiesForTransaction()
-        Log.d("ACTIVITIES OBTAINED", activities.size.toString())
-        updateRecyclerView()
-
-        // Populate ScrollView with activities
-        //addInScrollBar()
-    }
-
     private fun initializeViewModels() {
-        // Initialize ViewModel using the Activity as ViewModelStoreOwner
-        calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+        historyViewModel = ViewModelProvider(requireActivity())[HistoryViewModel::class.java]
     }
-
 
     // Initialize views from binding
     private fun initializeViews(view: View) {
@@ -89,16 +73,14 @@ class ActivitiesDoneFragment : Fragment() {
         }
 
         shareButton.setOnClickListener{
-            calendarViewModel.exportActivitiesToCSV(requireContext(), activities)
+            historyViewModel.exportActivitiesToCSV(requireContext(), activities)
         }
 
-        val sharedPreferencesBackgroundActivities = requireContext().getSharedPreferences(
-            Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION,
-            Context.MODE_PRIVATE
-        )
+        val sharedPreferencesBackgroundActivities = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
         val enabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, false)
+
         if (enabled){
-            calendarViewModel.getTotalPresenceInLocation(requireContext())
+            historyViewModel.getTotalPresenceInLocation(requireContext())
             CoroutineScope(Dispatchers.Main).launch {
                 delay(3000)
                 getTotalPresenceInLocation()
@@ -106,16 +88,22 @@ class ActivitiesDoneFragment : Fragment() {
         } else {
             locationDetection.text = ""
         }
+    }
 
+
+    private fun obtainDates() {
+        activities = historyViewModel.obtainActivitiesForTransaction()
+        updateRecyclerView()
     }
 
     private fun getTotalPresenceInLocation() {
-        var duration = (calendarViewModel.getDurationAtLocationInHours())
+        val duration = (historyViewModel.getDurationAtLocationInHours())
         var text = "0.0"
         if (duration!=0.0){
             text = duration.toString().substring(0,6)
         }
-        locationDetection.text = "You were detected in your interest's location for:\n" + text + " hours"
+        text = "You were detected in your interest's location for:\n$text hours"
+        locationDetection.text = text
 
     }
 
@@ -129,23 +117,19 @@ class ActivitiesDoneFragment : Fragment() {
         if (view is Chip) {
             val checked = view.isChecked
             val activityType = view.text.toString()
-            if (checked) {
-                activities = calendarViewModel.addFilter(activityType)
+            activities = if (checked) {
+                historyViewModel.addFilter(activityType)
             } else {
-                activities = calendarViewModel.removeFilter(activityType)
+                historyViewModel.removeFilter(activityType)
             }
             updateRecyclerView()
         }
     }
 
 
-
-
-
-
     override fun onDestroyView() {
         super.onDestroyView()
-        calendarViewModel.clearFilters()
+        historyViewModel.clearFilters()
         _binding = null
     }
 

@@ -1,5 +1,6 @@
 package com.example.personalphysicaltracker.ui.history
 
+import android.annotation.SuppressLint
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.style.StyleSpan
@@ -20,6 +21,7 @@ class ActivityAdapter : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>
 
     private var activities = listOf<PhysicalActivity>()
 
+    @SuppressLint("NotifyDataSetChanged")
     fun submitList(list: List<PhysicalActivity>) {
         activities = list
         notifyDataSetChanged()
@@ -31,7 +33,7 @@ class ActivityAdapter : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>
     }
 
     override fun onBindViewHolder(holder: ActivityViewHolder, position: Int) {
-        holder.bind(activities[position])  // Assicurati che bind() imposti correttamente i dati nella ViewHolder
+        holder.bind(activities[position])
     }
 
     override fun getItemCount(): Int {
@@ -49,14 +51,10 @@ class ActivityAdapter : RecyclerView.Adapter<ActivityAdapter.ActivityViewHolder>
 
         fun bind(activity: PhysicalActivity) {
             val startTime = activity.start.substring(11)
-
             val endTime = activity.end.substring(11)
 
             val builderActivityType = SpannableStringBuilder()
-            //builderActivityType.append(getSpannableString("Activity", activity.getActivityTypeName().toString()))
-
             builderActivityType.append(activity.getActivityTypeName().toString())
-
 
             val builderDate = SpannableStringBuilder()
             builderDate.append(getSpannableString("Date", activity.date))

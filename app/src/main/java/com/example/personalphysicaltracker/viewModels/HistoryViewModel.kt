@@ -11,123 +11,99 @@ import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.handlers.ShareHandler
 import com.example.personalphysicaltracker.utils.Constants
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 
-class CalendarViewModel : ViewModel() {
+class HistoryViewModel : ViewModel() {
 
     private var endDate: String = ""
     private var startDate: String = ""
     private var durationAtLocation: Double? = 0.0
-    // ViewModel to interact with activity data
-    private lateinit var activityViewModel: ActivityDBViewModel
+
+    private lateinit var activityDBViewModel: ActivityDBViewModel
 
     // List to hold activities fetched from the database
-    var activitiesOnDb: List<PhysicalActivity> = emptyList()
-    var locationInfos: List<LocationInfo> = emptyList()
+    private var activitiesOnDb: List<PhysicalActivity> = emptyList()
+    private var locationInfo: List<LocationInfo> = emptyList()
 
-    // List to hold activities to be sent or displayed in another fragment
-    var activitiesToSend: List<PhysicalActivity> = emptyList()
+    // List to hold activities to be sent or displayed in history fragment
+    private var activitiesToSend: List<PhysicalActivity> = emptyList()
     private val selectedFilters: MutableList<String> = mutableListOf()
 
 
-    /**
-     * Initializes the ActivityViewModel using the provided FragmentActivity.
-     * This allows sharing the ViewModel between fragments.
-     */
+    // Initializes the ActivityViewModel using the provided FragmentActivity. This allows sharing the ViewModel between fragments.
     fun initializeActivityViewModel(activity: FragmentActivity?) {
         // Ensure activity is not null
         val viewModelStoreOwner = activity ?: throw IllegalArgumentException("Activity must not be null")
 
         // Create repository and ViewModelFactory instances
-        val application = requireNotNull(activity).application
+        val application = activity.application
         val repository = TrackingRepository(application)
         val viewModelFactory = ActivityViewModelFactory(repository)
 
         // Initialize the ActivityViewModel
-        activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityDBViewModel::class.java]
+        activityDBViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityDBViewModel::class.java]
 
         // Load daily data from the database when ViewModel is initialized
         updateFromDatabase()
     }
 
-    /**
-     * Fetches the latest data from the database using the ActivityViewModel.
-     * Runs in the IO dispatcher to perform database operations.
-     */
+    // Fetches the latest data from the database using the ActivityViewModel. Runs in the IO dispatcher to perform database operations.
+
     private fun updateFromDatabase(): List<PhysicalActivity> {
         viewModelScope.launch(Dispatchers.IO) {
-            activitiesOnDb = activityViewModel.getListOfPhysicalActivities()
+            activitiesOnDb = activityDBViewModel.getListOfPhysicalActivities()
         }
         return activitiesOnDb
     }
 
-    /**
-     * Retrieves the list of dates from the ViewModel.
-     * These dates represent activities fetched from the database.
-     */
-    fun obtainDates(): List<PhysicalActivity> {
+    // Retrieves the list of dates from the ViewModel. These dates represent activities fetched from the database.
+
+    private fun obtainDates(): List<PhysicalActivity> {
         return activitiesOnDb
     }
 
 
-
-    /**
-     * Retrieves the list of activities saved for transaction (to be sent or displayed in another fragment).
-     */
+    // Retrieves the list of activities saved for transaction (to be sent or displayed in another fragment).
     fun obtainActivitiesForTransaction(): List<PhysicalActivity> {
         updateFromDatabase()
         return activitiesToSend
     }
 
-     fun handleSelectedDateRange(startDate: String, endDate: String) {
+    fun handleSelectedDateRange(startDate: String, endDate: String) {
          this.startDate = startDate
          this.endDate = endDate
          activitiesToSend = obtainDates()
-        Log.d("ACTIVITIES FROM DB", activitiesToSend.size.toString())
 
-         Log.d("STARTDATE", startDate)
-         Log.d("ENDDATE", endDate)
-        // Filter activities based on selected date range
+         // Filter activities based on selected date range
          activitiesToSend =  activitiesToSend.filter {
-            it.date >= startDate && it.date <= endDate
+             it.date in startDate..endDate
 
         }
-
-         // Applica tutti i filtri selezionati
          activitiesToSend = applyFilters(activitiesToSend)
-         Log.d("ACTIVITIES FILTERED", activitiesToSend.size.toString())
-
      }
 
 
-
     fun addFilter(activityType: String): List<PhysicalActivity> {
-        // Aggiungi il filtro solo se non è già presente
         if (!selectedFilters.contains(activityType)) {
             selectedFilters.add(activityType)
         }
+
+        Log.d("HISTORY VIEW MODEL", "$activityType FILTER ADDED")
         return applyFilters(activitiesToSend)
     }
 
     fun removeFilter(activityType: String): List<PhysicalActivity> {
-        // Rimuovi il filtro se è presente
         selectedFilters.remove(activityType)
+        Log.d("HISTORY VIEW MODEL", "$activityType FILTER REMOVED")
         return applyFilters(activitiesToSend)
     }
 
     private fun applyFilters(activities: List<PhysicalActivity>): List<PhysicalActivity> {
-        // Se non ci sono filtri selezionati, restituisci tutte le attività
         if (selectedFilters.isEmpty()) {
             return activities
         }
 
-        // Filtra le attività in base ai filtri selezionati
         return activities.filter { activity ->
             selectedFilters.any { filter ->
                 activity.getActivityTypeName().toString() == filter
@@ -137,43 +113,34 @@ class CalendarViewModel : ViewModel() {
 
     fun clearFilters() {
         selectedFilters.clear()
+        Log.d("HISTORY VIEW MODEL", "FILTER CLEARED")
     }
 
     fun exportActivitiesToCSV(context: Context, activities: List<PhysicalActivity>) {
-        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(
-            Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION,
-            Context.MODE_PRIVATE
-        )
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
         val enabledLocation = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, false)
 
-        Log.d("ENABLED", enabledLocation.toString())
-        Log.d("SIZE", locationInfos.size.toString())
         if (enabledLocation){
-            CoroutineScope(Dispatchers.Main).launch {
-                delay(3000)
-                for (l in locationInfos){
-                    Log.d("CIAO", l.duration.toString())
-                }
-                ShareHandler.exportActivitiesToCSV(context, activities, enabledLocation, locationInfos)
+            viewModelScope.launch(Dispatchers.IO) {
+                //delay(3000)
+                //Todo: check
+                ShareHandler.exportActivitiesToCSV(context, activities, true, locationInfo)
 
             }
         } else {
-            ShareHandler.exportActivitiesToCSV(context, activities, enabledLocation, locationInfos)
+            ShareHandler.exportActivitiesToCSV(context, activities, false, locationInfo)
 
         }
     }
-
 
 
     fun getTotalPresenceInLocation(context: Context) {
         val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
         val latitude = sharedPreferences.getFloat(Constants.GEOFENCE_LATITUDE, 0.0f).toDouble()
         val longitude = sharedPreferences.getFloat(Constants.GEOFENCE_LONGITUDE, 0.0f).toDouble()
-        viewModelScope.launch {
-            durationAtLocation =
-                activityViewModel.getTotalPresenceInLocation(latitude, longitude,startDate, endDate)
-            locationInfos = activityViewModel.getAllLocationsInDate(startDate, endDate) //Per sfruttare per il popolamento
-            Log.d("SIZE", locationInfos.size.toString())
+        viewModelScope.launch(Dispatchers.IO) {
+            durationAtLocation = activityDBViewModel.getTotalPresenceInLocation(latitude, longitude,startDate, endDate)
+            locationInfo = activityDBViewModel.getAllLocationsInDate(startDate, endDate)
         }
     }
 

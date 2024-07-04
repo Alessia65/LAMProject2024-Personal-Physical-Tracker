@@ -23,7 +23,7 @@ import com.example.personalphysicaltracker.activities.StandingActivity
 import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
 import com.example.personalphysicaltracker.viewModels.ActivityHandlerViewModel
-import com.example.personalphysicaltracker.viewModels.CalendarViewModel
+import com.example.personalphysicaltracker.viewModels.HistoryViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -40,7 +40,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var activityHandlerViewModel: ActivityHandlerViewModel
-    private lateinit var calendarViewModel: CalendarViewModel
+    private lateinit var calendarViewModel: HistoryViewModel
 
     private lateinit var buttonStartActivity: Button
     private lateinit var descriptionActivityText: TextView
@@ -111,7 +111,7 @@ class HomeFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             activityHandlerViewModel.initialize(requireActivity(), viewModelStoreOwner, requireContext())
         }
-        calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+        calendarViewModel = ViewModelProvider(requireActivity())[HistoryViewModel::class.java]
         calendarViewModel.initializeActivityViewModel(requireActivity())
     }
 

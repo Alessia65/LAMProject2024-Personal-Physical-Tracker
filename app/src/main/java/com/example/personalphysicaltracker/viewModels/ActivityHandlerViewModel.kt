@@ -31,7 +31,7 @@ import java.util.Locale
 class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounterListener {
 
     private lateinit var activityDBViewModel: ActivityDBViewModel
-    lateinit var selectedActivity: PhysicalActivity
+    private lateinit var selectedActivity: PhysicalActivity
     private lateinit var accelerometerSensorHandler: AccelerometerSensorHandler
     private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
     private var isWalkingActivity = false
