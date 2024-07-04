@@ -29,10 +29,6 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
         return repository.getTotalDurationByActivityTypeInDay(day, activityType)
     }
 
-    suspend fun getLastWalkingId(): Int{
-        return repository.getLastWalkingId()
-    }
-
     suspend fun insertWalkingActivity(activityEntity: ActivityEntity, steps: Long) {
         repository.insertWalkingActivity(activityEntity, steps)
     }
@@ -41,7 +37,7 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
         return repository.getTotalStepsFromToday(date)
     }
 
-    suspend fun getListOfActivities(): List<ActivityEntity> {
+    private suspend fun getListOfActivities(): List<ActivityEntity> {
         return repository.getListOfActivities()
     }
 
@@ -67,7 +63,7 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
         return physicalActivities
     }
 
-    suspend private fun createWalkingActivity(activityEntity: ActivityEntity): WalkingActivity {
+    private suspend fun createWalkingActivity(activityEntity: ActivityEntity): WalkingActivity {
         val activity = WalkingActivity()
         activity.date = activityEntity.date
         activity.start = activityEntity.timeStart
@@ -77,9 +73,7 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
         //Calculate steps:
         val id = activityEntity.id
         var steps = 0L
-        if (getWalkingActivityById(id)!=null) {
-            steps = getWalkingActivityById(id).steps
-        }
+        steps = getWalkingActivityById(id).steps
         activity.setActivitySteps(steps)
         return activity
     }
@@ -128,13 +122,12 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
     suspend fun getAllLocationsInDate(startDate: String, endDate: String): List<LocationInfo> {
         val locationEntities = repository.getAllLocationsInDate(startDate, endDate)
 
-        val  list =  obtainListLocation(locationEntities)
-        return list
+        return obtainListLocation(locationEntities)
 
     }
 
     private fun obtainListLocation(locationEntities: List<LocationEntity>): List<LocationInfo> {
-        val temp: MutableList<LocationInfo> = mutableListOf() // Inizializza una lista vuota
+        val temp: MutableList<LocationInfo> = mutableListOf()
 
         for (entity in locationEntities) {
             val newLocation = LocationInfo()
@@ -152,13 +145,24 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
 
 }
 
-//TODO: Che fa???
+
+
+// Factory class for creating instances of ActivityViewModel
+@Suppress("UNCHECKED_CAST")
 class ActivityViewModelFactory(private val repository: TrackingRepository) : ViewModelProvider.Factory {
+
+    // Method to create an instance of ViewModel
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+
+        // Check if the ViewModel class is assignable from ActivityViewModel
         if (modelClass.isAssignableFrom(ActivityViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
+
+
+            // Return a new instance of ActivityViewModel with the provided repository
             return ActivityViewModel(repository) as T
         }
+
+        // If the class is not recognized, throw an exception
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

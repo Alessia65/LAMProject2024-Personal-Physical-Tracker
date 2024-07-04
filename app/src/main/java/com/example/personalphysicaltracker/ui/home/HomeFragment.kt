@@ -35,17 +35,16 @@ import java.util.TimeZone
 import kotlin.math.roundToInt
 
 
-@SuppressLint("SetTextI18n")
 class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
 
     private lateinit var homeViewModel: HomeViewModel
-
+    private lateinit var calendarViewModel: CalendarViewModel
 
     private lateinit var buttonStartActivity: Button
-    private lateinit var accelText: TextView
+    private lateinit var descriptionActivityText: TextView
     private lateinit var progressBarWalking: ProgressBar
     private lateinit var progressBarDriving: ProgressBar
     private lateinit var progressBarStanding: ProgressBar
@@ -59,7 +58,6 @@ class HomeFragment : Fragment() {
     private var isWalkingActivity = false
     private var totalSteps= 0L
 
-    private lateinit var calendarViewModel: CalendarViewModel
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -69,15 +67,9 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root = binding.root
 
-
-
-        initializeViewModel()
-
-        // Bind views
         bindViews(root)
 
-        // Initialize ViewModel
-
+        initializeViewModel()
 
         // Set max values for progress bars
         setProgressBarMaxValues()
@@ -91,27 +83,19 @@ class HomeFragment : Fragment() {
 
         if(ActivityHandler.stepCounterActive() || ActivityHandler.accelerometerActive()!=null){
             changeButtonToStop()
-            accelText.text = ActivityHandler.accelerometerActive().toString() + " Activity Running"
+            val text = ActivityHandler.accelerometerActive().toString() + " Activity Running"
+            descriptionActivityText.text = text
         } else {
-            accelText.text = "No activity running"
+            val text = "No activity running"
+            descriptionActivityText.text = text
         }
 
 
         return root
     }
 
-    // Initialize the ViewModel
-    private fun initializeViewModel() {
-        homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
-        homeViewModel.initializeActivityHandler(this.activity, this, requireContext())
-
-        calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
-        calendarViewModel.initializeActivityViewModel(requireActivity())
-    }
-
-    // Bind views to their respective IDs
     private fun bindViews(root: View) {
-        accelText = root.findViewById(R.id.acceleration_text)
+        descriptionActivityText = root.findViewById(R.id.acceleration_text)
         progressBarWalking = root.findViewById(R.id.progress_bar_walking)
         progressBarDriving = root.findViewById(R.id.progress_bar_driving)
         progressBarStanding = root.findViewById(R.id.progress_bar_standing)
@@ -122,6 +106,15 @@ class HomeFragment : Fragment() {
         currentStepsText = root.findViewById(R.id.current_steps_text)
     }
 
+    private fun initializeViewModel() {
+        homeViewModel = ViewModelProvider(this)[HomeViewModel::class.java]
+        homeViewModel.initializeActivityHandler(this.activity, this, requireContext())
+
+        calendarViewModel = ViewModelProvider(requireActivity())[CalendarViewModel::class.java]
+        calendarViewModel.initializeActivityViewModel(requireActivity())
+    }
+
+
     // Set the maximum value for progress bars to represent 24 hours in seconds
     private fun setProgressBarMaxValues() {
         val maxProgress = 24 * 3600 // 24 hours in seconds
@@ -129,7 +122,6 @@ class HomeFragment : Fragment() {
         progressBarDriving.max = maxProgress
         progressBarStanding.max = maxProgress
     }
-
 
 
     // Observe changes in dailyTime LiveData and update UI accordingly
@@ -152,15 +144,19 @@ class HomeFragment : Fragment() {
         ActivityHandler.actualSteps.observe(viewLifecycleOwner){ actualStepsList ->
             actualStepsList?.let {
                 requireActivity().runOnUiThread {
-                    //homeViewModel.setSteps(totalSteps)
-                    currentStepsText.text = "Current steps: $actualStepsList"
+                    val text = "Current steps: $actualStepsList"
+                    currentStepsText.text = text
                     totalSteps = actualStepsList.toLong()
                 }
             }
         }
+        
         ActivityHandler.dailySteps.observe(viewLifecycleOwner){ dailyStepsList ->
             dailyStepsList?.let{
-                dailyStepsText.text = "Daily steps: $dailyStepsList"
+                val text = "Daily steps: $dailyStepsList"
+                dailyStepsText.text = text
+                
+                // Update shared preferences for step reminder notification check
                 val sharedPreferencesSteps = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
                 val editor = sharedPreferencesSteps.edit()
                 editor.putLong(Constants.SHARED_PREFERENCES_STEPS_DAILY, dailyStepsList)
@@ -172,58 +168,60 @@ class HomeFragment : Fragment() {
     }
 
 
-
     // Initialize buttons and set their click listeners
     private fun initializeButtons(root: ConstraintLayout) {
         buttonStartActivity = root.findViewById(R.id.button_startActivity)
+        
         buttonStartActivity.setOnClickListener {
             showActivitySelectionDialog()
         }
+        
         buttonSeeHistory = root.findViewById(R.id.button_history)
         buttonSeeHistory.setOnClickListener {
             showDateRangePicker()
         }
 
         val sharedPreferencesBackgroundActivities = requireContext().getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
-        val  backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(
-            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+        val backgroundRecognitionEnabled = sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
         if (backgroundRecognitionEnabled){
             buttonStartActivity.isEnabled = false
-            accelText.visibility = View.GONE
+            descriptionActivityText.visibility = View.GONE
         } else {
-            accelText.visibility = View.VISIBLE
+            descriptionActivityText.visibility = View.VISIBLE
         }
 
     }
 
 
     // Update the walking progress bar and hours
-    
     private fun updateProgressBarWalking(progressCurrent: Double) {
         val progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
             progressBarWalking.progress = progressCurrentInt
-            walkingHours.text = String.format("%.4f", progressCurrent / 3600.0) + "h"
+            val text = String.format("%.4f", progressCurrent / 3600.0) + "h"
+            walkingHours.text = text
         }
     }
 
+
     // Update the driving progress bar and hours
-    
     private fun updateProgressBarDriving(progressCurrent: Double) {
         val progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
             progressBarDriving.progress = progressCurrentInt
-            drivingHours.text = String.format("%.4f", progressCurrent / 3600.0) + "h"
+            val text = String.format("%.4f", progressCurrent / 3600.0) + "h"
+            drivingHours.text = text
         }
     }
 
+
     // Update the standing progress bar and hours
-    
     private fun updateProgressBarStanding(progressCurrent: Double) {
         val progressCurrentInt = progressCurrent.roundToInt()
         requireActivity().runOnUiThread {
             progressBarStanding.progress = progressCurrentInt
-            standingHours.text = String.format("%.4f", progressCurrent / 3600.0) + "h"
+            val text = String.format("%.4f", progressCurrent / 3600.0) + "h"
+            standingHours.text = text
         }
     }
 
@@ -242,37 +240,38 @@ class HomeFragment : Fragment() {
                 }
             }
         builder.create().show()
-
     }
 
+
     // Start the walking activity and change button to "Stop Activity"
-    
     private fun startWalkingActivity() {
         homeViewModel.startSelectedActivity(WalkingActivity())
-        //startAccelerometerSensor(ActivityType.WALKING)
         startStepCounterSensor()
         changeButtonToStop()
         isWalkingActivity = true
-        accelText.text = "Walking Activity Running"
+        val text = "Walking Activity Running"
+        descriptionActivityText.text = text
     }
+
 
     // Start the driving activity and change button to "Stop Activity"
     private fun startDrivingActivity() {
         homeViewModel.startSelectedActivity(DrivingActivity())
-        //startAccelerometerSensor(ActivityType.DRIVING)
         changeButtonToStop()
         isWalkingActivity = false
-        accelText.text = "Driving Activity Running"
+        val text = "Driving Activity Running"
+        descriptionActivityText.text = text
 
     }
+
 
     // Start the standing activity and change button to "Stop Activity"
     private fun startStandingActivity() {
         homeViewModel.startSelectedActivity(StandingActivity())
-        //startAccelerometerSensor(ActivityType.STANDING)
         changeButtonToStop()
         isWalkingActivity = false
-        accelText.text = "Standing Activity Running"
+        val text = "Standing Activity Running"
+        descriptionActivityText.text = text
 
     }
 
@@ -284,8 +283,6 @@ class HomeFragment : Fragment() {
     }
 
 
-
-    //TODO: Far in modo che si deve per forza scegliere
     private fun showAlert() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Attention")
@@ -308,11 +305,13 @@ class HomeFragment : Fragment() {
 
     // Change the button text and behavior to "Stop Activity"
     private fun changeButtonToStop() {
-        buttonStartActivity.text = "Stop Activity"
+        val text = "Stop Activity"
+        buttonStartActivity.text = text
         buttonStartActivity.setOnClickListener {
             stopSelectedActivity()
         }
     }
+
 
     // Stop the currently selected activity and reset the button to "Start Activity"
     private fun stopSelectedActivity() {
@@ -321,13 +320,15 @@ class HomeFragment : Fragment() {
         }
         resetButtonToStart()
         requireActivity().runOnUiThread {
-            accelText.text = "No activity running"
+            val text = "No activity running"
+            descriptionActivityText.text = text
         }
     }
 
     // Reset the button text and behavior to "Start Activity"
     private fun resetButtonToStart() {
-        buttonStartActivity.text = "Start Activity"
+        val text = "Start Activity"
+        buttonStartActivity.text = text
         buttonStartActivity.setOnClickListener {
             showActivitySelectionDialog()
         }
