@@ -35,7 +35,7 @@ class NotificationServiceActivityRecognition : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d("NsAR", "On start")
+        Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "onStartCommand")
         createNotificationChannelForActivityRecognition()
         createPermanentNotificationActivityRecognition(this)
 
@@ -72,12 +72,11 @@ class NotificationServiceActivityRecognition : Service() {
                 Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.d("NOTIFICATION SERVICE", "Permission not Granted")
+            Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Permission not Granted")
             return
         }
 
         startForeground(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, notification)
-        Log.d("NsAR", "created")
 
     }
 
@@ -111,7 +110,7 @@ class NotificationServiceActivityRecognition : Service() {
                     Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                Log.d("NOTIFICATION SERVICE", "Permission not Granted")
+                Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Permission not Granted")
                 return
             }
             notify(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, notification) // Using a different ID for activity change notifications
@@ -128,35 +127,29 @@ class NotificationServiceActivityRecognition : Service() {
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        // Verifica se il canale delle notifiche esiste già
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             var channel = notificationManager.getNotificationChannel(channelId)
             if (channel == null) {
-                // Il canale non esiste, quindi lo creiamo
                 channel = NotificationChannel(channelId, name, importance).apply {
                     this.description = description
                 }
                 notificationManager.createNotificationChannel(channel)
             } else {
-                // Il canale esiste già, non fare nulla
-                Log.d("NotificationChannel", "Channel $channelId already exists")
+                Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Channel $channelId already exists")
             }
         } else {
-            // Gestione per versioni precedenti a Oreo
-            // In questo caso, il canale delle notifiche viene creato comunque ogni volta
             TODO("VERSION.SDK_INT < O")
         }
     }
 
 
     fun stopPermanentNotificationActivityRecognition() {
-        Log.d("NSAR", "SONO QUI")
         if (context!= null) {
             deleteChannelActivityRecognition()
             val notificationManager =
                 context!!.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION)
-            Log.d("CHANNEL", "CHANNEL DELETED")
+            Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "CHANNEL DELETED")
         }
     }
 
@@ -164,8 +157,8 @@ class NotificationServiceActivityRecognition : Service() {
 
     override fun onDestroy() {
         stopPermanentNotificationActivityRecognition()
+        Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "onDestroy")
         super.onDestroy()
-        Log.d("NsAR", "Service destroyed")
     }
 
     private fun deleteChannelActivityRecognition() {
@@ -174,7 +167,7 @@ class NotificationServiceActivityRecognition : Service() {
                 context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             // Cancel the notification
             notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION)
-            Log.d("NOT", "deleteChannelActivityRecognition ")
+            Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "deleteChannelActivityRecognition")
         }
     }
 }

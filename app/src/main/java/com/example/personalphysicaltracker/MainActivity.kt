@@ -1,19 +1,15 @@
 package com.example.personalphysicaltracker
 
-import android.app.AlarmManager
 import android.app.AlertDialog
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
@@ -30,31 +26,15 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-
     // ActivityResultLauncher to handle permission request result
-    private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        // Check if activity recognition permission is granted
-        if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
-                showDialogSettingsNotification()
-                PermissionsHandler.notificationPermission = false
-            } else {
-                PermissionsHandler.notificationPermission = true
-            }
-        } else {
-            // Show settings dialog if permission is still not granted
-            showDialogSettingsActivityRecognition()
-        }
+    private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+       handleSettingPermissionResult()
     }
-
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,49 +43,37 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Request activity recognition permission if not granted
-        //requestActivityRecnognisePermission()
-
-        if (!PermissionsHandler.checkPermissions(getApplicationContext())){
-            PermissionsHandler.requestPermissions(this)
-        } else {
-            PermissionsHandler.notificationPermission = true
-        }
-
-        // Initialize Sensors (DONT DELETE)
-        val accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
-        val stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
+        // Request permissions if not already granted
+        checkAndRequestPermissions()
 
         // Initialize navigation components
         initializeNavigation()
 
-        // Create notification channel if necessary
+
+        initializeUtils()
+
+        // Create notification channel
         createNotificationChannels()
-
-        // Schedule notifications
-
-
-        //NotificationHandler.scheduleDailyNotificationIfEnabled(this)
-        //NotificationHandler.scheduleStepsNotificationIfEnabled(this)
-
-
-        initializeObserverActivityTransition()
-
 
     }
 
-    private fun createNotificationChannels() {
+    private fun checkAndRequestPermissions() {
+        if (!PermissionsHandler.checkPermissions(applicationContext)){
+            PermissionsHandler.requestPermissions(this)
+        } else {
+            PermissionsHandler.notificationPermission = true
+        }
+    }
 
+    private fun createNotificationChannels() {
         NotificationHandler.createDailyReminderChannel(this)
         NotificationHandler.createStepsReminderChannel(this)
-
     }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
         return navController.navigateUp() || super.onSupportNavigateUp()
     }
-
 
     private fun initializeNavigation() {
         val navView: BottomNavigationView = binding.navView
@@ -121,22 +89,22 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
     }
 
-
-    private fun initializeObserverActivityTransition() {
+    private fun initializeUtils() {
+        val accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
+        val stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
         ActivityTransitionHandler.initialize(this, lifecycle)
     }
 
 
-    // Handle result of permission request
     // Show dialog directing user to app settings for permission management
-    fun showDialogSettingsActivityRecognition(){
+    private fun showDialogSettingsActivityRecognition(){
         val builder = AlertDialog.Builder(this)
         builder.setMessage("You need permissions to register your physical activities!")
             .setTitle("Permission required")
             .setCancelable(false)
             .setPositiveButton("Settings") { dialog, _ ->
-                val intent: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri: Uri = Uri.fromParts("package", getPackageName(), null)
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", packageName, null)
                 intent.setData(uri)
                 SETTINGS_PERMISSION_REQUEST.launch(intent)
                 dialog.dismiss()
@@ -156,9 +124,9 @@ class MainActivity : AppCompatActivity() {
 
         when (requestCode) {
             Constants.PERMISSION_REQUESTS_CODE -> {
-                if (grantResults.isNotEmpty() && grantResults.size>0) {
-                    var activityRec = grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    var postNotification = grantResults[1] == PackageManager.PERMISSION_GRANTED
+                if (grantResults.isNotEmpty()) {
+                    val activityRec = grantResults[0] == PackageManager.PERMISSION_GRANTED
+                    val postNotification = grantResults[1] == PackageManager.PERMISSION_GRANTED
 
                     if (!activityRec){
                         showDialogSettingsActivityRecognition()
@@ -172,14 +140,14 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    fun showDialogSettingsNotification(){
+    private fun showDialogSettingsNotification(){
         val builder = AlertDialog.Builder(this)
         builder.setMessage("You need permissions to send notifications!")
             .setTitle("Permission required")
             .setCancelable(false)
             .setPositiveButton("Settings") { dialog, _ ->
-                val intent: Intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri: Uri = Uri.fromParts("package", getPackageName(), null)
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", packageName, null)
                 intent.setData(uri)
                 SETTINGS_PERMISSION_REQUEST.launch(intent)
                 dialog.dismiss()
@@ -191,19 +159,32 @@ class MainActivity : AppCompatActivity() {
         builder.show()
     }
 
+    private fun handleSettingPermissionResult() {
+        // Check if activity recognition permission is granted
+        if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
+                showDialogSettingsNotification()
+                PermissionsHandler.notificationPermission = false
+            } else {
+                PermissionsHandler.notificationPermission = true
+            }
+        } else {
+            // Show settings dialog if permission is still not granted
+            showDialogSettingsActivityRecognition()
+        }
+    }
+
+
     override fun onDestroy() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 ActivityHandler.handleDestroy(this@MainActivity)
             } catch (e: Exception) {
-                Log.e("CIAO", "Exception in onDestroy: ${e.message}", e)
+                Log.e("MAIN ACTIVITY", "Exception in onDestroy: ${e.message}", e)
             }
         }
         super.onDestroy()
     }
-
-
-
 
 
 }

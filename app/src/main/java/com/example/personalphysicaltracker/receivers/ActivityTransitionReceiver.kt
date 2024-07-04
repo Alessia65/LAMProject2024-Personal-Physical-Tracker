@@ -20,16 +20,24 @@ class ActivityTransitionReceiver(
     private val systemEvent: (userActivity: String) -> Unit
 ) : DefaultLifecycleObserver {
 
-    private var isOn = false;
-    private lateinit var notificationService : NotificationServiceActivityRecognition
+    private var isOn = false // Flag to check if the receiver is active
+    private lateinit var notificationService : NotificationServiceActivityRecognition // Notification service instance
 
+    // Inner class to handle broadcast events
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             isOn = true
 
             val title = "Activity Recognition On: Activity Changed!"
 
-            val result = intent.let { ActivityTransitionResult.extractResult(it) } ?: return
+            // Extracting activity transition result from the intent
+            val result = ActivityTransitionResult.extractResult(intent)
+            if (result == null) {
+                Log.e("ACTIVITY TRANSITION RECEIVER", "Failed to extract ActivityTransitionResult")
+                return
+            }
+
+            // Building a string with activity transition information
             val printInformations = buildString {
                 for (event in result.transitionEvents) {
                     val activityType = (ActivityTransitionHandler.getActivityType(event.activityType))
@@ -41,25 +49,31 @@ class ActivityTransitionReceiver(
             }
 
             val message = printInformations
+
+            // Showing a notification with activity transition information
             notificationService.showActivityChangesNotification(context, title, message)
-            Log.d("Activity Transition Receiver", "onReceive: $printInformations")
+            Log.d("ACTIVITY TRANSITION RECEIVER", "onReceive: $printInformations")
+
+            // Triggering the system event callback with the activity information
             systemEvent(printInformations)
         }
     }
 
     override fun onCreate(owner: LifecycleOwner) {
+        notificationService = NotificationServiceActivityRecognition()
+        val intentFilter = IntentFilter(intentAction)
+
+        // Registering the broadcast receiver with appropriate flags based on the Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             Log.d("ACTIVITY TRANSITION RECEIVER", "RECEIVER_NOT_EXPORTED")
-                context.registerReceiver(broadcastReceiver, IntentFilter(intentAction), RECEIVER_NOT_EXPORTED)
+                context.registerReceiver(broadcastReceiver, intentFilter, RECEIVER_NOT_EXPORTED)
         } else {
             Log.d("ACTIVITY TRANSITION RECEIVER", "NOT NECESSARY RECEIVER_NOT_EXPORTED")
-            context.registerReceiver(broadcastReceiver, IntentFilter(intentAction))
+            context.registerReceiver(broadcastReceiver, intentFilter)
         }
         isOn = true
         startActivityTransitionService()
-        notificationService = NotificationServiceActivityRecognition()
-        //notificationService.createPermanentNotificationActivityRecognition(context)
-        Log.d("Activity Transition Receiver", "BroadcastReceiver registered")
+        Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver registered")
     }
 
 
@@ -69,16 +83,16 @@ class ActivityTransitionReceiver(
             context.unregisterReceiver(broadcastReceiver)
             isOn = false
             stopActivityTransitionService()
-            Log.d("Activity Transition Receiver", "BroadcastReceiver unregistered")
+            Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver unregistered")
         } else {
-            Log.d("Activity Transition Receiver", "BroadcastReceiver not registered")
+            Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver not registered")
         }
     }
 
     private fun startActivityTransitionService() {
         val intent = Intent(context, NotificationServiceActivityRecognition::class.java)
         ContextCompat.startForegroundService(context,intent)
-        Log.d("ACT TRAN", "foreground on")
+        Log.d("ACTIVITY TRANSITION RECEIVER", "startActivityTransitionService")
 
     }
 

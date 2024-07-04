@@ -113,7 +113,7 @@ class ActivityViewModel(private val repository: TrackingRepository) : ViewModel(
 
         return activity
     }
-    suspend private fun getWalkingActivityById(id: Int): WalkingActivityEntity {
+    private suspend fun getWalkingActivityById(id: Int): WalkingActivityEntity {
         return repository.getWalkingActivityById(id)
     }
 

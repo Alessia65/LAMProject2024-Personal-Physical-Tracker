@@ -63,9 +63,6 @@ class CalendarViewModel : ViewModel() {
     private fun updateFromDatabase(): List<PhysicalActivity> {
         viewModelScope.launch(Dispatchers.IO) {
             activitiesOnDb = activityViewModel.getListOfPhysicalActivities()
-            for (a in activitiesOnDb){
-                Log.d("IN RANGE", a.getActivityTypeName().toString() + ", " + a.start + ", " + a.end + ", " + a.date + ", " + a.duration)
-            }
         }
         return activitiesOnDb
     }
