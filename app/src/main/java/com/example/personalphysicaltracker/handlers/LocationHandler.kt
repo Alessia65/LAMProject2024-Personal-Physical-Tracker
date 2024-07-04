@@ -15,6 +15,10 @@ import com.google.android.gms.location.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 @SuppressLint("StaticFieldLeak")
 // In LocationHandler.kt
@@ -116,10 +120,10 @@ object LocationHandler {
                 currentInfoLocation.initialize(lat, lon, activityDBViewModel)
                 val t = sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, "")
                 Log.d("START PRIMA", t.toString())
-                currentInfoLocation.start =
-                    sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start)
-                        .toString() //SE non lo trova lo risetta
-                Log.d("PROVA", currentInfoLocation.start)
+                val oldStart = sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start).toString()
+                currentInfoLocation.start = oldStart
+                currentInfoLocation.date = oldStart.substring(0,10)
+                Log.d("PROVA", currentInfoLocation.start + "," + currentInfoLocation.date)
                 started = true
             }
         } else {
@@ -127,6 +131,34 @@ object LocationHandler {
 
             if (started) {
                 if (currentInfoLocation.latitude == lat && currentInfoLocation.longitude == lon) {
+
+
+                    //Se 00.00 superata
+                    val currentTime = Calendar.getInstance().time
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                    val startTime = dateFormat.parse(currentInfoLocation.start) ?: return
+
+                    val endOfDay = getEndOfToday(startTime)
+                    if (startTime.before(getStartOfToday(currentTime))) {
+                        val endOfDayString = dateFormat.format(endOfDay)
+                        currentInfoLocation.setFinishTimeWithString(endOfDayString)
+                        currentInfoLocation.calculateDuration()
+                        currentInfoLocation.saveInDb()
+
+                        val locationInfoNew = LocationInfo()
+                        locationInfoNew.initialize(lat, lon, activityDBViewModel)
+                        currentInfoLocation = locationInfoNew
+
+                        val startOfNextDay = Calendar.getInstance().apply {
+                            time = endOfDay
+                            add(Calendar.SECOND, 1)
+                        }.time
+
+                        val startOfDayString = dateFormat.format(startOfNextDay)
+                        currentInfoLocation.setStartTimeWIthString(startOfDayString)
+                    }
+
+
                     currentInfoLocation.setFinishTime()
                     started = false
                     Log.d("LOCATION HANDLER", "finito")
@@ -139,6 +171,27 @@ object LocationHandler {
             }
             sharedPreferences.edit().putBoolean(Constants.GEOFENCE_IS_INSIDE, false).apply()
         }
+    }
+
+    private fun getStartOfToday(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        return calendar.time
+    }
+
+    // Funzione di utilità per ottenere la fine della giornata corrente
+    private fun getEndOfToday(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        return calendar.time
     }
 
 

@@ -44,7 +44,17 @@ class LocationInfo {
         }
     }
 
-    private fun calculateDuration(){
+     fun setFinishTimeWithString(finish: String) {
+        end = finish
+    }
+
+     fun setStartTimeWIthString(start: String) {
+        this.start = start
+    }
+
+
+
+     fun calculateDuration(){
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val startTime = dateFormat.parse(start)?.time ?: 0L
         val endTime = dateFormat.parse(end)?.time ?: 0L
@@ -53,7 +63,7 @@ class LocationInfo {
 
     }
 
-     private fun saveInDb(){
+      fun saveInDb(){
         val locationEntity = LocationEntity(
             latitude = this.latitude,
             longitude = this.longitude,

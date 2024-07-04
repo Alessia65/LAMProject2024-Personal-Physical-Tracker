@@ -50,15 +50,17 @@ class ChartsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        chartsViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
-        chartsViewModel.initializeActivityViewModel(this.activity, this)
 
         _binding = FragmentChartsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+        chartsViewModel = ViewModelProvider(requireActivity())[ChartsViewModel::class.java]
+        chartsViewModel.initializeActivityViewModel(this.activity, this)
+
         initializeViews(root)
         return root
     }
+
 
     private fun initializeViews(root: View) {
         textDate = root.findViewById(R.id.text_date)

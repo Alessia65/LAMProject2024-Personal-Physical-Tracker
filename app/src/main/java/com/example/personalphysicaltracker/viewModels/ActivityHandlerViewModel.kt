@@ -236,7 +236,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         this.isWalkingActivity = isWalkingActivity
         stopStepCounterSensor()
         stopAccelerometerSensor()
-        Log.d("CIAO","CIAO")
+
         val currentTime = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val startTime = dateFormat.parse(selectedActivity.start) ?: return // Converte startTime in Date
