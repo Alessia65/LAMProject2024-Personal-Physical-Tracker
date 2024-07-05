@@ -75,13 +75,19 @@ class ActivityTransitionReceiver(private val context: Context, private val inten
 
 
     fun stopReceiver() {
-        if (checkIsOn()) {
-            context.unregisterReceiver(broadcastReceiver)
+        try {
+            if (checkIsOn()) {
+                context.unregisterReceiver(broadcastReceiver)
+                setIsOn(false)
+                stopActivityTransitionService()
+                Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver unregistered")
+            } else {
+                Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver not registered")
+            }
+        }catch (e: Exception){
+            Log.e("ACTIVITY RECEIVER", "Error")
             setIsOn(false)
-            stopActivityTransitionService()
-            Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver unregistered")
-        } else {
-            Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver not registered")
+
         }
     }
 

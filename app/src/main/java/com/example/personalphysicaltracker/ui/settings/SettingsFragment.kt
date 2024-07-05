@@ -65,6 +65,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -162,6 +163,24 @@ class SettingsFragment : Fragment() {
     }
 
 
+    private fun showDialogSettings(){
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setMessage("You need permissions to detect locations!")
+            .setTitle("Permission required")
+            .setCancelable(false)
+            .setPositiveButton("Settings") { dialog, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", requireActivity().packageName, null)
+                intent.setData(uri)
+                SETTINGS_PERMISSION_REQUEST.launch(intent)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Continue") { dialog, _ ->
+                dialog.dismiss()
+                PermissionsHandler.locationPermission = false
+            }
+        builder.show()
+    }
 
     private fun handleActivityRecognitionSwitch(isChecked: Boolean) {
 
