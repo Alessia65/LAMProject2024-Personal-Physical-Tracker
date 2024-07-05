@@ -13,20 +13,16 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
 import com.example.personalphysicaltracker.services.NotificationServiceActivityRecognition
+import com.example.personalphysicaltracker.utils.Constants
 
-class ActivityTransitionReceiver(
-    private val context: Context,
-    private val intentAction: String,
-    private val systemEvent: (userActivity: String) -> Unit
-) : DefaultLifecycleObserver {
+class ActivityTransitionReceiver(private val context: Context, private val intentAction: String, private val systemEvent: (userActivity: String) -> Unit) : DefaultLifecycleObserver {
 
-    private var isOn = false // Flag to check if the receiver is active
     private lateinit var notificationService : NotificationServiceActivityRecognition // Notification service instance
 
     // Inner class to handle broadcast events
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            isOn = true
+            setIsOn(true)
 
             val title = "Activity Recognition On: Activity Changed!"
 
@@ -71,7 +67,7 @@ class ActivityTransitionReceiver(
             Log.d("ACTIVITY TRANSITION RECEIVER", "NOT NECESSARY RECEIVER_NOT_EXPORTED")
             context.registerReceiver(broadcastReceiver, intentFilter)
         }
-        isOn = true
+        setIsOn(true)
         startActivityTransitionService()
         Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver registered")
     }
@@ -79,9 +75,9 @@ class ActivityTransitionReceiver(
 
 
     fun stopReceiver() {
-        if (isOn) {
+        if (checkIsOn()) {
             context.unregisterReceiver(broadcastReceiver)
-            isOn = false
+            setIsOn(false)
             stopActivityTransitionService()
             Log.d("ACTIVITY TRANSITION RECEIVER", "BroadcastReceiver unregistered")
         } else {
@@ -104,7 +100,30 @@ class ActivityTransitionReceiver(
 
     }
 
+    private fun checkIsOn(): Boolean{
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(
+            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION,
+            Context.MODE_PRIVATE
+        )
 
+        return sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+
+    }
+
+    fun setIsOn(value: Boolean){
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(
+            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION,
+            Context.MODE_PRIVATE
+        )
+        val editor = sharedPreferencesBackgroundActivities.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, value)
+        editor.apply()
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        stopReceiver()
+        super.onDestroy(owner)
+    }
 
 }
 

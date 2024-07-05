@@ -107,7 +107,7 @@ class SettingsFragment : Fragment() {
 
 
         //Background Operations
-
+        //settingsViewModel.setBackgroundRecogniseActivies(requireActivity(),false)
         switchActivityRecognition.isChecked = settingsViewModel.checkBackgroundRecogniseActivitiesOn(requireContext())
 
         switchActivityRecognition.setOnCheckedChangeListener{_, isChecked ->
@@ -164,7 +164,6 @@ class SettingsFragment : Fragment() {
 
 
     private fun handleActivityRecognitionSwitch(isChecked: Boolean) {
-        settingsViewModel.setBackgroundRecogniseActivies(requireContext(), isChecked)
 
         if (isChecked) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
