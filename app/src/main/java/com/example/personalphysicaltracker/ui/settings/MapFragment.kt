@@ -48,6 +48,7 @@ class MapFragment : Fragment() {
         _binding = FragmentMapBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
+
         // Initialize components and services
         GeofenceHandler.initialize(requireContext())
         client = LocationServices.getFusedLocationProviderClient(requireActivity())
@@ -56,6 +57,7 @@ class MapFragment : Fragment() {
         // Load map configuration
         Configuration.getInstance().load(requireContext(), requireActivity().getPreferences(Context.MODE_PRIVATE))
         map = binding.map
+
         setMap()
         addMapClickListener()
 

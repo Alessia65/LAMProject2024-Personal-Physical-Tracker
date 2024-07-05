@@ -21,33 +21,41 @@ object PermissionsHandler {
     fun checkPermissions(context: Context): Boolean{
         var activityRecognise = -1
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
-            activityRecognise = ActivityCompat.checkSelfPermission(context,
-                Constants.PERMISSION_ACTIVITY_RECOGNITION
-            )
+            activityRecognise = ActivityCompat.checkSelfPermission(context, Constants.PERMISSION_ACTIVITY_RECOGNITION)
             ACTUAL_PERMISSION_ACTIVITY_RECOGNITION = Constants.PERMISSION_ACTIVITY_RECOGNITION
-            Log.d("PERMISSION", "normale")
         } else {
-            activityRecognise = ActivityCompat.checkSelfPermission(context,
-                Constants.PERMISSION_ACTIVITY_RECOGNITION_BEFORE
-            )
-            ACTUAL_PERMISSION_ACTIVITY_RECOGNITION =
-                Constants.PERMISSION_ACTIVITY_RECOGNITION_BEFORE
+            activityRecognise = ActivityCompat.checkSelfPermission(context, Constants.PERMISSION_ACTIVITY_RECOGNITION_BEFORE)
+            ACTUAL_PERMISSION_ACTIVITY_RECOGNITION = Constants.PERMISSION_ACTIVITY_RECOGNITION_BEFORE
             Log.d("PERMISSION", "pazzo")
-
         }
-        val postNotifications = ActivityCompat.checkSelfPermission(context,
-            Constants.PERMISSION_POST_NOTIFICATIONS
-        )
+
+        val postNotifications = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.checkSelfPermission(context, Constants.PERMISSION_POST_NOTIFICATIONS)
+        } else {
+            PackageManager.PERMISSION_GRANTED
+        }
         return activityRecognise == PackageManager.PERMISSION_GRANTED && postNotifications == PackageManager.PERMISSION_GRANTED
     }
 
-    fun requestPermissions(activity: Activity){
+    fun requestPermissions(activity: Activity) {
+        val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            arrayOf(
+                ACTUAL_PERMISSION_ACTIVITY_RECOGNITION,
+                Constants.PERMISSION_POST_NOTIFICATIONS
+            )
+        } else {
+            arrayOf(
+                ACTUAL_PERMISSION_ACTIVITY_RECOGNITION
+            )
+        }
+
         ActivityCompat.requestPermissions(
             activity,
-            arrayOf(ACTUAL_PERMISSION_ACTIVITY_RECOGNITION, Constants.PERMISSION_POST_NOTIFICATIONS),
+            permissionsToRequest,
             Constants.PERMISSION_REQUESTS_CODE
         )
     }
+
 
 
     fun hasPermissionsForActivityBackground(context: Context): Boolean{
@@ -56,28 +64,24 @@ object PermissionsHandler {
     fun hasLocationPermissions(context: Context): Boolean {
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){
-            locationPermission =  (ActivityCompat.checkSelfPermission(
-                context,
-                Constants.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED) &&
+            locationPermission =
+                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.FOREGROUND_SERVICE_LOCATION) == PackageManager.PERMISSION_GRANTED)
         } else if(Build.VERSION.SDK_INT == Build.VERSION_CODES.Q){
-            locationPermission =  (ActivityCompat.checkSelfPermission(
-                context,
-                Constants.ACCESS_BACKGROUND_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED) &&
+            locationPermission =
+                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
         } else {
-            locationPermission =  (ActivityCompat.checkSelfPermission(context,
-                Constants.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context,
-                Constants.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED) &&
-                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
-                    (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
+            locationPermission =
+                (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+                (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+                (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
+                (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
         }
         return locationPermission
     }

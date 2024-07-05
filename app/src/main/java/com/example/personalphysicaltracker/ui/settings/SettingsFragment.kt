@@ -57,7 +57,7 @@ class SettingsFragment : Fragment() {
     private var dailySteps = 0L
     private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
         // Check if activity recognition permission is granted
-        if (PermissionsHandler.hasLocationPermissions(requireContext())){
+        if (!PermissionsHandler.hasLocationPermissions(requireContext())){
             showDialogSettings()
             PermissionsHandler.locationPermission = false
         } else {
@@ -176,6 +176,7 @@ class SettingsFragment : Fragment() {
                     if (!PermissionsHandler.locationPermission){
                         settingsViewModel.setBackgroundRecogniseActivies(requireContext(), false)
                         switchActivityRecognition.isChecked = false
+                        showDialogSettings()
                     }
                 }
             } else {
@@ -395,7 +396,7 @@ class SettingsFragment : Fragment() {
 
     }
 
-    private fun showDialogSettings(){
+    private fun dshowDialogSettings(){
         val builder = AlertDialog.Builder(requireContext())
         builder.setMessage("You need permissions to detect locations!")
             .setTitle("Permission required")

@@ -4,8 +4,10 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -135,19 +137,25 @@ class MainActivity : AppCompatActivity() {
             Constants.PERMISSION_REQUESTS_CODE -> {
                 if (grantResults.isNotEmpty()) {
                     val activityRec = grantResults[0] == PackageManager.PERMISSION_GRANTED
-                    val postNotification = grantResults[1] == PackageManager.PERMISSION_GRANTED
 
-                    if (!activityRec){
+                    if (!activityRec) {
                         showDialogSettingsActivityRecognition()
-                    }
-                    if (activityRec && !postNotification){
-                        showDialogSettingsNotification()
+                    } else {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            val postNotification = grantResults[1] == PackageManager.PERMISSION_GRANTED
+                            if (!postNotification) {
+                                showDialogSettingsNotification()
+                            }
+                        } else {
+                            PermissionsHandler.notificationPermission = true
+
+                        }
                     }
                 }
             }
         }
-
     }
+
 
     private fun showDialogSettingsNotification(){
         val builder = AlertDialog.Builder(this)
@@ -171,10 +179,17 @@ class MainActivity : AppCompatActivity() {
     private fun handleSettingPermissionResult() {
         // Check if activity recognition permission is granted
         if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED){
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+                PermissionsHandler.notificationPermission = true
+                return
+            }
+
+            if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED ){
                 showDialogSettingsNotification()
                 PermissionsHandler.notificationPermission = false
-            } else {
+            }  else{
+                Log.d("SONO TRUE","DD")
                 PermissionsHandler.notificationPermission = true
             }
         } else {
