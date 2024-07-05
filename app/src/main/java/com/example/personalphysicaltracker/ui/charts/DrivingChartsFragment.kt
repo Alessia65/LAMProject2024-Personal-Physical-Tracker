@@ -28,9 +28,9 @@ class DrivingChartsFragment : Fragment() {
     private lateinit var selectYear: TextView
     private lateinit var textRange: TextView
     private lateinit var barChart: BarChart
+
     private var drivingActivitiesToShow: List<DrivingActivity> = emptyList()
 
-    // ViewModel initialization
     private lateinit var chartViewModel: ChartsViewModel
 
     override fun onCreateView(
@@ -40,21 +40,14 @@ class DrivingChartsFragment : Fragment() {
         _binding = FragmentChartsDrivingBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        // Initialize ViewModel
-        chartViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
+        chartViewModel = ViewModelProvider(requireActivity())[ChartsViewModel::class.java]
 
         initializeViews()
         showStarterChart()
         return root
     }
 
-    private fun showStarterChart() {
-        val startSelectedDate = Date()
-        textRange.setText(chartViewModel.printDate(startSelectedDate, "DAY"))
-        drivingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.DRIVING) as List<DrivingActivity>
-        barChart = chartViewModel.showActivities(drivingActivitiesToShow, barChart)
-        barChart.invalidate()
-    }
+
 
     // Initialize views and set click listeners
     private fun initializeViews() {
@@ -81,12 +74,20 @@ class DrivingChartsFragment : Fragment() {
         barChart = binding.root.findViewById(R.id.barChartDriving)
     }
 
+    private fun showStarterChart() {
+        val startSelectedDate = Date()
+        textRange.text = chartViewModel.printDate(startSelectedDate, "DAY")
+        drivingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.DRIVING) as List<DrivingActivity>
+        barChart = chartViewModel.showActivities(drivingActivitiesToShow, barChart)
+        barChart.invalidate()
+    }
+
     private fun showYearDialog() {
         val years = chartViewModel.getYearsToShow()
 
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Pick a year")
-            .setItems(years) { dialog, item ->
+            .setItems(years) { _, item ->
                 val selectedYear = years[item]
 
                 textRange.text = selectedYear
@@ -101,19 +102,16 @@ class DrivingChartsFragment : Fragment() {
     }
 
     private fun showMonthPickerDialog() {
-        val monthNames = arrayOf(
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        )
+        val monthNames = arrayOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Pick a month")
-            .setItems(monthNames) { dialog, item ->
+            .setItems(monthNames) { _, item ->
                 val selectedMonth = monthNames[item]
                 val selectedMonthPosition = item + 1 // Month number
 
                 textRange.text = selectedMonth
-                chartViewModel.setMonthDates(selectedMonth, selectedMonthPosition)
+                chartViewModel.setMonthDates(selectedMonthPosition)
                 drivingActivitiesToShow = chartViewModel.handleSelectedMonth(ActivityType.DRIVING) as List<DrivingActivity>
                 barChart = chartViewModel.showMonthActivities(drivingActivitiesToShow, barChart)
                 barChart.invalidate()

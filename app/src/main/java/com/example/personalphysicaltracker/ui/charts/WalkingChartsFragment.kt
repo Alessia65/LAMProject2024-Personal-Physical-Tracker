@@ -139,7 +139,7 @@ class WalkingChartsFragment : Fragment() {
                 val selectedMonthPosition = item + 1 // Month number
 
                 textRange.text = selectedMonth
-                chartViewModel.setMonthDates(selectedMonth, selectedMonthPosition)
+                chartViewModel.setMonthDates(selectedMonthPosition)
                 walkingActivitiesToShow = chartViewModel.handleSelectedMonth(ActivityType.WALKING) as List<WalkingActivity>
 
                 //Duration chart:

@@ -22,6 +22,10 @@ import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.google.android.material.datepicker.MaterialDatePicker
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -30,6 +34,7 @@ class ChartsFragment : Fragment() {
 
     private var _binding: FragmentChartsBinding? = null
     private val binding get() = _binding!!
+
     private lateinit var chartsViewModel: ChartsViewModel
 
     private lateinit var textDate: TextView
@@ -38,31 +43,31 @@ class ChartsFragment : Fragment() {
     private lateinit var buttonDriving: Button
     private lateinit var buttonStanding: Button
 
-
-    private lateinit var physicalActivities: List<PhysicalActivity>
     private var sumWalking = 0.0f
     private var sumDriving = 0.0f
     private var sumStanding = 0.0f
+
     private var sumsPieChart: Array<Float> = emptyArray()
+    private lateinit var physicalActivities: List<PhysicalActivity>
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
         _binding = FragmentChartsBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
 
         initializeViewModel()
         initializeViews(root)
+
+
         return root
     }
 
     private fun initializeViewModel(){
         chartsViewModel = ViewModelProvider(requireActivity())[ChartsViewModel::class.java]
-        chartsViewModel.initializeActivityViewModel(this.activity, this)
     }
 
     private fun initializeViews(root: View) {
@@ -94,16 +99,15 @@ class ChartsFragment : Fragment() {
         buttonStanding.setOnClickListener{
             navController.navigate(R.id.standingChartsFragment)
         }
-        }
+    }
 
 
     private fun setupPieChart() {
         pieChart.setUsePercentValues(true)
         pieChart.description.isEnabled = false
-        pieChart.isRotationEnabled = false
-        pieChart.isHighlightPerTapEnabled = false // Deprecated, use isHighlightPerTapEnabled
+        pieChart.isHighlightPerTapEnabled = false
 
-        // Listener per gestire il tap sul grafico
+        //Listener to expand the graph by tap
         pieChart.onChartGestureListener = object : OnChartGestureListener {
             override fun onChartGestureStart(me: MotionEvent?,lastPerformedGesture: ChartTouchListener.ChartGesture) {}
 
@@ -133,6 +137,7 @@ class ChartsFragment : Fragment() {
         updateActivitiesInRange(currentDate, currentDate)
         sumDurations()
         populatePieChart(daysNumber)
+
     }
 
     private fun showDateRangePicker() {
@@ -155,7 +160,8 @@ class ChartsFragment : Fragment() {
 
                 setTextDay(formattedStartDate,formattedEndDate)
 
-                updateActivitiesInRange(formattedStartDate, formattedEndDate)
+                chartsViewModel.sendActivitiesInRange(formattedStartDate, formattedEndDate)
+
                 sumDurations()
                 populatePieChart(daysNumber)
             }
@@ -170,7 +176,8 @@ class ChartsFragment : Fragment() {
         if (formattedStartDate.equals(formattedEndDate)){
             textDate.text = formattedStartDate
         } else {
-            textDate.text = formattedStartDate + " / " + formattedEndDate
+            val text = "$formattedStartDate / $formattedEndDate"
+            textDate.text = text
 
         }
     }
@@ -184,6 +191,7 @@ class ChartsFragment : Fragment() {
         sumWalking = sums[0].toFloat()
         sumDriving = sums[1].toFloat()
         sumStanding = sums[2].toFloat()
+
     }
 
     private fun populatePieChart(days: Int){
@@ -193,13 +201,13 @@ class ChartsFragment : Fragment() {
         entries.add(PieEntry((sumStanding/3600), ""))
 
 
-        var restOfTime = (24 * days) - (sumWalking/3600) - (sumDriving/3600) - (sumStanding/3600)
+        val restOfTime = (24 * days) - (sumWalking/3600) - (sumDriving/3600) - (sumStanding/3600)
         entries.add(PieEntry(restOfTime, ""))
 
         sumsPieChart = arrayOf((sumWalking/3600), (sumDriving/3600), (sumStanding/3600), restOfTime)
 
 
-        val dataSet = PieDataSet(entries, "Activities")
+        val dataSet = PieDataSet(entries, "ACTIVITIES")
         dataSet.colors = listOf(Color.GREEN, Color.BLUE, Color.RED, Color.GRAY)
         dataSet.valueTextSize = 12f
 
@@ -210,7 +218,9 @@ class ChartsFragment : Fragment() {
         pieChart.legend.isEnabled = false
         pieChart.description.isEnabled = false
 
+
         pieChart.data = data
+
         pieChart.invalidate()
 
 

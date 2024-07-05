@@ -29,7 +29,7 @@ class PieChartDialogFragment : DialogFragment() {
         _binding = DialogPieChartBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        chartsViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
+        chartsViewModel = ViewModelProvider(requireActivity())[ChartsViewModel::class.java]
 
         pieChart = binding.dialogPieChart
         setupPieChart()
@@ -40,17 +40,14 @@ class PieChartDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Imposta il titolo del dialog (opzionale)
         dialog?.setTitle("Pie Chart Dialog")
 
-        // Imposta le dimensioni del dialog (opzionale)
         val width = ViewGroup.LayoutParams.MATCH_PARENT
         val height = ViewGroup.LayoutParams.WRAP_CONTENT
         dialog?.window?.setLayout(width, height)
     }
 
     private fun setupPieChart() {
-        // Popola il PieChart con i dati desiderati
         val entries = ArrayList<PieEntry>()
         val dates = chartsViewModel.obtainDatesForDialog()
 

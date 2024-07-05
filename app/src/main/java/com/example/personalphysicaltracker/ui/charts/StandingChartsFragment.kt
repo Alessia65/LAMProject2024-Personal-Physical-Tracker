@@ -28,9 +28,9 @@ class StandingChartsFragment : Fragment() {
     private lateinit var selectYear: TextView
     private lateinit var textRange: TextView
     private lateinit var barChart: BarChart
+
     private var standingActivitiesToShow: List<StandingActivity> = emptyList()
 
-    // ViewModel initialization
     private lateinit var chartViewModel: ChartsViewModel
 
     override fun onCreateView(
@@ -40,23 +40,13 @@ class StandingChartsFragment : Fragment() {
         _binding = FragmentChartsStandingBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        // Initialize ViewModel
-        chartViewModel = ViewModelProvider(requireActivity()).get(ChartsViewModel::class.java)
+        chartViewModel = ViewModelProvider(requireActivity())[ChartsViewModel::class.java]
 
         initializeViews()
         showStarterChart()
         return root
     }
 
-    private fun showStarterChart() {
-        val startSelectedDate = Date()
-        textRange.setText(chartViewModel.printDate(startSelectedDate, "DAY"))
-        standingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.STANDING) as List<StandingActivity>
-        barChart = chartViewModel.showActivities(standingActivitiesToShow, barChart)
-        barChart.invalidate()
-    }
-
-    // Initialize views and set click listeners
     private fun initializeViews() {
         textRange = binding.root.findViewById(R.id.text_range)
         selectDay = binding.root.findViewById(R.id.select_day_standing)
@@ -81,12 +71,22 @@ class StandingChartsFragment : Fragment() {
         barChart = binding.root.findViewById(R.id.barChartStanding)
     }
 
+
+    private fun showStarterChart() {
+        val startSelectedDate = Date()
+        textRange.text = chartViewModel.printDate(startSelectedDate, "DAY")
+        standingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.STANDING) as List<StandingActivity>
+        barChart = chartViewModel.showActivities(standingActivitiesToShow, barChart)
+        barChart.invalidate()
+    }
+
+
     private fun showYearDialog() {
         val years = chartViewModel.getYearsToShow()
 
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Pick a year")
-            .setItems(years) { dialog, item ->
+            .setItems(years) { _, item ->
                 val selectedYear = years[item]
 
                 textRange.text = selectedYear
@@ -101,19 +101,16 @@ class StandingChartsFragment : Fragment() {
     }
 
     private fun showMonthPickerDialog() {
-        val monthNames = arrayOf(
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        )
+        val monthNames = arrayOf("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Pick a month")
-            .setItems(monthNames) { dialog, item ->
+            .setItems(monthNames) { _, item ->
                 val selectedMonth = monthNames[item]
                 val selectedMonthPosition = item + 1 // Month number
 
                 textRange.text = selectedMonth
-                chartViewModel.setMonthDates(selectedMonth, selectedMonthPosition)
+                chartViewModel.setMonthDates(selectedMonthPosition)
                 standingActivitiesToShow = chartViewModel.handleSelectedMonth(ActivityType.STANDING) as List<StandingActivity>
                 barChart = chartViewModel.showMonthActivities(standingActivitiesToShow, barChart)
                 barChart.invalidate()
@@ -135,7 +132,7 @@ class StandingChartsFragment : Fragment() {
         picker.addOnPositiveButtonClickListener {
             val startSelectedDate = Date(it)
 
-            textRange.setText(chartViewModel.printDate(startSelectedDate, type))
+            textRange.text = chartViewModel.printDate(startSelectedDate, type)
 
 
             standingActivitiesToShow = chartViewModel.handleSelectedDateRange(ActivityType.STANDING) as List<StandingActivity>

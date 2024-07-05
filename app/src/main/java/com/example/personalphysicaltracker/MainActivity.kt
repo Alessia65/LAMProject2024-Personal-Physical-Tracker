@@ -22,6 +22,7 @@ import com.example.personalphysicaltracker.handlers.NotificationHandler
 import com.example.personalphysicaltracker.handlers.PermissionsHandler
 import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.viewModels.ActivityHandlerViewModel
+import com.example.personalphysicaltracker.viewModels.ChartsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -98,6 +99,9 @@ class MainActivity : AppCompatActivity() {
         val accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
         val stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
         ActivityTransitionHandler.initialize(this, lifecycle, this)
+        val chartsViewModel = ViewModelProvider(this)[ChartsViewModel::class.java]
+        chartsViewModel.initializeActivityViewModel(this, this) //to obtain activities in chart
+
     }
 
 
