@@ -32,7 +32,7 @@
 
 
         fun showDailyReminderNotification(context: Context, title: String, message: String) {
-            Log.d("SHOW DAILY NOTIFICATION","FROM NOTIFICATION SERVICE")
+            Log.d("DAILY NOTIFICATION SERVICE","SHOW DAILY NOTIFICATION")
 
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -64,7 +64,7 @@
         }
 
         fun showStepsReminderNotification(context: Context, title: String, message: String) {
-            Log.d("SHOW STEP NOTIFICATION","FROM NOTIFICATION SERVICE")
+            Log.d("NOTIFICATION SERVICE","SHOW STEP NOTIFICATION")
 
             val intent = Intent(context, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
