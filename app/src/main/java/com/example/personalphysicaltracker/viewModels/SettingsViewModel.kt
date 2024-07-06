@@ -3,6 +3,7 @@ package com.example.personalphysicaltracker.viewModels
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Location
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
@@ -197,5 +198,59 @@ class SettingsViewModel : ViewModel() {
         val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
         val key = sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
         return !key.isNullOrEmpty()
+    }
+
+
+    fun obtainGeofenceKey(context: Context): String?{
+        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        return sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
+    }
+
+    fun obtainGeofenceLatitude(context: Context): Double{
+        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        return sharedPreferences.getFloat(Constants.GEOFENCE_LATITUDE, 0.0f).toDouble()
+    }
+
+    fun obtainGeofenceLongitude(context: Context): Double{
+        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        return sharedPreferences.getFloat(Constants.GEOFENCE_LONGITUDE, 0.0f).toDouble()
+    }
+
+    fun editGeofencePreferences(key: String, location: Location, context: Context){
+        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString(Constants.GEOFENCE_KEY, key)
+            putFloat(Constants.GEOFENCE_LATITUDE, location.latitude.toFloat())
+            putFloat(Constants.GEOFENCE_LONGITUDE, location.longitude.toFloat())
+            apply()
+        }
+    }
+
+    fun removeGeofencePreferences(context: Context){
+        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        sharedPreferences.edit().clear().apply()
+        setBackgroundLocationDetection(context, false)
+        stopLocationUpdates(context)
+        deregisterGeofence()
+        removeGeofence()
+    }
+
+
+
+    //Geofence
+    fun initializeGeofenceHandler(context: Context){
+        GeofenceHandler.initialize(context)
+    }
+
+    fun removeGeofence(value: String){
+        GeofenceHandler.removeGeofence(value)
+    }
+
+    fun addGeofence(key: String, location: Location){
+        GeofenceHandler.addGeofence(key, location)
+    }
+
+    fun registerGeofence(){
+        GeofenceHandler.registerGeofence()
     }
 }
