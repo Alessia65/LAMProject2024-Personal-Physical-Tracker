@@ -50,19 +50,18 @@ class NotificationServiceLocation : Service() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            var channeLocationDetection = notificationManager.getNotificationChannel(channelId)
-            if (channeLocationDetection == null) {
-                channeLocationDetection = NotificationChannel(
+            var channelLocationDetection = notificationManager.getNotificationChannel(channelId)
+            if (channelLocationDetection == null) {
+                channelLocationDetection = NotificationChannel(
                         channelId,
                         nameLocationDetectionChannel,
                         importanceLocationDetectionChannel
                     ).apply {
                         description = descriptionLocationDetectionChannel
                     }
-                notificationManager.createNotificationChannel(channeLocationDetection)
+                notificationManager.createNotificationChannel(channelLocationDetection)
 
             } else {
-                // Il canale esiste già, non fare nulla
                 Log.d("NotificationChannel", "Channel $channelId already exists")
             }
             } else {
@@ -95,7 +94,7 @@ class NotificationServiceLocation : Service() {
             .build()
     }
 
-    fun createPermanentNotificationLocationDetection(context: Context) {
+    private fun createPermanentNotificationLocationDetection(context: Context) {
         this.context = context
 
         val notification = createNotification(context)
@@ -110,7 +109,6 @@ class NotificationServiceLocation : Service() {
         }
 
         startForeground(Constants.REQUEST_CODE_LOCATION_DETECTION, notification)
-        Log.d("LOC", "created")
 
     }
 
@@ -151,16 +149,13 @@ class NotificationServiceLocation : Service() {
         }
     }
 
-    /* TODO: quando viene ciamato?
-
-     */
     fun stopPermanentNotificationLocationDetection() {
         if (context != null) {
             deleteChannelLocationDetection()
             val notificationManager =
                 context!!.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
-            Log.d("CHANNEL LOC", "CHANNEL DELETED")
+            Log.d("NOTIFICATION SERVICE LOCATION", "CHANNEL DELETED")
 
         }
     }

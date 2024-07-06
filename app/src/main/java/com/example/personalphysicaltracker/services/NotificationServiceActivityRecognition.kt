@@ -4,7 +4,6 @@ import android.Manifest
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -44,13 +43,6 @@ class NotificationServiceActivityRecognition : Service() {
 
     private fun createNotification(context: Context): Notification {
         this.context = context
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            context,
-            Constants.REQUEST_CODE_ACTIVITY_RECOGNITION,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
 
         return NotificationCompat.Builder(context, Constants.CHANNEL_ACTIVITY_RECOGNITION_ID)
             .setContentTitle("Activity Recognition Service On")
@@ -62,7 +54,7 @@ class NotificationServiceActivityRecognition : Service() {
             .build()
     }
 
-    fun createPermanentNotificationActivityRecognition(context: Context) {
+    private fun createPermanentNotificationActivityRecognition(context: Context) {
         this.context = context
 
         val notification = createNotification(context)
@@ -85,12 +77,6 @@ class NotificationServiceActivityRecognition : Service() {
 
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            Constants.REQUEST_CODE_ACTIVITY_RECOGNITION,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
 
         val notification = NotificationCompat.Builder(context,
             Constants.CHANNEL_ACTIVITY_RECOGNITION_ID
@@ -113,11 +99,11 @@ class NotificationServiceActivityRecognition : Service() {
                 Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Permission not Granted")
                 return
             }
-            notify(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, notification) // Using a different ID for activity change notifications
+            notify(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION, notification)
         }
     }
 
-    fun createNotificationChannelForActivityRecognition() {
+    private fun createNotificationChannelForActivityRecognition() {
 
         val channelId = Constants.CHANNEL_ACTIVITY_RECOGNITION_ID
         val name = Constants.CHANNEL_ACTIVITY_RECOGNITION_TITLE

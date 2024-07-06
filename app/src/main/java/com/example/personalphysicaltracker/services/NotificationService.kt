@@ -1,7 +1,6 @@
     package com.example.personalphysicaltracker.services
 
     import android.Manifest
-    import android.app.NotificationManager
     import android.app.PendingIntent
     import android.app.Service
     import android.content.Context
@@ -31,10 +30,6 @@
             return binder
         }
 
-        override fun onCreate() {
-            super.onCreate()
-        }
-
 
         fun showDailyReminderNotification(context: Context, title: String, message: String) {
             Log.d("SHOW DAILY NOTIFICATION","FROM NOTIFICATION SERVICE")
@@ -53,7 +48,7 @@
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true) // Chiude la notifica quando viene cliccata
+                .setAutoCancel(true)
                 .build()
 
             with(NotificationManagerCompat.from(context)) {
@@ -85,7 +80,7 @@
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setContentIntent(pendingIntent)
-                .setAutoCancel(true) // Chiude la notifica quando viene cliccata
+                .setAutoCancel(true)
                 .build()
 
             with(NotificationManagerCompat.from(context)) {
