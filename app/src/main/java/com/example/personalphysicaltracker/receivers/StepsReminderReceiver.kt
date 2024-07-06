@@ -10,10 +10,8 @@ import com.example.personalphysicaltracker.services.NotificationService
 class StepsReminderReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        // Verifica che il contesto non sia nullo prima di procedere
         if (context == null) return
 
-        // Utilizza applicationContext per garantire un contesto valido
         val notificationService = NotificationService()
         val title = "Come on!"
         val message = "You haven't completed your daily goal!"
@@ -22,11 +20,11 @@ class StepsReminderReceiver : BroadcastReceiver() {
         val stepsNumber = sharedPreferences.getInt(Constants.SHARED_PREFERENCES_STEPS_REMINDER_NUMBER, 0)
         val dailySteps = sharedPreferences.getLong(Constants.SHARED_PREFERENCES_STEPS_DAILY, 0)
         if (dailySteps < stepsNumber) {
-            Log.d("STEP REMINDER RECEIVER", "SENDING, dailysteps: $dailySteps, stepsNumber: $stepsNumber")
+            Log.d("STEP REMINDER RECEIVER", "SENDING, daily steps: $dailySteps, stepsNumber: $stepsNumber")
             notificationService.showStepsReminderNotification(context.applicationContext, title, message)
 
         } else {
-            Log.d("STEP REMINDER RECEIVER", "NOT SENDING, dailysteps: $dailySteps, stepsNumber: $stepsNumber")
+            Log.d("STEP REMINDER RECEIVER", "NOT SENDING, daily steps: $dailySteps, stepsNumber: $stepsNumber")
 
         }
 

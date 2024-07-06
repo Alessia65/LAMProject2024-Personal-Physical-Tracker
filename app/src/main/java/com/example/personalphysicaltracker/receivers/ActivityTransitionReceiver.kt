@@ -17,9 +17,8 @@ import com.example.personalphysicaltracker.utils.Constants
 
 class ActivityTransitionReceiver(private val context: Context, private val intentAction: String, private val systemEvent: (userActivity: String) -> Unit) : DefaultLifecycleObserver {
 
-    private lateinit var notificationService : NotificationServiceActivityRecognition // Notification service instance
+    private lateinit var notificationService : NotificationServiceActivityRecognition
 
-    // Inner class to handle broadcast events
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             setIsOn(true)
@@ -34,7 +33,7 @@ class ActivityTransitionReceiver(private val context: Context, private val inten
             }
 
             // Building a string with activity transition information
-            val printInformations = buildString {
+            val printInfo = buildString {
                 for (event in result.transitionEvents) {
                     val activityType = (ActivityTransitionHandler.getActivityType(event.activityType))
                     val transitionType = ActivityTransitionHandler.getTransitionType(event.transitionType)
@@ -44,14 +43,12 @@ class ActivityTransitionReceiver(private val context: Context, private val inten
                 }
             }
 
-            val message = printInformations
-
             // Showing a notification with activity transition information
-            notificationService.showActivityChangesNotification(context, title, message)
-            Log.d("ACTIVITY TRANSITION RECEIVER", "onReceive: $printInformations")
+            notificationService.showActivityChangesNotification(context, title, printInfo)
+            Log.d("ACTIVITY TRANSITION RECEIVER", "onReceive: $printInfo")
 
             // Triggering the system event callback with the activity information
-            systemEvent(printInformations)
+            systemEvent(printInfo)
         }
     }
 

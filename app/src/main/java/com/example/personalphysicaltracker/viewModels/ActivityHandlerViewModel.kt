@@ -96,7 +96,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
                 activityDBViewModel.getTotalDurationByActivityTypeInDay(today, activityType.toString())
             }
         } catch (e: Exception) {
-            Log.e("ACTIVITY HANDLER VIEW MODEL", "Exception while fetching duration")
+            Log.e("ACTIVITY HANDLER VIEW MODEL", "Exception while fetching duration: an activity type may not have valid values")
         }
 
         return duration
