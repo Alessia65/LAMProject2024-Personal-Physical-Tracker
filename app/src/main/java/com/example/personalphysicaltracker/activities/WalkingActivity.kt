@@ -33,7 +33,7 @@ class WalkingActivity : PhysicalActivity() {
             activityDBViewModel.insertWalkingActivity(activityEntity, steps)
         }
 
-        Log.d("DATABASE", "saved walking activity: $start, $end, $duration, $steps")
+        Log.d("DATABASE", "saved walking activity with start: $start, end: $end, duration: $duration, steps: $steps")
     }
 
 

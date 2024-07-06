@@ -16,8 +16,8 @@ open class PhysicalActivity : PhysicalActivityInterface {
     protected lateinit var activityDBViewModel: ActivityDBViewModel
     protected var activityType: ActivityType = ActivityType.UNKNOWN
 
-    override fun setActivityViewModelVar(activityViewModel: ActivityDBViewModel){
-        this.activityDBViewModel = activityViewModel
+    override fun setActivityViewModelVar(activityDBViewModel: ActivityDBViewModel){
+        this.activityDBViewModel = activityDBViewModel
     }
     override fun getActivityTypeName(): ActivityType {
         return activityType
@@ -36,14 +36,10 @@ open class PhysicalActivity : PhysicalActivityInterface {
     }
 
     override fun calculateDuration(): Double{
-        Log.d("START TIME", start)
-        Log.d("END TIME", end)
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val startTime = dateFormat.parse(start)?.time ?: 0L
         val endTime = dateFormat.parse(end)?.time ?: 0L
         duration =  (endTime - startTime).toDouble() / 1000
-
-        Log.d("DURATION", duration.toString())
         return duration
     }
 
@@ -57,7 +53,7 @@ open class PhysicalActivity : PhysicalActivityInterface {
         )
         activityDBViewModel.insertActivityEntity(activityEntity)
 
-        Log.d("DATABASE", "saved UNKNOWN activity: $start, $end, $duration")
+        Log.d("DATABASE", "saved UNKNOWN activity with start: $start, end: $end, duration: $duration")
 
     }
 

@@ -29,7 +29,6 @@ class LocationInfo {
         start = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
         date = start.substring(0,10)
         this.activityDBViewModel = activityViewModel
-        Log.d("LocationHandler", "Entrance time recorded: $start at $date")
 
     }
 
@@ -37,7 +36,6 @@ class LocationInfo {
 
     fun setFinishTime(){
         end = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
-        Log.d("LocationHandler", "Exit time recorded: $end")
         calculateDuration()
         CoroutineScope(Dispatchers.IO).launch {
             saveInDb()
@@ -59,7 +57,6 @@ class LocationInfo {
         val startTime = dateFormat.parse(start)?.time ?: 0L
         val endTime = dateFormat.parse(end)?.time ?: 0L
         this.duration =  (endTime - startTime).toDouble() / 1000
-        Log.d("LocationHandler", "Duration recorded: $duration")
 
     }
 
@@ -73,7 +70,11 @@ class LocationInfo {
             duration = duration
         )
          activityDBViewModel.insertLocationInfo(locationEntity)
-    }
+          Log.d("LOCATION INFO", "Location saved in db with date: ${date}, start: ${start}, end: ${end}, duration: $duration")
+
+      }
+
+
 
 
 

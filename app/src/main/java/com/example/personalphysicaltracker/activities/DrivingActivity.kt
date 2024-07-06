@@ -19,7 +19,7 @@ class DrivingActivity: PhysicalActivity() {
         )
         activityDBViewModel.insertActivityEntity(activityEntity)
 
-        Log.d("DATABASE", "saved driving activity: $start, $end, $duration")
+        Log.d("DRIVING ACTIVITY", "saved driving activity with start: $start, end: $end, duration: $duration")
 
     }
 

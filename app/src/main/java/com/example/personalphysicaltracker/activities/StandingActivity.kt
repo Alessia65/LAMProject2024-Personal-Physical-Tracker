@@ -20,7 +20,7 @@ class StandingActivity : PhysicalActivity() {
         )
         activityDBViewModel.insertActivityEntity(activityEntity)
 
-        Log.d("DATABASE", "saved standing activity: $start, $end, $duration")
+        Log.d("DATABASE", "saved standing activity with start: $start, end: $end, duration: $duration")
 
     }
 
