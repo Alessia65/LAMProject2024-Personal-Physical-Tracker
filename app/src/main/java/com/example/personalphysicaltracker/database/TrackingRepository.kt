@@ -34,18 +34,18 @@ class TrackingRepository(app: Application) {
     suspend fun insertWalkingActivity(activityEntity: ActivityEntity, steps: Long) {
         // Insert the activity entity
         val activityId = trackingDao.insert(activityEntity)
-        Log.d("TrackingRepository", "Inserted activity with ID: $activityId")
+        Log.d("TRACKING REPOSITORY", "Inserted activity with ID: $activityId")
 
         // Ensure the activity entity is inserted before retrieving the ID
         if (activityId <= 0) {
-            Log.e("TrackingRepository", "Failed to insert activity entity")
-            throw Exception("Failed to insert activity entity")
+            Log.e("TRACKING REPOSITORY", "Failed to insert activity entity")
+            return
         }
 
         // Insert the walking activity entity
         val walkingActivity = WalkingActivityEntity(walkingId = activityId.toInt(), steps = steps)
         trackingDao.insertWalkingActivityEntity(walkingActivity)
-        Log.d("TrackingRepository", "Successfully inserted walking activity with ID: $activityId")
+        Log.d("TRACKING REPOSITORY", "Successfully inserted walking activity with ID: $activityId")
     }
 
     suspend fun getTotalStepsFromToday(date:String): Long{
