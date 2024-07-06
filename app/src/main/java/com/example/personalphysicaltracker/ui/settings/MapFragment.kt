@@ -82,10 +82,10 @@ class MapFragment : Fragment() {
         val alertDialogBuilder = AlertDialog.Builder(requireContext())
         alertDialogBuilder.setTitle("Modify Geofence")
         alertDialogBuilder.setMessage("Do you want to modify the existing geofence location?")
-        alertDialogBuilder.setPositiveButton("Yes") { dialog, which ->
+        alertDialogBuilder.setPositiveButton("Yes") { _, _ ->
             setNewGeofence(point)
         }
-        alertDialogBuilder.setNegativeButton("No") { dialog, which ->
+        alertDialogBuilder.setNegativeButton("No") { dialog, _ ->
             dialog.dismiss()
         }
         alertDialogBuilder.setCancelable(false)

@@ -235,8 +235,6 @@ class SettingsViewModel : ViewModel() {
         removeGeofence()
     }
 
-
-
     //Geofence
     fun initializeGeofenceHandler(context: Context){
         GeofenceHandler.initialize(context)
