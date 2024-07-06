@@ -1,6 +1,7 @@
 package com.example.personalphysicaltracker
 
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -28,10 +29,7 @@ import com.example.personalphysicaltracker.viewModels.ChartsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
 
@@ -61,8 +59,27 @@ class MainActivity : AppCompatActivity() {
         // Create notification channel
         createNotificationChannels()
 
+        checkActivityBackgroundOff()
+    }
 
 
+    // Forced closure
+    private fun checkActivityBackgroundOff() {
+        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
+        val on = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+        if (on){
+            val editor = sharedPreferences.edit()
+            editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
+            editor.apply()
+            val builder = AlertDialog.Builder(this)
+            builder.setMessage("Sudden closure with activity recognition active!")
+                .setTitle("Attention")
+                .setCancelable(false)
+                .setPositiveButton("Ok") { dialog, _ ->
+                    dialog.dismiss()
+                }
+            builder.show()
+        }
     }
 
     private fun checkAndRequestPermissions() {
@@ -189,7 +206,6 @@ class MainActivity : AppCompatActivity() {
                 showDialogSettingsNotification()
                 PermissionsHandler.notificationPermission = false
             }  else{
-                Log.d("SONO TRUE","DD")
                 PermissionsHandler.notificationPermission = true
             }
         } else {
@@ -200,7 +216,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    //TODO: non funziona bene
     override fun onDestroy() {
         CoroutineScope(Dispatchers.Main).launch {
             activityHandlerViewModel.handleDestroy(this@MainActivity)
