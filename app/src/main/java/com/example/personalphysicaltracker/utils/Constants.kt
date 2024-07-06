@@ -1,5 +1,8 @@
 package com.example.personalphysicaltracker.utils
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+
 object Constants {
 
 
@@ -33,7 +36,6 @@ object Constants {
     const val SHARED_PREFERENCES_DAILY_REMINDER_HOUR = "daily_reminder_hour"
     const val SHARED_PREFERENCES_DAILY_REMINDER_MINUTE = "daily_reminder_minute"
     const val SHARED_PREFERENCES_DAILY_REMINDER_FORMATTED_TIME = "daily_reminder_formatted_time"
-    const val SHARED_PREFERENCES_DAILY_REMINDER_CREATED = "daily_reminder_created"
 
     const val SHARED_PREFERENCES_STEPS_REMINDER = "settings minimum steps reminder notification"
     const val SHARED_PREFERENCES_STEPS_REMINDER_ENABLED = "steps_reminder_enabled"
@@ -48,9 +50,12 @@ object Constants {
     const val SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION = "background location detection"
     const val SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED = "background_location_detection_enabled"
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     const val PERMISSION_ACTIVITY_RECOGNITION = android.Manifest.permission.ACTIVITY_RECOGNITION
     const val PERMISSION_ACTIVITY_RECOGNITION_BEFORE = "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     const val PERMISSION_POST_NOTIFICATIONS = android.Manifest.permission.POST_NOTIFICATIONS
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     const val FOREGROUND_SERVICE_LOCATION = android.Manifest.permission.FOREGROUND_SERVICE_LOCATION
 
     const val BACKGROUND_OPERATION_ACTIVITY_RECOGNITION = "ACTIVITY_RECOGNITION_ON"
@@ -63,6 +68,7 @@ object Constants {
     const val BACKGROUND_OPERATION_LOCATION_DETECTION_CODE = 1001
     const val ACCESS_COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION
     const val ACCESS_FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION
+    @RequiresApi(Build.VERSION_CODES.Q)
     const val ACCESS_BACKGROUND_LOCATION = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
     const val ACCESS_NETWORK_STATE = android.Manifest.permission.ACCESS_NETWORK_STATE
     const val INTERNET = android.Manifest.permission.INTERNET
@@ -76,11 +82,4 @@ object Constants {
     const val GEOFENCE_KEY = "GEOFENCE_KEY"
     const val GEOFENCE_IS_INSIDE = "GEOFENCE_IS_INSIDE"
     const val GEOFENCE_ENTRANCE = "GEOFENCE_ENTRANCE"
-
-
-    /*
-    TODO:
-    1. ogni volta che apro l'app e le notifiche sono attivate arriva la notifica
-    2. registrazione dell'activity broadcast recever nel main
-     */
 }
