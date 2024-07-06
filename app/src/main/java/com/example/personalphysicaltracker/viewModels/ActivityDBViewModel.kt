@@ -71,8 +71,7 @@ class ActivityDBViewModel(private val repository: TrackingRepository) : ViewMode
 
         //Calculate steps:
         val id = activityEntity.id
-        var steps = 0L
-        steps = getWalkingActivityById(id).steps
+        val steps = getWalkingActivityById(id).steps
         activity.setActivitySteps(steps)
         return activity
     }
@@ -114,7 +113,7 @@ class ActivityDBViewModel(private val repository: TrackingRepository) : ViewMode
         return repository.insertLocationInfo(locationEntity)
     }
 
-    suspend fun getTotalPresenceInLocation(latitude: Double, longitude: Double, startDate:String, endDate:String): Double? {
+    suspend fun getTotalPresenceInLocation(latitude: Double, longitude: Double, startDate:String, endDate:String): Double {
         return repository.getTotalPresenceInLocation(latitude, longitude, startDate, endDate)
     }
 

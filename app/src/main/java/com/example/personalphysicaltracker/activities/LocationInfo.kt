@@ -21,7 +21,7 @@ class LocationInfo {
 
 
     var duration: Double = 0.0
-    protected lateinit var activityDBViewModel: ActivityDBViewModel
+    private lateinit var activityDBViewModel: ActivityDBViewModel
 
     fun initialize(lat: Double, long: Double, activityViewModel: ActivityDBViewModel){
         latitude = lat

@@ -24,14 +24,14 @@ class HistoryViewModel : ViewModel() {
 
     // List to hold activities fetched from the database
     private var activitiesOnDb: List<PhysicalActivity> = emptyList()
-    private var locationInfo: List<LocationInfo> = emptyList()
 
     // List to hold activities to be sent or displayed in history fragment
     private var activitiesToSend: List<PhysicalActivity> = emptyList()
+
+    private var locationInfo: List<LocationInfo> = emptyList()
     private val selectedFilters: MutableList<String> = mutableListOf()
 
 
-    // Initializes the ActivityViewModel using the provided FragmentActivity. This allows sharing the ViewModel between fragments.
     fun initializeActivityViewModel(activity: FragmentActivity?) {
         // Ensure activity is not null
         val viewModelStoreOwner = activity ?: throw IllegalArgumentException("Activity must not be null")
@@ -40,15 +40,9 @@ class HistoryViewModel : ViewModel() {
         val application = activity.application
         val repository = TrackingRepository(application)
         val viewModelFactory = ActivityViewModelFactory(repository)
-
-        // Initialize the ActivityViewModel
         activityDBViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityDBViewModel::class.java]
-
-        // Load daily data from the database when ViewModel is initialized
         updateFromDatabase()
     }
-
-    // Fetches the latest data from the database using the ActivityViewModel. Runs in the IO dispatcher to perform database operations.
 
     private fun updateFromDatabase(): List<PhysicalActivity> {
         viewModelScope.launch(Dispatchers.IO) {
@@ -57,14 +51,11 @@ class HistoryViewModel : ViewModel() {
         return activitiesOnDb
     }
 
-    // Retrieves the list of dates from the ViewModel. These dates represent activities fetched from the database.
-
     private fun obtainDates(): List<PhysicalActivity> {
         return activitiesOnDb
     }
 
 
-    // Retrieves the list of activities saved for transaction (to be sent or displayed in another fragment).
     fun obtainActivitiesForTransaction(): List<PhysicalActivity> {
         updateFromDatabase()
         return activitiesToSend
@@ -122,9 +113,7 @@ class HistoryViewModel : ViewModel() {
 
         if (enabledLocation){
             viewModelScope.launch(Dispatchers.IO) {
-                //delay(3000)
-                //Todo: check
-                ShareHandler.exportActivitiesToCSV(context, activities, true, locationInfo)
+               ShareHandler.exportActivitiesToCSV(context, activities, true, locationInfo)
 
             }
         } else {

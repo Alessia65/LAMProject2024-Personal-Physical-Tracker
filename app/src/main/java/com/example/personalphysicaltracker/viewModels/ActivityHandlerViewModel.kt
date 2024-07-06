@@ -38,7 +38,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     private var started = false
 
     private var date: String = ""
-    private var totalSteps: Long = 0 //fatti ora
+    private var totalStepsDone: Long = 0
 
     private val _dailyTime = MutableLiveData<List<Double?>>(listOf(null, null, null, null))
     val dailyTime: LiveData<List<Double?>>
@@ -48,12 +48,12 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     val dailySteps: LiveData<Long>
         get() = _dailySteps
 
-    private val _actualSteps = MutableLiveData<Long>() //actual steps + passi totali
+    private val _actualSteps = MutableLiveData<Long>()
     val actualSteps: LiveData<Long>
         get() = _actualSteps
 
-    public var stepCounterOn = false
-    public var stepCounterWithAcc = false
+    private var stepCounterOn = false
+    private var stepCounterWithAcc = false
 
     suspend fun initialize(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner, context: Context) {
         if (!this::activityDBViewModel.isInitialized) {
@@ -65,7 +65,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
 
         accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(context)
         stepCounterSensorHandler = StepCounterSensorHandler.getInstance(context)
-        // Load daily data from the database at startup
+
         updateDailyTimeFromDatabase()
 
     }
@@ -80,11 +80,11 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
 
         // Update the LiveData with the daily data
         _dailyTime.postValue(listOf(walkingDuration, drivingDuration, standingDuration, unknownDuration))
-        Log.d("dailyTime", "walking: $walkingDuration, driving: $drivingDuration, standing: $standingDuration, unknown: $unknownDuration")
+        Log.d("ACTIVITY HANDLER VIEW MODEL", "Daily values: walking: $walkingDuration, driving: $drivingDuration, standing: $standingDuration, unknown: $unknownDuration")
 
-        val totalSteps = getTotalStepsFromToday()
-        _dailySteps.postValue(totalSteps)
-        Log.d("dailySteps", "steps: $totalSteps")
+        val dailyTotalSteps = getTotalStepsFromToday()
+        _dailySteps.postValue(dailyTotalSteps)
+        Log.d("ACTIVITY HANDLER VIEW MODEL", "daily steps: $dailyTotalSteps")
     }
 
     private suspend fun getTotalDurationByActivityTypeToday(activityType: ActivityType): Double {
@@ -92,32 +92,28 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         var duration = 0.0
 
         try {
-            // Execute the query in the IO thread to get the duration
             duration = withContext(Dispatchers.IO) {
                 activityDBViewModel.getTotalDurationByActivityTypeInDay(today, activityType.toString())
             }
         } catch (e: Exception) {
-            // Exception handling, such as logging or other types of handling
-            Log.e("HomeViewModel", "Exception while fetching duration")
+            Log.e("ACTIVITY HANDLER VIEW MODEL", "Exception while fetching duration")
         }
 
         return duration
     }
 
     private suspend fun getTotalStepsFromToday(): Long{
-        var totalSteps = 0L
+        var dailyTotalSteps = 0L
         val today = getCurrentDay()
         try {
-            // Execute the query in the IO thread to get the duration
-            totalSteps = withContext(Dispatchers.IO) {
+            dailyTotalSteps = withContext(Dispatchers.IO) {
                 activityDBViewModel.getTotalStepsFromToday(today)
             }
         } catch (e: Exception) {
-            // Exception handling, such as logging or other types of handling
-            Log.e("HomeViewModel", "Exception while fetching duration")
+            Log.e("ACTIVITY HANDLER VIEW MODEL", "Exception while getting daily total steps value")
         }
 
-        return totalSteps
+        return dailyTotalSteps
     }
 
     private fun getUnknownDuration(walkingDuration: Double, drivingDuration: Double, standingDuration: Double): Double {
@@ -150,7 +146,6 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
             saveUnknownActivity(lastActivity.timeFinish, currentTime)
         }
 
-        //Create Activity
         selectedActivity = activity
         selectedActivity.setActivityViewModelVar(activityDBViewModel)
 
@@ -163,10 +158,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     private fun startSensors() {
         val activityType = selectedActivity.getActivityTypeName()
         if (activityType == ActivityType.WALKING){
-            Log.d("ACTIVITY HANDLER", "RICHIESTA START STEP COUNTER")
             getStepCounterSensorHandler()
-        } else {
-            Log.d("ACTIVITY HANDLER", "NON SONO UNA WALKING ACTIVITY")
         }
         startAccelerometerSensor(activityType)
     }
@@ -187,7 +179,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
 
             lastEndTimeDate != null && currentTimeDate != null && lastEndTimeDate < currentTimeDate
         } catch (e: ParseException) {
-            e.printStackTrace()
+            Log.d("ACTIVITY HANDLER VIEW MODEL", "Parse Exception occurred")
             false
         }
     }
@@ -203,27 +195,12 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         unknownActivity.end = currentTime
         unknownActivity.duration = duration
         unknownActivity.saveInDb()
-
-        /*
-        val unknownActivityEntity = ActivityEntity(
-            activityType = "UNKNOWN",
-            date = date,
-            timeStart = lastEndTime,
-            timeFinish = currentTime,
-            duration = duration
-        )
-
-        activityDBViewModel.insertActivityEntity(unknownActivity)
-
-         */
-
-
     }
 
-    // Calculate the duration between two timestamps in the specified format
     private fun calculateDuration(start: String, end: String): Double {
         if (start.isEmpty() || end.isEmpty()) {
-            throw IllegalArgumentException("dates can't be empty")
+            Log.e("ACTIVITY HANDLER VIEW MODEL","dates can't be empty")
+            return 0.0
         }
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val startTime = dateFormat.parse(start)?.time ?: 0L
@@ -239,9 +216,8 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
 
         val currentTime = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val startTime = dateFormat.parse(selectedActivity.start) ?: return // Converte startTime in Date
+        val startTime = dateFormat.parse(selectedActivity.start) ?: return
 
-        // Fine del giorno in cui è iniziata l'attività
         val endOfDay = getEndOfToday(startTime)
 
         if (startTime.before(getStartOfToday(currentTime))) {
@@ -262,14 +238,13 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
             val startOfDayString = dateFormat.format(startOfNextDay)
             selectedActivity.setStartTimeWIthString(startOfDayString)
 
-
         }
 
         selectedActivity.setFinishTime()
         selectedActivity.calculateDuration()
 
         if (isWalkingActivity){
-            (selectedActivity as WalkingActivity).setActivitySteps(totalSteps)
+            (selectedActivity as WalkingActivity).setActivitySteps(totalStepsDone)
         }
 
         val typeForLog = selectedActivity.getActivityTypeName()
@@ -280,7 +255,6 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         updateDailyValues()
     }
 
-    // Funzione di utilità per ottenere l'inizio della giornata corrente
     private fun getStartOfToday(date: Date): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -291,7 +265,6 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         return calendar.time
     }
 
-    // Funzione di utilità per ottenere la fine della giornata corrente
     private fun getEndOfToday(date: Date): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -302,7 +275,6 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         return calendar.time
     }
 
-    // Funzione di utilità per creare una nuova attività dello stesso tipo
     private fun createNewActivityOfSameType(activity: PhysicalActivity): PhysicalActivity {
         return when (activity) {
             is WalkingActivity -> WalkingActivity()
@@ -341,7 +313,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     }
 
     private fun setSteps(totalSteps: Long) {
-        this.totalSteps = totalSteps
+        this.totalStepsDone = totalSteps
         _actualSteps.postValue(totalSteps)
     }
 
@@ -349,7 +321,6 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         accelerometerSensorHandler.registerAccelerometerListener(this)
         accelerometerSensorHandler.startAccelerometer(activityType)
     }
-
 
 
     fun stepCounterActive(): Boolean{
@@ -360,7 +331,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         return accelerometerSensorHandler.isActive()
     }
 
-    fun startStepCounterSensor(){
+    private fun startStepCounterSensor(){
         stepCounterSensorHandler.registerStepCounterListener(this)
     }
 
@@ -376,19 +347,15 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     private fun stopAccelerometerSensor(){
         accelerometerSensorHandler.unregisterListener()
         accelerometerSensorHandler.stopAccelerometer()
-        //accelerometerSensorHandler.unregisterAllListeners() //TODO: ATTENZIONE
 
     }
 
-    fun stopStepCounterSensor(){
-        Log.d("STEP COUNTER ON", stepCounterOn.toString())
-        //if (stepCounterOn) {
-        _dailySteps.postValue((_dailySteps.value ?: 0) + totalSteps)
+    private fun stopStepCounterSensor(){
+        _dailySteps.postValue((_dailySteps.value ?: 0) + totalStepsDone)
         stepCounterSensorHandler.unregisterListener()
         stepCounterSensorHandler.stopStepCounter()
         stepCounterOn = false
-        Log.d("TOTAL STEPS: " ,  (_dailySteps.value).toString())
-        //}
+        Log.d("ACTIVITY HANDLER VIEW MODEL" ,"New daily Steps:  ${(_dailySteps.value)}")
     }
 
     fun setStepCounterOnValue(value: Boolean){
@@ -403,12 +370,6 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     override fun onAccelerometerDataReceived(data: String) {
         if (stepCounterWithAcc) {
             registerStep(data)
-        }
-        dailyTime.value?.let { dailyTimeList ->
-            val currentProgressWalking = dailyTimeList[0] ?: 0.0
-            val currentProgressDriving = dailyTimeList[1] ?: 0.0
-            val currentProgressStanding = dailyTimeList[2] ?: 0.0
-
         }
     }
 
@@ -428,8 +389,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
 
         if (!backgroundRecognitionEnabled && started){
             stopSelectedActivity(isWalkingActivity)
-            Log.d("ACTIVITY HANDLER", "STOPPED, started: $started")
-
+            Log.d("ACTIVITY HANDLER VIEW MODEL", "Activity forced to stop, started value: $started")
         }
     }
 
