@@ -23,10 +23,10 @@ import kotlinx.coroutines.tasks.await
 object GeofenceHandler {
 
 
-    lateinit  var geofencingClient: GeofencingClient
-    lateinit var context: Context
-    var geofenceList = mutableMapOf<String, Geofence>()
-    lateinit var pendingIntent: PendingIntent
+    private lateinit  var geofencingClient: GeofencingClient
+    private lateinit var context: Context
+    private var geofenceList = mutableMapOf<String, Geofence>()
+    private lateinit var pendingIntent: PendingIntent
 
 
     fun initialize(context: Context){
@@ -42,19 +42,17 @@ object GeofenceHandler {
     }
 
     fun addGeofence(key: String, location: Location){
-
         geofenceList[key] = Geofence.Builder()
             .setRequestId(key)
             .setCircularRegion(location.latitude, location.longitude, Constants.GEOFENCE_RADIUS_IN_METERS)
             .setExpirationDuration(Constants.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
             .setTransitionTypes(GEOFENCE_TRANSITION_ENTER or GEOFENCE_TRANSITION_EXIT)
             .build()
-
     }
 
     private fun getGeofencingRequest(): GeofencingRequest {
         return GeofencingRequest.Builder().apply {
-            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER) //Se per un periodo di tempo: INITIAL_TRIGGER_DWELL
+            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             addGeofences(geofenceList.values.toList())
         }.build()
     }
@@ -85,18 +83,6 @@ object GeofenceHandler {
         geofenceList.clear()
     }
 
-    fun removeGeofences(){
-        geofencingClient?.removeGeofences(pendingIntent)?.run {
-            addOnSuccessListener {
-                // Geofences removed
-                // ...
-            }
-            addOnFailureListener {
-                // Failed to remove geofences
-                // ...
-            }
-        }
-    }
 
 
 }

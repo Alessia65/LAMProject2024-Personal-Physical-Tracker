@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import androidx.core.content.ContextCompat
 import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
 import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
 import com.example.personalphysicaltracker.utils.Constants
@@ -18,15 +17,14 @@ object NotificationHandler {
 
     private lateinit var actualIntentDailyReminder: PendingIntent
     private lateinit var actualIntentStepsReminder: PendingIntent
+
     fun createDailyReminderChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            // Verifica se il canale esiste già
             val existingChannel = notificationManager.getNotificationChannel(Constants.CHANNEL_DAILY_REMINDER_ID)
             if (existingChannel == null) {
-                //Daily Reminder
                 val nameDailyReminder = Constants.CHANNEL_DAILY_REMINDER_TITLE
                 val descriptionTextDailyReminder = Constants.CHANNEL_DAILY_REMINDER_DESCRIPTION
                 val importanceDailyReminder = NotificationManager.IMPORTANCE_HIGH
@@ -50,7 +48,6 @@ object NotificationHandler {
             val notificationManager: NotificationManager =
                 context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            // Verifica se il canale esiste già
             val existingChannel = notificationManager.getNotificationChannel(Constants.CHANNEL_STEPS_REMINDER_ID)
             if (existingChannel == null) {
                 val nameStepsReminder = Constants.CHANNEL_STEPS_REMINDER_TITLE
@@ -82,9 +79,8 @@ object NotificationHandler {
 
 
                 val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                // Cancella eventuali PendingIntent esistenti
                 if (::actualIntentDailyReminder.isInitialized) {
-                    Log.d("NOTIFICATION HANDLER", "CANCELLO actualIntentDailyReminder")
+                    Log.d("NOTIFICATION HANDLER", "Deleting actual intent daily reminder")
                     alarmManager.cancel(actualIntentDailyReminder)
                 }
 
@@ -120,12 +116,8 @@ object NotificationHandler {
 
                 Log.d("NOTIFICATION HANDLER", "New Alarm Created (daily reminder) at $hour:$minute")
 
-        } else {
-            Log.d("NOTIFICATION HANDLER", "New Alarm NOT Created (daily reminder)")
-
         }
     }
-
 
 
 
@@ -139,11 +131,10 @@ object NotificationHandler {
             val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
             if (::actualIntentStepsReminder.isInitialized) {
-                Log.d("NOTIFICATION HANDLER", "CANCELLO actualIntentStepsReminder")
+                Log.d("NOTIFICATION HANDLER", "Deleting actual Intent Steps Reminder")
                 alarmManager.cancel(actualIntentStepsReminder)
             }
 
-            // Calcola la data di trigger per la notifica
             val calendar = Calendar.getInstance().apply {
                 set(Calendar.HOUR_OF_DAY, Constants.SHARED_PREFERENCES_STEPS_REMINDER_HOUR)
                 set(Calendar.MINUTE, Constants.SHARED_PREFERENCES_STEPS_REMINDER_MINUTE)
@@ -166,8 +157,6 @@ object NotificationHandler {
             )
 
             Log.d("NOTIFICATION HANDLER", "New Alarm Created (steps reminder)")
-
-
         }
     }
 
@@ -176,8 +165,9 @@ object NotificationHandler {
 
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         if (::actualIntentDailyReminder.isInitialized) {
-            Log.d("NOTIFICATION HANDLER", "daily notification deleted")
             alarmManager.cancel(actualIntentDailyReminder)
+            Log.d("NOTIFICATION HANDLER", "daily notification deleted")
+
         }
 
         cancelDailyNotificationChannel(context)
@@ -188,8 +178,9 @@ object NotificationHandler {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
         if (::actualIntentStepsReminder.isInitialized) {
-            Log.d("NOTIFICATION HANDLER", "cancelStepsNotification")
             alarmManager.cancel(actualIntentStepsReminder)
+            Log.d("NOTIFICATION HANDLER", "steps notification deleted")
+
         }
 
         cancelStepsNotificationChannel(context)
@@ -206,7 +197,7 @@ object NotificationHandler {
 
     }
 
-    fun cancelStepsNotificationChannel(context: Context) {
+    private fun cancelStepsNotificationChannel(context: Context) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.deleteNotificationChannel(Constants.CHANNEL_STEPS_REMINDER_ID)

@@ -21,8 +21,6 @@ import java.util.Date
 import java.util.Locale
 
 @SuppressLint("StaticFieldLeak")
-// In LocationHandler.kt
-
 object LocationHandler {
 
     private var fusedLocationClient: FusedLocationProviderClient? = null
@@ -40,10 +38,7 @@ object LocationHandler {
         this.context = context
         notificationServiceLocation = NotificationServiceLocation()
         if (firstOpen) {
-
             startForegroundService(context)
-
-            Log.d("LOCATION HANDLER", "FIRST OPEN")
             firstOpen = false
         }
         fusedLocationClient = client
@@ -56,7 +51,7 @@ object LocationHandler {
                 CoroutineScope(Dispatchers.Default).launch {
                     for (location in locationResult.locations) {
                         checkGeofence(context, location)
-                        Log.d("LOCATION HANDLER", "posizione ricevuta: lat = ${location.latitude}, long = ${location.longitude}")
+                        Log.d("LOCATION HANDLER", "Position received: lat = ${location.latitude}, long = ${location.longitude}")
                     }
                 }
             }
@@ -69,11 +64,12 @@ object LocationHandler {
     fun stopLocationUpdates(client: FusedLocationProviderClient) {
         if (fusedLocationClient != null) {
             fusedLocationClient?.removeLocationUpdates(locationCallback)
-            stopForegroundService(context)
-            notificationServiceLocation.stopPermanentNotificationLocationDetection()
         } else {
-            // Handle the case when fusedLocationClient is null
+            Log.e("LOCATION HANDLER", "Client null")
+            client.removeLocationUpdates(locationCallback)
         }
+        stopForegroundService(context)
+        notificationServiceLocation.stopPermanentNotificationLocationDetection()
     }
 
     private fun startForegroundService(context: Context) {
@@ -101,39 +97,37 @@ object LocationHandler {
 
         if (distance <= radius) {
             if (!sharedPreferences.getBoolean(Constants.GEOFENCE_IS_INSIDE, false)) {
-                Log.d("LOCATION HANDLER", "sei nell'area")
-                Log.d("LOCATION HANDLER, geo", "$lat;$lon")
-                Log.d("LOCATION HANDLER, current", "${location.latitude};${location.longitude}")
+                Log.d("LOCATION HANDLER", "You are in your interest's area")
+                Log.d("LOCATION HANDLER", "Geofence set in: $lat;$lon")
+                Log.d("LOCATION HANDLER", "Currently: ${location.latitude};${location.longitude}")
                 notificationServiceLocation.showLocationChangesNotification(context, "Your location changed", "you have entered your area of interest")
                 currentInfoLocation.initialize(lat, lon, activityDBViewModel)
                 started = true
                 sharedPreferences.edit().putBoolean(Constants.GEOFENCE_IS_INSIDE, true).apply()
                 sharedPreferences.edit().putString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start).apply()
 
-            } else { //Se ero gia dentro ricordiamo a che ora ero entrato perchè se l'app si riavvia non lo sa piu
+            } else {
                 /*
-                    Risalviamo l'orario in cui eravamo entrati.
-                    La lat e long non saranno uguali ma l'importante è che eravamo all'interno dell'area
+                    If I was already inside we remember what time I entered because if the app restarts it no longer knows
+                    Let's save the time we entered.
+                    The latitude and longitude will not be the same but the important thing is that we were within the area
                  */
                 notificationServiceLocation.showLocationChangesNotification(context, "Reminder", "you are in  your area of interest")
 
                 currentInfoLocation.initialize(lat, lon, activityDBViewModel)
-                val t = sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, "")
-                Log.d("START PRIMA", t.toString())
                 val oldStart = sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start).toString()
                 currentInfoLocation.start = oldStart
                 currentInfoLocation.date = oldStart.substring(0,10)
-                Log.d("PROVA", currentInfoLocation.start + "," + currentInfoLocation.date)
                 started = true
             }
         } else {
-            Log.d("LOCATION HANDLER", "sei fuori, distante di $distance")
+            Log.d("LOCATION HANDLER", "You are out of your area of interest, you are distant: $distance")
 
             if (started) {
                 if (currentInfoLocation.latitude == lat && currentInfoLocation.longitude == lon) {
 
 
-                    //Se 00.00 superata
+                    // If the activity starts before midnight and ends the next day
                     val currentTime = Calendar.getInstance().time
                     val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
                     val startTime = dateFormat.parse(currentInfoLocation.start) ?: return
@@ -161,10 +155,9 @@ object LocationHandler {
 
                     currentInfoLocation.setFinishTime()
                     started = false
-                    Log.d("LOCATION HANDLER", "finito")
                     notificationServiceLocation.showLocationChangesNotification(context, "Your location changed", "you are out of your area of interest")
 
-                } else { //Si è entrato in un geofence e poi quello è stato modificato
+                } else { //If you entered a geofence and then it was modified
                     started = false
                     currentInfoLocation = LocationInfo()
                 }
@@ -183,7 +176,6 @@ object LocationHandler {
         return calendar.time
     }
 
-    // Funzione di utilità per ottenere la fine della giornata corrente
     private fun getEndOfToday(date: Date): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date

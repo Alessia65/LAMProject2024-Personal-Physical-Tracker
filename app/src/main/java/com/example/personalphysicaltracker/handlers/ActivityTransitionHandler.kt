@@ -1,12 +1,12 @@
 package com.example.personalphysicaltracker.handlers
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
@@ -45,48 +45,35 @@ object ActivityTransitionHandler : LifecycleObserver {
         activityReceiver = ActivityTransitionReceiver(context, Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION) { }
         activityHandlerViewModel = ViewModelProvider(storeOwner)[ActivityHandlerViewModel::class.java]
 
-
     }
 
     private val client by lazy { ActivityRecognition.getClient(context) }
 
     private val pendingIntent: PendingIntent by lazy {
-        PendingIntent.getBroadcast(
-            context,
-            Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION_CODE,
-            Intent(Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION),
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) PendingIntent.FLAG_CANCEL_CURRENT else PendingIntent.FLAG_IMMUTABLE
+        PendingIntent.getBroadcast(context, Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION_CODE, Intent(Constants.BACKGROUND_OPERATION_ACTIVITY_RECOGNITION), if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) PendingIntent.FLAG_CANCEL_CURRENT else PendingIntent.FLAG_IMMUTABLE
         )
     }
 
-    private val activityTransitions = listOf(
-        DetectedActivity.STILL,
-        DetectedActivity.WALKING,
-        DetectedActivity.IN_VEHICLE
-    ).flatMap { activityType ->
+    private val activityTransitions = listOf(DetectedActivity.STILL, DetectedActivity.WALKING, DetectedActivity.IN_VEHICLE).flatMap { activityType ->
         listOf(
-            ActivityTransition.Builder().setActivityType(activityType)
-                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER).build(),
-            ActivityTransition.Builder().setActivityType(activityType)
-                .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT).build()
+            ActivityTransition.Builder().setActivityType(activityType).setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER).build(),
+            ActivityTransition.Builder().setActivityType(activityType).setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT).build()
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @RequiresPermission(Constants.PERMISSION_ACTIVITY_RECOGNITION)
     suspend fun registerActivityTransitions() = kotlin.runCatching {
-        Log.d("ACTIVITY TRANSITION HANDLER", "mi sto collegando")
-        client.requestActivityTransitionUpdates(
-            ActivityTransitionRequest(
-                activityTransitions
-            ), pendingIntent
-        ).await()
+        client.requestActivityTransitionUpdates(ActivityTransitionRequest(activityTransitions), pendingIntent).await()
+        Log.d("ACTIVITY TRANSITION HANDLER", "Registration successful")
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     @RequiresPermission(Constants.PERMISSION_ACTIVITY_RECOGNITION)
     suspend fun unregisterActivityTransitions() = kotlin.runCatching {
-        Log.d("ACTIVITY TRANSITION HANDLER", "mi sto scollegando")
-
         client.removeActivityUpdates(pendingIntent).await()
+        Log.d("ACTIVITY TRANSITION HANDLER", "Deletion successful")
+
     }
 
 
@@ -104,8 +91,6 @@ object ActivityTransitionHandler : LifecycleObserver {
     }
 
     fun disconnect() {
-        Log.d("ON DESTROY", "In disconnect()")
-        //Prima devo concludere l'attività se è running
         if (started){
             try {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -113,21 +98,20 @@ object ActivityTransitionHandler : LifecycleObserver {
                 }
                 started = false
                 stopped = true
-                Log.d("ON DESTROY", "In disconnect() try")
             }catch (e: Exception){
-                Log.d("EXCEPTION CATCHED", e.message.toString())
+                Log.d("ACTIVITY TRANSITION HANDLER", "error occurred while disconnecting")
             }
         }
         lifecycle.removeObserver(activityReceiver)
         lifecycle.removeObserver(this)
         activityReceiver.stopReceiver()
-        Log.d("ACTIVITY TRANSITION HANDLER", "OBSERVER OFF")
+        Log.d("ACTIVITY TRANSITION HANDLER", "Disconnect successful")
     }
 
     fun connect(){
         lifecycle.addObserver(this)
         lifecycle.addObserver(activityReceiver)
-        Log.d("ACTIVITY TRANSITION HANDLER", "OBSERVER ON")
+        Log.d("ACTIVITY TRANSITION HANDLER", "Connection successful")
 
     }
 
@@ -162,8 +146,7 @@ object ActivityTransitionHandler : LifecycleObserver {
                         activityHandlerViewModel.stopSelectedActivity(isWalkingType)
                         stopped = true
                     } catch (e: Exception){
-                        //Concludo attività
-                        Log.d("MESSAGGIO DI ERRORE", e.message.toString()) //COSA SUCCEDE?
+                        Log.e("ACTIVITY TRANSITION HANDLER", "error occurred while starting activity")
                     } finally {
                         activityHandlerViewModel.startSelectedActivity(activity)
                         started = true
@@ -171,10 +154,10 @@ object ActivityTransitionHandler : LifecycleObserver {
 
                 }
             }
-            // Attendere il completamento della coroutine
+            // Wait for the coroutine to complete
             Thread.sleep(1000)
 
-        } else if (transitionType.toString() == "END" ){
+        } else if (transitionType == "END" ){
 
             if (started) {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -182,18 +165,16 @@ object ActivityTransitionHandler : LifecycleObserver {
                     started = false
                     stopped = true
                 }
-                // Attendere il completamento della coroutine
+                // Wait for the coroutine to complete
                 Thread.sleep(1000)
             } else {
                 Log.d("ACTIVITY TRANSITION HANDLER", "no activity to stop")
                 return
             }
-
         } else { //UNKNOWN
             return
         }
     }
-
 
 
 

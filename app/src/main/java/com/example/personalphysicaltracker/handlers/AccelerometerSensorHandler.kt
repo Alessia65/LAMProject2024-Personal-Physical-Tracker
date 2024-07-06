@@ -43,7 +43,7 @@ class AccelerometerSensorHandler(context: Context) : SensorEventListener {
         accelerometerSensor.let {
             sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
         }
-        Log.d("Accelerometer", "Sensor started")
+        Log.d("ACCELEROMETER", "Sensor started")
 
     }
 
@@ -51,19 +51,9 @@ class AccelerometerSensorHandler(context: Context) : SensorEventListener {
         activityType = null
         sensorManager.unregisterListener(this)
 
-        Log.d("Accelerometer", "Sensor stopped")
+        Log.d("ACCELEROMETER", "Sensor stopped")
 
     }
-
-    /*
-    fun unregisterAllListeners(){
-        sensorManager.unregisterListener(null as SensorEventListener?) // Rimuove tutti i listener
-        sensorManager.unregisterListener(null as SensorListener?) // Rimuove tutti i listener
-
-
-    }
-
-     */
 
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
@@ -77,7 +67,6 @@ class AccelerometerSensorHandler(context: Context) : SensorEventListener {
             }
         }
     }
-
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
         // not necessary

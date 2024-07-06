@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import com.example.personalphysicaltracker.activities.ActivityType
 import com.example.personalphysicaltracker.activities.LocationInfo
 import com.example.personalphysicaltracker.activities.PhysicalActivity
@@ -17,9 +18,9 @@ object ShareHandler {
 
     fun exportActivitiesToCSV(context: Context, activities: List<PhysicalActivity>, location: Boolean, locationInfo: List<LocationInfo>) {
         val fileName = "activities.csv"
-        val csvContent = generateCSVContent(activities) // Genera il contenuto CSV
+        val csvContent = generateCSVContent(activities)
 
-        val csvUri = saveCSVFileToMediaStore(context, fileName, csvContent) // Salva il file CSV nel MediaStore
+        val csvUri = saveCSVFileToMediaStore(context, fileName, csvContent)
 
         val locationsFileName = if (location) "locations.csv" else null
         val locationsCsvContent = if (location) generateLocationsCSVContent(locationInfo) else null
@@ -29,7 +30,7 @@ object ShareHandler {
             null
         }
 
-        shareCSVFiles(context, listOfNotNull(csvUri, locationsCsvUri)) // Condividi entrambi i file CSV
+        shareCSVFiles(context, listOfNotNull(csvUri, locationsCsvUri))
     }
 
     private fun generateCSVContent(activities: List<PhysicalActivity>): String {
@@ -57,6 +58,7 @@ object ShareHandler {
         return stringBuilder.toString()
     }
 
+
     private fun saveCSVFileToMediaStore(context: Context, fileName: String, csvContent: String): Uri? {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
@@ -69,7 +71,11 @@ object ShareHandler {
         var csvUri: Uri? = null
         try {
             val contentResolver: ContentResolver = context.contentResolver
-            val contentUri = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            val contentUri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
+            } else {
+                throw Exception("Not available for this build version")
+            }
             csvUri = contentResolver.insert(contentUri, contentValues)
 
             csvUri?.let { uri ->
@@ -78,7 +84,7 @@ object ShareHandler {
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SHARE HANDLER", "Error occurred")
         }
         return csvUri
     }

@@ -48,7 +48,7 @@ class StepCounterSensorHandler(context: Context) : SensorEventListener {
             stepCounterSensor.let {
                 sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_NORMAL)
             }
-            Log.d("Step Counter", "Sensor started")
+            Log.d("STEP COUNTER SENSOR HANDLER", "Sensor started")
             running = true
             true
         } else {
@@ -59,20 +59,16 @@ class StepCounterSensorHandler(context: Context) : SensorEventListener {
     }
 
     fun stopStepCounter() {
-        //if (presenceOnDevice) { //TODO: controllare
         if (running) {
             sensorManager.unregisterListener(this)
-            Log.d("Step Counter", "Sensor stopped")
+            Log.d("STEP COUNTER SENSOR HANDLER", "Sensor stopped")
             running = false
         }
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        Log.d("Step Counter", "Change on Sensor")
+        Log.d("STEP COUNTER SENSOR HANDLE", "Change on Sensor")
         if (presenceOnDevice) {
-
-            Log.d("Step Counter", "Here")
-
             event?.let {
                 if (it.sensor.type == Sensor.TYPE_STEP_COUNTER && running) {
                     totalSteps = event.values[0]
@@ -80,12 +76,12 @@ class StepCounterSensorHandler(context: Context) : SensorEventListener {
                     if (firstChange){
                         firstChange = false
                         previousTotalSteps = totalSteps
-                        Log.d("Step Counter", "First Change, steps: $totalSteps")
+                        Log.d("STEP COUNTER SENSOR HANDLER", "First Change, steps: $totalSteps")
                     }
 
 
                     val currentSteps = totalSteps.toLong() - previousTotalSteps.toLong()
-                    Log.d("Step Counter", "Current steps: $currentSteps, totalSteps: $totalSteps, previousSteps: $previousTotalSteps")
+                    Log.d("STEP COUNTER SENSOR HANDLER", "Current steps: $currentSteps, totalSteps: $totalSteps, previousSteps: $previousTotalSteps")
 
                     stepCounterListener?.onStepCounterDataReceived(currentSteps.toString())
 
@@ -98,7 +94,6 @@ class StepCounterSensorHandler(context: Context) : SensorEventListener {
         // No necessary
     }
 
-    //TODO: approximate better
     fun registerStepWithAccelerometer(data: String): Long{
         val split = data.split(";")
         if (split.size >= 3) {
@@ -124,7 +119,7 @@ class StepCounterSensorHandler(context: Context) : SensorEventListener {
             return totalSteps.toLong()
 
         } else {
-            Log.e("Step Counter", "Invalid data format: $data")
+            Log.e("STEP COUNTER SENSOR HANDLER", "Invalid data format: $data")
             return 0
         }
 
