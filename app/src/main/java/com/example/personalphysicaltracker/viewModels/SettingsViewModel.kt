@@ -1,7 +1,10 @@
 package com.example.personalphysicaltracker.viewModels
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.core.app.ActivityCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -9,7 +12,11 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.database.TrackingRepository
+import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
+import com.example.personalphysicaltracker.handlers.GeofenceHandler
+import com.example.personalphysicaltracker.handlers.LocationHandler
 import com.example.personalphysicaltracker.handlers.NotificationHandler
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -17,13 +24,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-// Communication ActivityViewModel and HomeFragment
 class SettingsViewModel : ViewModel() {
 
     private lateinit var activityViewModel: ActivityDBViewModel
 
-
-    // Initialize the ViewModel with the necessary repository for database operations
     private fun initializeActivityViewModel(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner) {
 
         val application = requireNotNull(activity).application
@@ -32,13 +36,16 @@ class SettingsViewModel : ViewModel() {
         activityViewModel = ViewModelProvider(viewModelStoreOwner, viewModelFactory)[ActivityDBViewModel::class.java]
     }
 
+    private fun getActivityViewModel(): ActivityDBViewModel{
+        return activityViewModel
+    }
+
     fun getTotalStepsFromToday(activity: FragmentActivity?, viewModelStoreOwner: ViewModelStoreOwner, callback: (Long) -> Unit) {
         initializeActivityViewModel(activity, viewModelStoreOwner)
         val today = getCurrentDay()
         viewModelScope.launch {
-            var totalSteps = 0L
-            try {
-                totalSteps = withContext(Dispatchers.IO) {
+            val totalSteps = try {
+                withContext(Dispatchers.IO) {
 
                     activityViewModel.getTotalStepsFromToday(today)
                 }
@@ -46,28 +53,21 @@ class SettingsViewModel : ViewModel() {
             } catch (e: Exception) {
                 // Exception handling, such as logging or other types of handling
                 Log.e("SettingsViewModel", "Exception with total steps = 0")
-                totalSteps = 0
+                0
             }
             callback(totalSteps)
         }
     }
 
-
-     fun scheduleStepsNotification(selectedNumber: Int, context: Context) {
-
-         // Salva l'obiettivo selezionato nelle SharedPreferences
+    fun scheduleStepsNotification(selectedNumber: Int, context: Context) {
          val sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
          val editor = sharedPreferences.edit()
          editor.putInt(Constants.SHARED_PREFERENCES_STEPS_REMINDER_NUMBER, selectedNumber)
          editor.apply()
 
-         // Invia la notifica degli steps solo se la somma è inferiore all'obiettivo
          NotificationHandler.scheduleStepsNotificationIfEnabled(context)
 
-
-
     }
-
 
     fun scheduleDailyNotification(context: Context, hour: Int, minute: Int, formattedTime: String) {
 
@@ -86,7 +86,7 @@ class SettingsViewModel : ViewModel() {
         NotificationHandler.cancelStepsNotification(context)
     }
 
-     fun cancelDailyNotification(context: Context) {
+    fun cancelDailyNotification(context: Context) {
          NotificationHandler.cancelDailyNotification(context)
      }
 
@@ -95,12 +95,57 @@ class SettingsViewModel : ViewModel() {
         return dateFormat.format(Date())
     }
 
+    fun connectToActivityTransition(context: Context){
+        ActivityTransitionHandler.connect()
+        registerActivityTransitions(context)
+    }
+
+    private fun registerActivityTransitions(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                ActivityTransitionHandler.registerActivityTransitions()
+            }
+        }
+    }
+
+    fun disconnect(context: Context){
+        ActivityTransitionHandler.disconnect()
+        unregisterActivityTransitions(context)
+    }
+
+    private fun unregisterActivityTransitions(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
+                ActivityTransitionHandler.unregisterActivityTransitions()
+            }
+        }
+    }
+
+    fun startLocationUpdates(context: Context){
+        LocationHandler.startLocationUpdates(context, LocationServices.getFusedLocationProviderClient(context), getActivityViewModel())
+    }
+
+    fun stopLocationUpdates(context: Context){
+        LocationHandler.stopLocationUpdates(LocationServices.getFusedLocationProviderClient(context))
+    }
+
+    fun deregisterGeofence(){
+        viewModelScope.launch(Dispatchers.IO) {
+            GeofenceHandler.deregisterGeofence()
+        }
+    }
+
+    fun removeGeofence(){
+        GeofenceHandler.removeGeofence("selected_location")
+    }
+
+
+    //Shared Preferences
     fun checkBackgroundRecogniseActivitiesOn(context: Context): Boolean{
         val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
         return  (sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false))
     }
-
-    fun setBackgroundRecogniseActivies(context: Context, isChecked: Boolean){
+    fun setBackgroundRecogniseActivities(context: Context, isChecked: Boolean){
         val sharedPreferencesBackgroundActivities = context.getSharedPreferences(
             Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION,
             Context.MODE_PRIVATE
@@ -116,18 +161,41 @@ class SettingsViewModel : ViewModel() {
     }
 
     fun setBackgroundLocationDetection(context: Context, isChecked: Boolean) {
-        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(
-            Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION,
-            Context.MODE_PRIVATE
-        )
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
         val editor = sharedPreferencesBackgroundActivities.edit()
         editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, isChecked)
         editor.apply()
-        Log.d("SETTO ENABLED", isChecked.toString())
     }
 
-    fun getActivityViewModel(): ActivityDBViewModel{
-        return activityViewModel
+
+    fun checkDailyReminder(context: Context): Boolean{
+        val sharedPreferencesDaily = context.getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
+        return sharedPreferencesDaily.getBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, false)
     }
 
+    fun setDailyReminder(context: Context, value: Boolean){
+        val sharedPreferencesDaily = context.getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
+        val editor = sharedPreferencesDaily.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_DAILY_REMINDER_ENABLED, value)
+        editor.apply()
+    }
+
+    fun checkStepsReminder(context: Context): Boolean{
+        val sharedPreferencesSteps = context.getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
+        return sharedPreferencesSteps.getBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, false)
+
+    }
+
+    fun setStepsReminder(context: Context, value: Boolean){
+        val sharedPreferencesSteps = context.getSharedPreferences(Constants.SHARED_PREFERENCES_STEPS_REMINDER, Context.MODE_PRIVATE)
+        val editor = sharedPreferencesSteps.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_STEPS_REMINDER_ENABLED, value)
+        editor.apply()
+    }
+
+    fun checkLocationSet(context: Context): Boolean{
+        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        val key = sharedPreferences.getString(Constants.GEOFENCE_KEY, null)
+        return !key.isNullOrEmpty()
+    }
 }

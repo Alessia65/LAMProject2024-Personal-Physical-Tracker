@@ -57,10 +57,6 @@ object PermissionsHandler {
     }
 
 
-
-    fun hasPermissionsForActivityBackground(context: Context): Boolean{
-        return (ContextCompat.checkSelfPermission(context, Constants.FOREGROUND_SERVICE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-    }
     fun hasLocationPermissions(context: Context): Boolean {
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.Q){

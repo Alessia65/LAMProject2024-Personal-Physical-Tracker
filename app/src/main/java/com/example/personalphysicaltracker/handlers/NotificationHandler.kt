@@ -174,10 +174,9 @@ object NotificationHandler {
 
     fun cancelDailyNotification(context: Context) {
 
-        // Get AlarmManager service to cancel the pending intent
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         if (::actualIntentDailyReminder.isInitialized) {
-            Log.d("NOTIFICATION HANDLER", "cancelDailyNotification")
+            Log.d("NOTIFICATION HANDLER", "daily notification deleted")
             alarmManager.cancel(actualIntentDailyReminder)
         }
 
@@ -198,7 +197,7 @@ object NotificationHandler {
     }
 
 
-    fun cancelDailyNotificationChannel(context: Context) {
+    private fun cancelDailyNotificationChannel(context: Context) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             notificationManager.deleteNotificationChannel(Constants.CHANNEL_DAILY_REMINDER_ID)
