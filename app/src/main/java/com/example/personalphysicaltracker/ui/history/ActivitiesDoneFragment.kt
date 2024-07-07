@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.PhysicalActivity
 import com.example.personalphysicaltracker.databinding.FragmentActivitiesDoneBinding
-import com.example.personalphysicaltracker.databinding.FragmentChartsBinding
 import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.viewModels.HistoryViewModel
 import com.google.android.material.chip.Chip
@@ -45,7 +44,6 @@ class ActivitiesDoneFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        //val view = inflater.inflate(R.layout.fragment_activities_done, container, false)
         _binding = FragmentActivitiesDoneBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
@@ -59,7 +57,6 @@ class ActivitiesDoneFragment : Fragment() {
         historyViewModel = ViewModelProvider(requireActivity())[HistoryViewModel::class.java]
     }
 
-    // Initialize views from binding
     private fun initializeViews(root: View) {
         chipGroup = root.findViewById(R.id.chip_group)
         recyclerView = root.findViewById(R.id.recycler_view)

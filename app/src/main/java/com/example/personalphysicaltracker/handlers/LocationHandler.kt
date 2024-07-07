@@ -149,7 +149,7 @@ object LocationHandler {
                         }.time
 
                         val startOfDayString = dateFormat.format(startOfNextDay)
-                        currentInfoLocation.setStartTimeWIthString(startOfDayString)
+                        currentInfoLocation.setStartTimeWithString(startOfDayString)
                     }
 
 
