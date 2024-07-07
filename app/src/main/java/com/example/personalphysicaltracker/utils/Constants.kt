@@ -50,7 +50,6 @@ object Constants {
     const val SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION = "background location detection"
     const val SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED = "background_location_detection_enabled"
 
-    @RequiresApi(Build.VERSION_CODES.Q)
     const val PERMISSION_ACTIVITY_RECOGNITION = android.Manifest.permission.ACTIVITY_RECOGNITION
     const val PERMISSION_ACTIVITY_RECOGNITION_BEFORE = "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -68,7 +67,6 @@ object Constants {
     const val BACKGROUND_OPERATION_LOCATION_DETECTION_CODE = 1001
     const val ACCESS_COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION
     const val ACCESS_FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION
-    @RequiresApi(Build.VERSION_CODES.Q)
     const val ACCESS_BACKGROUND_LOCATION = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
     const val ACCESS_NETWORK_STATE = android.Manifest.permission.ACCESS_NETWORK_STATE
     const val INTERNET = android.Manifest.permission.INTERNET
@@ -82,4 +80,5 @@ object Constants {
     const val GEOFENCE_KEY = "GEOFENCE_KEY"
     const val GEOFENCE_IS_INSIDE = "GEOFENCE_IS_INSIDE"
     const val GEOFENCE_ENTRANCE = "GEOFENCE_ENTRANCE"
+    const val GEOFENCE_IS_ENTERED = "GEOFENCE_IS_ENTERED"
 }

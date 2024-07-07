@@ -134,6 +134,7 @@ class ActivityDBViewModel(private val repository: TrackingRepository) : ViewMode
             newLocation.end = entity.timeFinish
             newLocation.latitude = entity.latitude
             newLocation.longitude = entity.longitude
+            newLocation.duration = entity.duration
             temp.add(newLocation)
         }
         return temp

@@ -102,7 +102,11 @@ class ActivitiesDoneFragment : Fragment() {
         val duration = (historyViewModel.getDurationAtLocationInHours())
         var text = "0.0"
         if (duration!=0.0){
-            text = duration.toString().substring(0,6)
+            text = if (duration.toString().length>=6) {
+                duration.toString().substring(0, 6)
+            } else {
+                duration.toString()
+            }
         }
         text = "You were detected in your interest's location for:\n$text hours"
         locationDetection.text = text
