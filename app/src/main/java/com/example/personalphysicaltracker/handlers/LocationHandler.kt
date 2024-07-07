@@ -61,15 +61,28 @@ object LocationHandler {
         fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
-    fun stopLocationUpdates(client: FusedLocationProviderClient) {
-        if (fusedLocationClient != null) {
-            fusedLocationClient?.removeLocationUpdates(locationCallback)
-        } else {
-            Log.e("LOCATION HANDLER", "Client null")
-            client.removeLocationUpdates(locationCallback)
+    fun stopLocationUpdates() {
+        try {
+            if (fusedLocationClient != null) {
+                fusedLocationClient?.removeLocationUpdates(locationCallback)
+                stopForegroundService(context)
+                notificationServiceLocation.stopPermanentNotificationLocationDetection()
+            } else {
+                Log.e("LOCATION HANDLER", "Client null")
+                setBackgroundLocationDetection(context, false)
+            }
+        }catch (e: Exception){
+            Log.e("LOCATION HANDLER", "Error occurred")
+            setBackgroundLocationDetection(context, false)
         }
-        stopForegroundService(context)
-        notificationServiceLocation.stopPermanentNotificationLocationDetection()
+
+    }
+
+    private fun setBackgroundLocationDetection(context: Context, isChecked: Boolean) {
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
+        val editor = sharedPreferencesBackgroundActivities.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, isChecked)
+        editor.apply()
     }
 
     private fun startForegroundService(context: Context) {

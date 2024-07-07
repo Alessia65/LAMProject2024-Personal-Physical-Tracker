@@ -38,9 +38,8 @@ object PermissionsHandler {
         return activityRecognise == PackageManager.PERMISSION_GRANTED && postNotifications == PackageManager.PERMISSION_GRANTED
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun requestPermissions(activity: Activity) {
-        val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(
                 ACTUAL_PERMISSION_ACTIVITY_RECOGNITION,
                 Constants.PERMISSION_POST_NOTIFICATIONS

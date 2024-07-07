@@ -154,9 +154,7 @@ class ChartsFragment : Fragment() {
             if (startDate != null && endDate != null) {
                 val formattedStartDate = chartsViewModel.convertTimeToDate(startDate)
                 val formattedEndDate = chartsViewModel.convertTimeToDate(endDate)
-                Log.d("DATE_RANGE_SELECTED", "$formattedStartDate - $formattedEndDate")
                 val daysNumber = chartsViewModel.calculateRange(formattedStartDate, formattedEndDate)
-                Log.d("NUMBER_OF_DAYS", "Number of days selected: $daysNumber")
 
                 setTextDay(formattedStartDate,formattedEndDate)
 

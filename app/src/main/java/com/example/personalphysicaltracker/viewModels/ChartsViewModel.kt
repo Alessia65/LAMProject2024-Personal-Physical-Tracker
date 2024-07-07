@@ -227,8 +227,6 @@ class ChartsViewModel : ViewModel() {
         // Configure BarChart
         barChart.setFitBars(true)
         barChart.data = barData
-
-        // Animate BarChart
         barChart.animateY(2000)
 
         // Configure X axis
