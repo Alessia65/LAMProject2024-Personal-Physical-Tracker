@@ -160,11 +160,11 @@ class SettingsFragment : Fragment() {
                switchLocation.isChecked = false
                 settingsViewModel.setBackgroundLocationDetection(requireActivity(), false)
                 showGeofenceAlert()
-                settingsViewModel.stopLocationUpdates()
+                settingsViewModel.stopLocationUpdates(requireActivity())
             }
 
         } else {
-            settingsViewModel.stopLocationUpdates()
+            settingsViewModel.stopLocationUpdates(requireActivity())
             settingsViewModel.deregisterGeofence()
             settingsViewModel.removeGeofence()
         }

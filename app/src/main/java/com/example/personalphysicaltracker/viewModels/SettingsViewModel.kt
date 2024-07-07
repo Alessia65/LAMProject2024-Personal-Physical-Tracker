@@ -126,8 +126,8 @@ class SettingsViewModel : ViewModel() {
         LocationHandler.startLocationUpdates(context, LocationServices.getFusedLocationProviderClient(context), getActivityViewModel())
     }
 
-    fun stopLocationUpdates(){
-        LocationHandler.stopLocationUpdates()
+    fun stopLocationUpdates(context: Context){
+        LocationHandler.stopLocationUpdates(context)
     }
 
     fun deregisterGeofence(){
@@ -230,7 +230,7 @@ class SettingsViewModel : ViewModel() {
         val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
         sharedPreferences.edit().clear().apply()
         setBackgroundLocationDetection(context, false)
-        stopLocationUpdates()
+        stopLocationUpdates(context)
         deregisterGeofence()
         removeGeofence()
     }

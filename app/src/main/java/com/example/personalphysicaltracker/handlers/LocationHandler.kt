@@ -61,7 +61,7 @@ object LocationHandler {
         fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
-    fun stopLocationUpdates() {
+    fun stopLocationUpdates(stopContext: Context) {
         try {
             if (fusedLocationClient != null) {
                 fusedLocationClient?.removeLocationUpdates(locationCallback)
@@ -69,11 +69,11 @@ object LocationHandler {
                 notificationServiceLocation.stopPermanentNotificationLocationDetection()
             } else {
                 Log.e("LOCATION HANDLER", "Client null")
-                setBackgroundLocationDetection(context, false)
+                setBackgroundLocationDetection(stopContext, false)
             }
         }catch (e: Exception){
             Log.e("LOCATION HANDLER", "Error occurred")
-            setBackgroundLocationDetection(context, false)
+            setBackgroundLocationDetection(stopContext, false)
         }
 
     }
