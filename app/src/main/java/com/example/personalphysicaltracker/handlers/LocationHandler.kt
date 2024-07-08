@@ -22,8 +22,8 @@ object LocationHandler {
     private lateinit var notificationServiceLocation: NotificationServiceLocation
     private lateinit var context: Context
     private val _isServiceBound = MutableStateFlow(false)
-    val isServiceBound: StateFlow<Boolean> get() = _isServiceBound
-
+    private val isServiceBound: StateFlow<Boolean> get() = _isServiceBound
+    private var isInitialized = false
 
     private val connection = object : ServiceConnection {
 
@@ -56,8 +56,10 @@ object LocationHandler {
 
         CoroutineScope(Dispatchers.Main).launch {
             isServiceBound.collect { isBound ->
-                if (isBound) {
+                if (isBound && !isInitialized) {
+
                     notificationServiceLocation.initialize(activityViewModel, context, client)
+                    isInitialized = true
                     Log.d("LOCATION HANDLER", "Service initialized")
                 }
             }

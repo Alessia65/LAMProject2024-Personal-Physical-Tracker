@@ -1,9 +1,11 @@
 package com.example.personalphysicaltracker.database
 
+import androidx.compose.animation.core.DurationBasedAnimationSpec
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import java.time.Duration
 
 
 @Dao
@@ -40,5 +42,9 @@ interface TrackingDao {
 
     @Query("SELECT * FROM locations_table WHERE (date >= :startDate AND date <= :endDate)")
     suspend fun getAllLocationsInDate(startDate: String, endDate: String): List<LocationEntity>
+
+
+    @Query("SELECT COUNT(*) FROM locations_table WHERE (latitude = :latitude AND longitude = :longitude AND date = :date AND date_time_start = :timeStart AND date_time_finish = :timeFinish AND duration = :duration)")
+    fun checkDuplicate(latitude: Double, longitude: Double, date:String, timeStart: String, timeFinish:String, duration: Double ): Int
 
 }

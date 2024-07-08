@@ -71,10 +71,15 @@ class LocationInfo : LocationInfoInterface {
                 timeFinish = end,
                 duration = duration
             )
-            activityDBViewModel.insertLocationInfo(locationEntity)
-            saved = true
-            Log.d("LOCATION INFO", "Location saved in db with date: ${date}, start: ${start}, end: ${end}, duration: $duration")
+            if (activityDBViewModel.checkDuplicate(latitude,longitude,date,start,end,duration)==0){
+                activityDBViewModel.insertLocationInfo(locationEntity)
+                saved = true
+                Log.d("LOCATION INFO", "Location saved in db with date: ${date}, start: ${start}, end: ${end}, duration: $duration")
 
+            } else {
+                Log.d("LOCATION INFO", "Location not saved: duplicated found")
+
+            }
         }
 
 

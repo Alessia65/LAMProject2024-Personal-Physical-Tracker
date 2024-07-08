@@ -140,6 +140,9 @@ class ActivityDBViewModel(private val repository: TrackingRepository) : ViewMode
         return temp
     }
 
+    fun checkDuplicate(latitude: Double, longitude: Double, date:String, timeStart: String, timeFinish:String, duration: Double ): Int{
+        return repository.checkDuplicate(latitude, longitude, date, timeStart, timeFinish, duration)
+    }
 
 
 }

@@ -71,4 +71,8 @@ class TrackingRepository(app: Application) {
     suspend fun getAllLocationsInDate(startDate: String, endDate: String): List<LocationEntity> {
         return trackingDao.getAllLocationsInDate(startDate, endDate)
     }
+
+    fun checkDuplicate(latitude: Double, longitude: Double, date:String, timeStart: String, timeFinish:String, duration: Double ): Int{
+        return trackingDao.checkDuplicate(latitude, longitude, date, timeStart, timeFinish, duration)
+    }
 }
