@@ -8,7 +8,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -59,28 +58,25 @@ class MainActivity : AppCompatActivity() {
         // Create notification channel
         createNotificationChannels()
 
-        //checkActivityBackgroundOff()
-    }
-
-
-    // Forced closure
-    private fun checkActivityBackgroundOff() {
-        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
-        val on = sharedPreferences.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
-        if (on){
-            val editor = sharedPreferences.edit()
-            editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
-            editor.apply()
-            val builder = AlertDialog.Builder(this)
-            builder.setMessage("Sudden closure with activity recognition active!")
-                .setTitle("Attention")
-                .setCancelable(false)
-                .setPositiveButton("Ok") { dialog, _ ->
-                    dialog.dismiss()
-                }
-            builder.show()
+        if (getFirstOpen()){
+            val navController = findNavController(R.id.nav_host_fragment_activity_main)
+            navController.navigate(R.id.helpFragment)
+            unsetFirstOpen()
         }
     }
+
+    private fun getFirstOpen(): Boolean {
+        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_FIRST_OPEN, Context.MODE_PRIVATE)
+        return  !(sharedPreferences.contains(Constants.FIRST_OPEN))
+    }
+
+    private fun unsetFirstOpen(){
+        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_FIRST_OPEN, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean(Constants.FIRST_OPEN, false)
+        editor.apply()
+    }
+
 
     private fun checkAndRequestPermissions() {
         if (!PermissionsHandler.checkPermissions(applicationContext)){

@@ -41,6 +41,7 @@ class SettingsFragment : Fragment() {
     private lateinit var switchActivityRecognition: Switch
     private lateinit var switchLocation: Switch
     private lateinit var setLocation: TextView
+    private lateinit var helpButton: TextView
 
     private var dailySteps = 0L
     private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
@@ -68,7 +69,10 @@ class SettingsFragment : Fragment() {
 
 
     private fun initializeViews() {
-
+        helpButton = binding.root.findViewById(R.id.help_button)
+        helpButton.setOnClickListener{
+            goToFragmentHelp()
+        }
         switchDailyReminder = binding.root.findViewById(R.id.switch_notification_daily_reminder)
         switchStepsReminder = binding.root.findViewById(R.id.switch_notification_steps_reminder)
         switchActivityRecognition = binding.root.findViewById(R.id.switch_b_o_activity_recognition)
@@ -326,6 +330,12 @@ class SettingsFragment : Fragment() {
     private fun goToFragmentMap(){
         val navController = findNavController()
         navController.navigate(R.id.mapFragment)
+
+    }
+
+    private fun goToFragmentHelp(){
+        val navController = findNavController()
+        navController.navigate(R.id.helpFragment)
 
     }
 

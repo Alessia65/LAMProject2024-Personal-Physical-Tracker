@@ -5,8 +5,8 @@ import androidx.annotation.RequiresApi
 
 object Constants {
 
-
-    const val PERMISSION_ACTIVITY_BACKGROUND = 4
+    const val SHARED_PREFERENCES_FIRST_OPEN = "SHARED_PREFERENCES_FIRST_OPEN"
+    const val FIRST_OPEN = "FIRST_OPEN"
     const val PERMISSION_REQUESTS_CODE = 100
 
     const val REQUEST_CODE_DAILY_REMINDER = 0
