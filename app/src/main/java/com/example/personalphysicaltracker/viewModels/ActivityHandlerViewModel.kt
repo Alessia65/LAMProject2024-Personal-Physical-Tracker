@@ -16,6 +16,7 @@ import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.database.ActivityEntity
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.handlers.AccelerometerSensorHandler
+import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
 import com.example.personalphysicaltracker.handlers.StepCounterSensorHandler
 import com.example.personalphysicaltracker.listeners.AccelerometerListener
 import com.example.personalphysicaltracker.listeners.StepCounterListener
@@ -146,15 +147,21 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
             saveUnknownActivity(lastActivity.timeFinish, currentTime)
         }
 
+
         selectedActivity = activity
         selectedActivity.setActivityViewModelVar(activityDBViewModel)
-
+        ActivityTransitionHandler.setCurrentActivity(selectedActivity)
         val typeForLog = activity.getActivityTypeName()
         Log.d("PHYSICAL ACTIVITY", "$typeForLog Activity Started")
         startSensors()
 
     }
 
+
+    fun checkBackgroundRecogniseActivitiesOn(context: Context): Boolean{
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
+        return  (sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false))
+    }
     private fun startSensors() {
         val activityType = selectedActivity.getActivityTypeName()
         if (activityType == ActivityType.WALKING){
@@ -209,6 +216,14 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     }
 
     suspend fun stopSelectedActivity(isWalkingActivity: Boolean) {
+        if (!::selectedActivity.isInitialized){
+            val temp = ActivityTransitionHandler.getCurrentActivity()
+            if (temp!=null){
+                selectedActivity = temp
+            } else {
+                return
+            }
+        }
         started = false
         this.isWalkingActivity = isWalkingActivity
         stopStepCounterSensor()

@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
         // Create notification channel
         createNotificationChannels()
 
-        checkActivityBackgroundOff()
+        //checkActivityBackgroundOff()
     }
 
 
@@ -117,7 +117,7 @@ class MainActivity : AppCompatActivity() {
     private fun initializeUtils() {
         val accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(this)
         val stepCounterSensorHandler = StepCounterSensorHandler.getInstance(this)
-        ActivityTransitionHandler.initialize(this, lifecycle, this)
+        ActivityTransitionHandler.initialize(this, this)
         val chartsViewModel = ViewModelProvider(this)[ChartsViewModel::class.java]
         chartsViewModel.initializeActivityViewModel(this, this) //to obtain activities in chart
 

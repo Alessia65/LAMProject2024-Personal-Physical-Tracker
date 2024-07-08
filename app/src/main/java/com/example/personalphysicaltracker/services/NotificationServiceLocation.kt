@@ -338,7 +338,7 @@ class NotificationServiceLocation : Service() {
 
     override fun onDestroy() {
         stopPermanentNotificationLocationDetection()
-
+        stopForegroundService()
         super.onDestroy()
         Log.d("LOC", "Service destroyed")
 
