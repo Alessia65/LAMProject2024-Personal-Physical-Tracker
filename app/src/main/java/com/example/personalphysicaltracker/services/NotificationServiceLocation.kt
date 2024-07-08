@@ -1,18 +1,18 @@
 package com.example.personalphysicaltracker.services
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Binder
-import android.os.Build
 import android.os.IBinder
+import android.os.Looper
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -20,22 +20,31 @@ import androidx.core.app.NotificationManagerCompat
 import com.example.personalphysicaltracker.MainActivity
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.LocationInfo
-import com.example.personalphysicaltracker.handlers.LocationHandler
 import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.viewModels.ActivityDBViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.Priority
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-class NotificationServiceLocation() : Service() {
+class NotificationServiceLocation : Service() {
 
     private val binder = SimpleBinderLoc()
     private lateinit var context: Context
     private var currentInfoLocation: LocationInfo = LocationInfo()
     private lateinit var activityDBViewModel: ActivityDBViewModel
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
+
+
     inner class SimpleBinderLoc : Binder() {
         fun getService(): NotificationServiceLocation {
             return this@NotificationServiceLocation
@@ -47,15 +56,36 @@ class NotificationServiceLocation() : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        createNotificationChannelForLocationDetection()
-        createPermanentNotificationLocationDetection(this)
         return START_STICKY
     }
 
+    @SuppressLint("MissingPermission")
     fun initialize(activityDBViewModel: ActivityDBViewModel, context: Context, fusedLocationClient: FusedLocationProviderClient){
+
+
         this.activityDBViewModel = activityDBViewModel
         this.context = context
         this.fusedLocationClient = fusedLocationClient
+
+        createNotificationChannelForLocationDetection()
+        createPermanentNotificationLocationDetection()
+
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 60000)
+            .setMinUpdateIntervalMillis(30000)
+            .build()
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                CoroutineScope(Dispatchers.Default).launch {
+                    for (location in locationResult.locations) {
+                        checkGeofence(location)
+                        Log.d("LOCATION HANDLER", "Position received: lat = ${location.latitude}, long = ${location.longitude}")
+                    }
+                }
+            }
+        }
+
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
     private fun createNotificationChannelForLocationDetection() {
@@ -63,8 +93,7 @@ class NotificationServiceLocation() : Service() {
         val nameLocationDetectionChannel = Constants.CHANNEL_LOCATION_DETECTION_TITLE
         val descriptionLocationDetectionChannel = Constants.CHANNEL_LOCATION_DETECTION_DESCRIPTION
         val importanceLocationDetectionChannel = NotificationManager.IMPORTANCE_HIGH
-        val notificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         var channelLocationDetection = notificationManager.getNotificationChannel(channelId)
         if (channelLocationDetection == null) {
@@ -84,31 +113,21 @@ class NotificationServiceLocation() : Service() {
 
     }
 
-    private fun createNotification(context: Context): Notification {
-        this.context = context
+    private fun createNotification(): Notification {
 
-        val intent = Intent(context, MainActivity::class.java)
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            context,
-            Constants.REQUEST_CODE_LOCATION_DETECTION,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
 
         return NotificationCompat.Builder(context, Constants.CHANNEL_LOCATION_DETECTION_ID)
             .setContentTitle("Location Detection On")
             .setContentText("Don't close the app.")
             .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(null)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .build()
     }
 
-    private fun createPermanentNotificationLocationDetection(context: Context) {
-        this.context = context
-
-        val notification = createNotification(context)
+    private fun createPermanentNotificationLocationDetection() {
+        val notification = createNotification()
 
         if (ActivityCompat.checkSelfPermission(
                 context,
@@ -119,21 +138,15 @@ class NotificationServiceLocation() : Service() {
             return
         }
 
+        Log.d("NOTIFICATION SERVICE LOCATION", "Starting")
         startForeground(Constants.REQUEST_CODE_LOCATION_DETECTION, notification)
 
     }
 
-    fun showLocationChangesNotification(context: Context, title: String, message: String) {
-        this.context = context
+    private fun showLocationChangesNotification(title: String, message: String) {
 
         val intent = Intent(context, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            Constants.REQUEST_CODE_LOCATION_DETECTION,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
 
         val notification = NotificationCompat.Builder(context,
             Constants.CHANNEL_LOCATION_DETECTION_ID
@@ -142,12 +155,12 @@ class NotificationServiceLocation() : Service() {
             .setContentTitle(title)
             .setContentText(message)
             .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(null)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .build()
 
-        with(NotificationManagerCompat.from(context)) {
+        with(NotificationManagerCompat.from(this.context)) {
             if (ActivityCompat.checkSelfPermission(
                     context,
                     Manifest.permission.POST_NOTIFICATIONS
@@ -160,41 +173,26 @@ class NotificationServiceLocation() : Service() {
         }
     }
 
-    fun stopPermanentNotificationLocationDetection() {
-        if (context != null) {
-            deleteChannelLocationDetection()
-            val notificationManager =
-                context!!.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
-            Log.d("NOTIFICATION SERVICE LOCATION", "CHANNEL DELETED")
+    private fun stopPermanentNotificationLocationDetection() {
+        deleteChannelLocationDetection()
+        val notificationManager = this.context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
+        Log.d("NOTIFICATION SERVICE LOCATION", "CHANNEL DELETED")
 
-        }
     }
 
     private fun deleteChannelLocationDetection() {
-        if (context != null) {
-            val notificationManager =
-                context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            // Cancel the notification
-            notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
-            Log.d("NOT", "deleteChannelLocationDetection")
-        } else {
-            Log.e("NOT", "Application Context is null")
-        }
+        val notificationManager = this.context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        // Cancel the notification
+        notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
+        Log.d("NOT", "deleteChannelLocationDetection")
     }
 
-    override fun onDestroy() {
-        stopPermanentNotificationLocationDetection()
 
-        super.onDestroy()
-        Log.d("LOC", "Service destroyed")
-
-
-    }
 
 
     fun checkGeofence(location: Location) {
-        val sharedPreferences = context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
+        val sharedPreferences = this.context.getSharedPreferences(Constants.GEOFENCE, Context.MODE_PRIVATE)
         val lat = sharedPreferences.getFloat(Constants.GEOFENCE_LATITUDE, 0f).toDouble()
         val lon = sharedPreferences.getFloat(Constants.GEOFENCE_LONGITUDE, 0f).toDouble()
         val radius = Constants.GEOFENCE_RADIUS_IN_METERS.toDouble()
@@ -211,10 +209,10 @@ class NotificationServiceLocation() : Service() {
                 Log.d("LOCATION HANDLER", "You are in your interest's area")
                 Log.d("LOCATION HANDLER", "Geofence set in: $lat;$lon")
                 Log.d("LOCATION HANDLER", "Currently: ${location.latitude};${location.longitude}")
-                showLocationChangesNotification(context, "Your location changed", "you have entered your area of interest")
+                showLocationChangesNotification( "Your location changed", "you have entered your area of interest")
                 currentInfoLocation.initialize(lat, lon, activityDBViewModel
                 )
-                setIsEntered(context, true)
+                setIsEntered(true)
                 sharedPreferences.edit().putBoolean(Constants.GEOFENCE_IS_INSIDE, true).apply()
                 sharedPreferences.edit().putString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start).apply()
 
@@ -224,18 +222,18 @@ class NotificationServiceLocation() : Service() {
                     Let's save the time we entered.
                     The latitude and longitude will not be the same but the important thing is that we were within the area
                  */
-                showLocationChangesNotification(context, "Reminder", "you are in  your area of interest")
+                showLocationChangesNotification("Reminder", "you are in  your area of interest")
 
                 currentInfoLocation.initialize(lat, lon, activityDBViewModel)
                 val oldStart = sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start).toString()
                 currentInfoLocation.start = oldStart
                 currentInfoLocation.date = oldStart.substring(0,10)
-                setIsEntered(context, true)
+                setIsEntered(true)
             }
         } else {
             Log.d("LOCATION HANDLER", "You are out of your area of interest, you are distant: $distance")
 
-            if (checkIsEntered(context)) {
+            if (checkIsEntered()) {
                 if (currentInfoLocation.latitude == lat && currentInfoLocation.longitude == lon) {
 
 
@@ -249,7 +247,10 @@ class NotificationServiceLocation() : Service() {
                         val endOfDayString = dateFormat.format(endOfDay)
                         currentInfoLocation.setFinishTimeWithString(endOfDayString)
                         currentInfoLocation.calculateDuration()
-                        currentInfoLocation.saveInDb()
+                        if (!currentInfoLocation.saved) {
+                            currentInfoLocation.saveInDb()
+                            currentInfoLocation.saved = true
+                        }
 
                         val locationInfoNew = LocationInfo()
                         locationInfoNew.initialize(lat, lon, activityDBViewModel)
@@ -266,11 +267,11 @@ class NotificationServiceLocation() : Service() {
 
 
                     currentInfoLocation.setFinishTime()
-                    setIsEntered(context, false)
-                    showLocationChangesNotification(context, "Your location changed", "you are out of your area of interest")
+                    setIsEntered(false)
+                    showLocationChangesNotification( "Your location changed", "you are out of your area of interest")
 
                 } else { //If you entered a geofence and then it was modified
-                    setIsEntered(context, false)
+                    setIsEntered(false)
                     currentInfoLocation = LocationInfo()
                 }
             }
@@ -298,17 +299,50 @@ class NotificationServiceLocation() : Service() {
         return calendar.time
     }
 
-    private fun checkIsEntered(context: Context): Boolean{
-        val sharedPreferencesSteps = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
-        return sharedPreferencesSteps.getBoolean(Constants.GEOFENCE_IS_ENTERED, false)
+    private fun checkIsEntered(): Boolean{
+        val sharedPreferences = this.context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean(Constants.GEOFENCE_IS_ENTERED, false)
 
     }
 
-    private fun setIsEntered(context: Context, value: Boolean){
-        val sharedPreferencesSteps = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
-        val editor = sharedPreferencesSteps.edit()
+    private fun setIsEntered(value: Boolean){
+        val sharedPreferences = this.context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
         editor.putBoolean(Constants.GEOFENCE_IS_ENTERED, value)
         editor.apply()
+    }
+
+    fun stopLocationUpdates(stopContext: Context) {
+        try {
+                fusedLocationClient.removeLocationUpdates(locationCallback)
+                stopForegroundService()
+                stopPermanentNotificationLocationDetection()
+        }catch (e: Exception){
+            Log.e("LOCATION HANDLER", "Error occurred")
+            setBackgroundLocationDetection(stopContext, false)
+        }
+
+    }
+
+    private fun setBackgroundLocationDetection(context: Context, isChecked: Boolean) {
+        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
+        val editor = sharedPreferencesBackgroundActivities.edit()
+        editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, isChecked)
+        editor.apply()
+    }
+
+    private fun stopForegroundService() {
+        val serviceIntent = Intent(this.context, NotificationServiceLocation::class.java)
+        this.context.stopService(serviceIntent)
+    }
+
+    override fun onDestroy() {
+        stopPermanentNotificationLocationDetection()
+
+        super.onDestroy()
+        Log.d("LOC", "Service destroyed")
+
+
     }
 
 }

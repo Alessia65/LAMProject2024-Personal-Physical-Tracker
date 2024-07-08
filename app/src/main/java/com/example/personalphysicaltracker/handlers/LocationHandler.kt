@@ -1,100 +1,71 @@
 package com.example.personalphysicaltracker.handlers
 
 import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.location.Location
-import android.os.Looper
+import android.content.ServiceConnection
+import android.os.IBinder
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.example.personalphysicaltracker.activities.LocationInfo
-import com.example.personalphysicaltracker.utils.Constants
 import com.example.personalphysicaltracker.services.NotificationServiceLocation
 import com.example.personalphysicaltracker.viewModels.ActivityDBViewModel
-import com.google.android.gms.location.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import com.google.android.gms.location.FusedLocationProviderClient
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @SuppressLint("StaticFieldLeak")
 object LocationHandler {
 
-    private var fusedLocationClient: FusedLocationProviderClient? = null
-    private lateinit var locationCallback: LocationCallback
-    private lateinit var activityDBViewModel: ActivityDBViewModel
-    private var firstOpen = true
-    private lateinit var context: Context
     private lateinit var notificationServiceLocation: NotificationServiceLocation
+    private lateinit var context: Context
+    private val _isServiceBound = MutableStateFlow(false)
+    private val isServiceBound: StateFlow<Boolean> get() = _isServiceBound
 
+    private val connection = object : ServiceConnection {
 
-    @SuppressLint("MissingPermission")
+        override fun onServiceConnected(className: ComponentName, service: IBinder) {
+            val binder = service as NotificationServiceLocation.SimpleBinderLoc
+            notificationServiceLocation = binder.getService()
+            _isServiceBound.value = true
+            Log.d("LOCATION HANDLER", "Service connected")
+        }
+
+        override fun onServiceDisconnected(arg0: ComponentName) {
+            _isServiceBound.value = false
+            Log.d("LOCATION HANDLER", "Service disconnected")
+        }
+    }
+
     fun startLocationUpdates(context: Context, client: FusedLocationProviderClient, activityViewModel: ActivityDBViewModel) {
         this.context = context
-        notificationServiceLocation = NotificationServiceLocation()
-        notificationServiceLocation.initialize(activityViewModel, context, client)
-        if (firstOpen) {
-            startForegroundService(context)
-            firstOpen = false
-        }
-        fusedLocationClient = client
-        this.activityDBViewModel = activityViewModel
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 60000)
-            .setMinUpdateIntervalMillis(30000)
-            .build()
-        locationCallback = object : LocationCallback() {
-            override fun onLocationResult(locationResult: LocationResult) {
-                CoroutineScope(Dispatchers.Default).launch {
-                    for (location in locationResult.locations) {
-                        notificationServiceLocation.checkGeofence(location)
-                        Log.d("LOCATION HANDLER", "Position received: lat = ${location.latitude}, long = ${location.longitude}")
-                    }
+        val serviceIntent = Intent(context, NotificationServiceLocation::class.java)
+        ContextCompat.startForegroundService(context, serviceIntent)
+        context.bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE)
+
+        CoroutineScope(Dispatchers.Main).launch {
+            isServiceBound.collect { isBound ->
+                if (isBound) {
+                    notificationServiceLocation.initialize(activityViewModel, context, client)
+                    Log.d("LOCATION HANDLER", "Service initialized")
                 }
             }
         }
-
-
-        fusedLocationClient?.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
     }
 
     fun stopLocationUpdates(stopContext: Context) {
         try {
-            if (fusedLocationClient != null) {
-                fusedLocationClient?.removeLocationUpdates(locationCallback)
-                stopForegroundService(context)
-                notificationServiceLocation.stopPermanentNotificationLocationDetection()
+            if (_isServiceBound.value) {
+                notificationServiceLocation.stopLocationUpdates(stopContext)
+                stopContext.unbindService(connection)
+                _isServiceBound.value = false
+                Log.d("LOCATION HANDLER", "Service unbound and stopped")
             } else {
-                Log.e("LOCATION HANDLER", "Client null")
-                setBackgroundLocationDetection(stopContext, false)
+                Log.d("LOCATION HANDLER", "Service not bound, cannot unbind")
             }
-        }catch (e: Exception){
-            Log.e("LOCATION HANDLER", "Error occurred")
-            setBackgroundLocationDetection(stopContext, false)
+        } catch (e: Exception){
+            Log.e("LOCATION HANDLER", "An error occurred while stopping", e)
         }
-
     }
-
-    private fun setBackgroundLocationDetection(context: Context, isChecked: Boolean) {
-        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION, Context.MODE_PRIVATE)
-        val editor = sharedPreferencesBackgroundActivities.edit()
-        editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED, isChecked)
-        editor.apply()
-    }
-
-    private fun startForegroundService(context: Context) {
-        val serviceIntent = Intent(context, NotificationServiceLocation::class.java)
-        ContextCompat.startForegroundService(context, serviceIntent)
-    }
-
-    private fun stopForegroundService(context: Context) {
-        val serviceIntent = Intent(context, NotificationServiceLocation::class.java)
-        context.stopService(serviceIntent)
-    }
-
-
-
-
 }

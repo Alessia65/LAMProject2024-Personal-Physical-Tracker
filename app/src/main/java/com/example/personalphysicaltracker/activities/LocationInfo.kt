@@ -19,6 +19,7 @@ class LocationInfo : LocationInfoInterface {
     var latitude: Double = 0.0
     var longitude: Double = 0.0
     var duration: Double = 0.0
+    var saved = false
 
     private lateinit var activityDBViewModel: ActivityDBViewModel
 
@@ -60,16 +61,22 @@ class LocationInfo : LocationInfoInterface {
     }
 
     override fun saveInDb(){
-        val locationEntity = LocationEntity(
-            latitude = this.latitude,
-            longitude = this.longitude,
-            date = this.date,
-            timeStart = start,
-            timeFinish = end,
-            duration = duration
-        )
-         activityDBViewModel.insertLocationInfo(locationEntity)
-          Log.d("LOCATION INFO", "Location saved in db with date: ${date}, start: ${start}, end: ${end}, duration: $duration")
+
+        if (!saved){
+            val locationEntity = LocationEntity(
+                latitude = this.latitude,
+                longitude = this.longitude,
+                date = this.date,
+                timeStart = start,
+                timeFinish = end,
+                duration = duration
+            )
+            activityDBViewModel.insertLocationInfo(locationEntity)
+            saved = true
+            Log.d("LOCATION INFO", "Location saved in db with date: ${date}, start: ${start}, end: ${end}, duration: $duration")
+
+        }
+
 
       }
 

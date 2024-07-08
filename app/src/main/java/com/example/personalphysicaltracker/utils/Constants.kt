@@ -81,4 +81,6 @@ object Constants {
     const val GEOFENCE_IS_INSIDE = "GEOFENCE_IS_INSIDE"
     const val GEOFENCE_ENTRANCE = "GEOFENCE_ENTRANCE"
     const val GEOFENCE_IS_ENTERED = "GEOFENCE_IS_ENTERED"
+    const val SERVICE_IS_BOUND = "SERVICE_IS_BOUND"
+
 }
