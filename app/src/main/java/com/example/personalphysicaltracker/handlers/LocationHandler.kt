@@ -100,6 +100,9 @@ object LocationHandler {
             stopContext.unbindService(connection)
             _isServiceBound.value = false
             saveServiceState(stopContext, false)
+        } finally {
+            isInitialized = false
+
         }
     }
 
