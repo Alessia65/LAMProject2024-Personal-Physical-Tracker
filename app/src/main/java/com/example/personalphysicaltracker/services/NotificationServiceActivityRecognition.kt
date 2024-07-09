@@ -18,19 +18,44 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.MainActivity
 import com.example.personalphysicaltracker.R
+import com.example.personalphysicaltracker.activities.ActivityType
+import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.PhysicalActivity
+import com.example.personalphysicaltracker.activities.StandingActivity
+import com.example.personalphysicaltracker.activities.WalkingActivity
+import com.example.personalphysicaltracker.handlers.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
+import com.example.personalphysicaltracker.handlers.StepCounterSensorHandler
+import com.example.personalphysicaltracker.listeners.AccelerometerListener
+import com.example.personalphysicaltracker.listeners.StepCounterListener
 import com.example.personalphysicaltracker.utils.Constants
+import com.example.personalphysicaltracker.viewModels.ActivityHandlerViewModel
 import com.google.android.gms.location.ActivityTransitionResult
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
-class NotificationServiceActivityRecognition : Service() {
+class NotificationServiceActivityRecognition : Service() , AccelerometerListener, StepCounterListener {
 
     private val binder = SimpleBinderActivity()
     private lateinit var context: Context
     private lateinit var activityChangeReceiver: BroadcastReceiver
-    var selectedActivity: PhysicalActivity? = null
+    lateinit var selectedActivity: PhysicalActivity
+    private lateinit var activityHandlerViewModel: ActivityHandlerViewModel
+
+    private lateinit var accelerometerSensorHandler: AccelerometerSensorHandler
+    private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
+
+
+    private var started = false
+    private var stopped = false
+    private var isWalkingType  = false
+    private var stepCounterOn = false
+    private var stepCounterWithAcc = false
+    private var actualSteps = 0L
 
 
     inner class SimpleBinderActivity : Binder() {
@@ -53,6 +78,9 @@ class NotificationServiceActivityRecognition : Service() {
         Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "onStartCommand")
         createNotificationChannelForActivityRecognition()
         createPermanentNotificationActivityRecognition()
+        activityHandlerViewModel = ActivityTransitionHandler.activityHandlerViewModel
+        accelerometerSensorHandler = AccelerometerSensorHandler.getInstance(context)
+        stepCounterSensorHandler = StepCounterSensorHandler.getInstance(context)
 
         return START_STICKY
     }
@@ -74,7 +102,7 @@ class NotificationServiceActivityRecognition : Service() {
                         val activityType = ActivityTransitionHandler.getActivityType(event.activityType)
                         val transitionType = ActivityTransitionHandler.getTransitionType(event.transitionType)
                         append("$activityType:$transitionType\n")
-                        ActivityTransitionHandler.handleEvent(activityType, transitionType)
+                        handleEvent(activityType, transitionType)
                     }
                 }
 
@@ -220,11 +248,9 @@ class NotificationServiceActivityRecognition : Service() {
 
 
     private fun deleteChannelActivityRecognition() {
-        if (context != null) {
-            val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION)
-            Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "deleteChannelActivityRecognition")
-        }
+        val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION)
+        Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "deleteChannelActivityRecognition")
     }
 
     private fun checkIsOn(): Boolean {
@@ -246,4 +272,151 @@ class NotificationServiceActivityRecognition : Service() {
         editor.putBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, value)
         editor.apply()
     }
+
+    fun handleEvent(activityType: String, transitionType: String){
+        isWalkingType = false
+        lateinit var activity: PhysicalActivity
+        when (activityType) {
+            "WALKING" -> {
+                activity = WalkingActivity()
+                isWalkingType = true
+            }
+            "IN_VEHICLE" -> {
+                activity = DrivingActivity()
+            }
+            "STILL" -> {
+                activity = StandingActivity()
+            }
+            else -> {
+                activity = PhysicalActivity()
+            }
+        }
+
+
+        if (transitionType == "START"){
+            CoroutineScope(Dispatchers.IO).launch{
+                if (stopped) {
+                    selectedActivity = activityHandlerViewModel.startSelectedActivity(activity, true)
+                    startSensors()
+
+                    started = true
+                    stopped = false
+                } else {
+                    try {
+                        stopSensors()
+                        activityHandlerViewModel.stopSelectedActivity(isWalkingType, true)
+                        stopped = true
+                    } catch (e: Exception){
+                        Log.e("ACTIVITY TRANSITION HANDLER", "error occurred while starting activity")
+                    } finally {
+                        selectedActivity = activityHandlerViewModel.startSelectedActivity(activity, true)
+                        activityHandlerViewModel.startSensors()
+
+                        started = true
+                    }
+
+                }
+            }
+            // Wait for the coroutine to complete
+            Thread.sleep(1000)
+
+        } else if (transitionType == "END" ){
+
+            if (started) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    activityHandlerViewModel.stopSensors()
+                    activityHandlerViewModel.stopSelectedActivity(isWalkingType, true)
+                    started = false
+                    stopped = true
+                }
+                // Wait for the coroutine to complete
+                Thread.sleep(1000)
+            } else {
+                Log.d("ACTIVITY TRANSITION HANDLER", "no activity to stop")
+                return
+            }
+        } else { //UNKNOWN
+            return
+        }
+    }
+
+    fun startSensors() {
+        Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Starting sensors")
+
+        val activityType = selectedActivity.getActivityTypeName()
+        if (activityType == ActivityType.WALKING){
+            getStepCounterSensorHandler()
+        }
+        startAccelerometerSensor(activityType)
+    }
+
+    fun getStepCounterSensorHandler(): Boolean {
+        val temp = stepCounterSensorHandler.startStepCounter()
+        if (temp){
+            stepCounterSensorHandler.registerStepCounterListener(this)
+            stepCounterOn = true
+        } else {
+            stepCounterOn = true
+            stepCounterWithAcc = true
+        }
+        return temp
+    }
+
+    private fun startAccelerometerSensor(activityType: ActivityType){
+        accelerometerSensorHandler.registerAccelerometerListener(this)
+        accelerometerSensorHandler.startAccelerometer(activityType)
+    }
+
+
+    private fun stopSensors(){
+        Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Stopping sensors")
+        stopStepCounterSensor()
+        stopAccelerometerSensor()
+    }
+
+    private fun stopStepCounterSensor(){
+        stepCounterSensorHandler.unregisterListener()
+        stepCounterSensorHandler.stopStepCounter()
+        stepCounterOn = false
+    }
+
+    private fun stopAccelerometerSensor(){
+        accelerometerSensorHandler.unregisterListener()
+        accelerometerSensorHandler.stopAccelerometer()
+
+    }
+
+
+    override fun onAccelerometerDataReceived(data: String) {
+        if (stepCounterWithAcc) {
+            registerStep(data)
+        }
+    }
+
+    override fun onStepCounterDataReceived(data: String) {
+        setSteps(data.toLong())
+    }
+
+    private fun registerStep(data: String) {
+        val step = stepCounterSensorHandler.registerStepWithAccelerometer(data)
+        onStepCounterDataReceived(step.toString())
+    }
+
+    private fun setSteps(totalSteps: Long) {
+        this.actualSteps = totalSteps
+    }
+
+    fun checkActivityToStop(){
+        if (started){
+
+            CoroutineScope(Dispatchers.IO).launch {
+                activityHandlerViewModel.stopSensors()
+                activityHandlerViewModel.stopSelectedActivity(isWalkingType, true)
+
+            }
+            started = false
+            stopped = true
+        }
+    }
+
 }

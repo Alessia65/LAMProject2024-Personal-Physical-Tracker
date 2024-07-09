@@ -138,7 +138,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         return dateFormat.format(Date())
     }
 
-    suspend fun startSelectedActivity(activity: PhysicalActivity) {
+    suspend fun startSelectedActivity(activity: PhysicalActivity, isBackground: Boolean): PhysicalActivity {
         started = true
         val lastActivity = getLastActivity()
         val currentTime = (SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())).format(Date())
@@ -150,19 +150,16 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
 
         selectedActivity = activity
         selectedActivity.setActivityViewModelVar(activityDBViewModel)
-        ActivityTransitionHandler.setCurrentActivity(selectedActivity)
+        if (isBackground) {
+            ActivityTransitionHandler.setCurrentActivity(selectedActivity)
+        }
         val typeForLog = activity.getActivityTypeName()
         Log.d("PHYSICAL ACTIVITY", "$typeForLog Activity Started")
-        startSensors()
 
+        return selectedActivity
     }
 
-
-    fun checkBackgroundRecogniseActivitiesOn(context: Context): Boolean{
-        val sharedPreferencesBackgroundActivities = context.getSharedPreferences(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION, Context.MODE_PRIVATE)
-        return  (sharedPreferencesBackgroundActivities.getBoolean(Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false))
-    }
-    private fun startSensors() {
+     fun startSensors() {
         val activityType = selectedActivity.getActivityTypeName()
         if (activityType == ActivityType.WALKING){
             getStepCounterSensorHandler()
@@ -215,8 +212,8 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         return (endTime - startTime).toDouble() / 1000
     }
 
-    suspend fun stopSelectedActivity(isWalkingActivity: Boolean) {
-        if (!::selectedActivity.isInitialized){
+    suspend fun stopSelectedActivity(isWalkingActivity: Boolean, isBackground: Boolean) {
+        if (!::selectedActivity.isInitialized && isBackground) {
             val temp = ActivityTransitionHandler.getCurrentActivity()
             if (temp!=null){
                 selectedActivity = temp
@@ -226,8 +223,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         }
         started = false
         this.isWalkingActivity = isWalkingActivity
-        stopStepCounterSensor()
-        stopAccelerometerSensor()
+
 
         val currentTime = Calendar.getInstance().time
         val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -270,6 +266,10 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         updateDailyValues()
     }
 
+    fun stopSensors(){
+        stopStepCounterSensor()
+        stopAccelerometerSensor()
+    }
     private fun getStartOfToday(date: Date): Date {
         val calendar = Calendar.getInstance()
         calendar.time = date
@@ -403,10 +403,12 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
             Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false)
 
         if (!backgroundRecognitionEnabled && started){
-            stopSelectedActivity(isWalkingActivity)
+            stopSensors()
+            stopSelectedActivity(isWalkingActivity, false)
             Log.d("ACTIVITY HANDLER VIEW MODEL", "Activity forced to stop, started value: $started")
         }
     }
+
 
 
 }

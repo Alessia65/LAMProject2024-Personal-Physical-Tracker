@@ -247,7 +247,8 @@ class HomeFragment : Fragment() {
     // Start the walking activity and change button to "Stop Activity"
     private fun startWalkingActivity() {
         viewLifecycleOwner.lifecycleScope.launch {
-            activityHandlerViewModel.startSelectedActivity(WalkingActivity())
+            activityHandlerViewModel.startSelectedActivity(WalkingActivity(), false)
+            activityHandlerViewModel.startSensors()
         }
         startStepCounterSensor()
         changeButtonToStop()
@@ -260,7 +261,8 @@ class HomeFragment : Fragment() {
     // Start the driving activity and change button to "Stop Activity"
     private fun startDrivingActivity() {
         viewLifecycleOwner.lifecycleScope.launch {
-            activityHandlerViewModel.startSelectedActivity(DrivingActivity())
+            activityHandlerViewModel.startSelectedActivity(DrivingActivity(), false)
+            activityHandlerViewModel.startSensors()
         }
         changeButtonToStop()
         isWalkingActivity = false
@@ -273,7 +275,9 @@ class HomeFragment : Fragment() {
     // Start the standing activity and change button to "Stop Activity"
     private fun startStandingActivity() {
         viewLifecycleOwner.lifecycleScope.launch {
-            activityHandlerViewModel.startSelectedActivity(StandingActivity())
+            activityHandlerViewModel.startSelectedActivity(StandingActivity(), false)
+            activityHandlerViewModel.startSensors()
+
         }
         changeButtonToStop()
         isWalkingActivity = false
@@ -323,7 +327,8 @@ class HomeFragment : Fragment() {
     // Stop the currently selected activity and reset the button to "Start Activity"
     private fun stopSelectedActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
-            activityHandlerViewModel.stopSelectedActivity(isWalkingActivity)
+            activityHandlerViewModel.stopSensors()
+            activityHandlerViewModel.stopSelectedActivity(isWalkingActivity, false)
         }
         resetButtonToStart()
         requireActivity().runOnUiThread {

@@ -33,11 +33,9 @@ import kotlinx.coroutines.tasks.await
 @SuppressLint("StaticFieldLeak")
 object ActivityTransitionHandler {
 
-    private lateinit var activityHandlerViewModel: ActivityHandlerViewModel
+    lateinit var activityHandlerViewModel: ActivityHandlerViewModel
     private lateinit var context: Context
-    private var started = false
-    private var stopped = false
-    private var isWalkingType  = false
+
     private lateinit var notificationService: NotificationServiceActivityRecognition
     private val _isServiceBound = MutableStateFlow(false)
     private val isServiceBound: StateFlow<Boolean> get() = _isServiceBound
@@ -79,7 +77,6 @@ object ActivityTransitionHandler {
     fun initialize(context: Context, storeOwner: ViewModelStoreOwner) {
         ActivityTransitionHandler.context = context.applicationContext
         activityHandlerViewModel = ViewModelProvider(storeOwner)[ActivityHandlerViewModel::class.java]
-
     }
 
     private val client by lazy { ActivityRecognition.getClient(context) }
@@ -125,14 +122,7 @@ object ActivityTransitionHandler {
 
     fun disconnect() {
         try {
-            if (started){
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    activityHandlerViewModel.stopSelectedActivity(isWalkingType)
-                }
-                started = false
-                stopped = true
-            }
+            notificationService.checkActivityToStop()
             if (isServiceRunning(context)) {
                 val intent = Intent(context, NotificationServiceActivityRecognition::class.java)
                 context.stopService(intent)
@@ -165,66 +155,6 @@ object ActivityTransitionHandler {
 
     }
 
-    fun handleEvent(activityType: String, transitionType: String){
-        isWalkingType = false
-        lateinit var activity: PhysicalActivity
-        when (activityType) {
-            "WALKING" -> {
-                activity = WalkingActivity()
-                isWalkingType = true
-            }
-            "IN_VEHICLE" -> {
-                activity = DrivingActivity()
-            }
-            "STILL" -> {
-                activity = StandingActivity()
-            }
-            else -> {
-                activity = PhysicalActivity()
-            }
-        }
-
-
-        if (transitionType == "START"){
-            CoroutineScope(Dispatchers.IO).launch{
-                if (stopped) {
-                    activityHandlerViewModel.startSelectedActivity(activity)
-                    started = true
-                    stopped = false
-                } else {
-                    try {
-                        activityHandlerViewModel.stopSelectedActivity(isWalkingType)
-                        stopped = true
-                    } catch (e: Exception){
-                        Log.e("ACTIVITY TRANSITION HANDLER", "error occurred while starting activity")
-                    } finally {
-                        activityHandlerViewModel.startSelectedActivity(activity)
-                        started = true
-                    }
-
-                }
-            }
-            // Wait for the coroutine to complete
-            Thread.sleep(1000)
-
-        } else if (transitionType == "END" ){
-
-            if (started) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    activityHandlerViewModel.stopSelectedActivity(isWalkingType)
-                    started = false
-                    stopped = true
-                }
-                // Wait for the coroutine to complete
-                Thread.sleep(1000)
-            } else {
-                Log.d("ACTIVITY TRANSITION HANDLER", "no activity to stop")
-                return
-            }
-        } else { //UNKNOWN
-            return
-        }
-    }
 
     fun setCurrentActivity(activity: PhysicalActivity){
         notificationService.selectedActivity = activity
