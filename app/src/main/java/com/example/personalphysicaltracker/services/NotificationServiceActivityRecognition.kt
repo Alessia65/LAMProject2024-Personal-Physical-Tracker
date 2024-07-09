@@ -18,7 +18,6 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.ViewModelProvider
 import com.example.personalphysicaltracker.MainActivity
 import com.example.personalphysicaltracker.R
 import com.example.personalphysicaltracker.activities.ActivityType
@@ -248,7 +247,7 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
 
 
     private fun deleteChannelActivityRecognition() {
-        val notificationManager = context?.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(Constants.REQUEST_CODE_ACTIVITY_RECOGNITION)
         Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "deleteChannelActivityRecognition")
     }
