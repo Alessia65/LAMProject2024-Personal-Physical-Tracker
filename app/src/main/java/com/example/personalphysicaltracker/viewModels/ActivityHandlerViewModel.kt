@@ -160,7 +160,8 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     }
 
      fun startSensors() {
-        val activityType = selectedActivity.getActivityTypeName()
+         Log.d("ACTIVITY HANDLER VIEW MODEL", "Starting sensors")
+         val activityType = selectedActivity.getActivityTypeName()
         if (activityType == ActivityType.WALKING){
             getStepCounterSensorHandler()
         }
@@ -212,7 +213,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         return (endTime - startTime).toDouble() / 1000
     }
 
-    suspend fun stopSelectedActivity(isWalkingActivity: Boolean, isBackground: Boolean) {
+    suspend fun stopSelectedActivity(isWalkingActivity: Boolean, isBackground: Boolean, backgroundSteps: Long) {
         if (!::selectedActivity.isInitialized && isBackground) {
             val temp = ActivityTransitionHandler.getCurrentActivity()
             if (temp!=null){
@@ -255,7 +256,11 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
         selectedActivity.calculateDuration()
 
         if (isWalkingActivity){
-            (selectedActivity as WalkingActivity).setActivitySteps(totalStepsDone)
+            if (isBackground){
+                (selectedActivity as WalkingActivity).setActivitySteps(backgroundSteps)
+            } else {
+                (selectedActivity as WalkingActivity).setActivitySteps(totalStepsDone)
+            }
         }
 
         val typeForLog = selectedActivity.getActivityTypeName()
@@ -267,6 +272,8 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     }
 
     fun stopSensors(){
+        Log.d("ACTIVITY HANDLER VIEW MODEL", "Stopping sensors")
+
         stopStepCounterSensor()
         stopAccelerometerSensor()
     }
@@ -404,7 +411,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
 
         if (!backgroundRecognitionEnabled && started){
             stopSensors()
-            stopSelectedActivity(isWalkingActivity, false)
+            stopSelectedActivity(isWalkingActivity, false, 0)
             Log.d("ACTIVITY HANDLER VIEW MODEL", "Activity forced to stop, started value: $started")
         }
     }

@@ -105,7 +105,7 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
                         handleEvent(activityType, transitionType)
                     }
                 }
-
+                Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "On Receive: $printInfo")
                 showActivityChangesNotification(context, title, printInfo)
             }
         }
@@ -297,20 +297,23 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
             CoroutineScope(Dispatchers.IO).launch{
                 if (stopped) {
                     selectedActivity = activityHandlerViewModel.startSelectedActivity(activity, true)
-                    startSensors()
-
+                    if (isWalkingType) {
+                        startSensors()
+                    }
                     started = true
                     stopped = false
                 } else {
                     try {
-                        stopSensors()
-                        activityHandlerViewModel.stopSelectedActivity(isWalkingType, true)
+                        if (isWalkingType) {
+                            stopSensors()
+                        }
+                        activityHandlerViewModel.stopSelectedActivity(isWalkingType, true, actualSteps)
                         stopped = true
                     } catch (e: Exception){
                         Log.e("ACTIVITY TRANSITION HANDLER", "error occurred while starting activity")
                     } finally {
                         selectedActivity = activityHandlerViewModel.startSelectedActivity(activity, true)
-                        activityHandlerViewModel.startSensors()
+                        startSensors()
 
                         started = true
                     }
@@ -324,8 +327,10 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
 
             if (started) {
                 CoroutineScope(Dispatchers.IO).launch {
-                    activityHandlerViewModel.stopSensors()
-                    activityHandlerViewModel.stopSelectedActivity(isWalkingType, true)
+                    if (isWalkingType) {
+                        activityHandlerViewModel.stopSensors()
+                    }
+                    activityHandlerViewModel.stopSelectedActivity(isWalkingType, true, actualSteps)
                     started = false
                     stopped = true
                 }
@@ -340,7 +345,7 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
         }
     }
 
-    fun startSensors() {
+    private fun startSensors() {
         Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Starting sensors")
 
         val activityType = selectedActivity.getActivityTypeName()
@@ -350,7 +355,7 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
         startAccelerometerSensor(activityType)
     }
 
-    fun getStepCounterSensorHandler(): Boolean {
+    private fun getStepCounterSensorHandler(): Boolean {
         val temp = stepCounterSensorHandler.startStepCounter()
         if (temp){
             stepCounterSensorHandler.registerStepCounterListener(this)
@@ -394,7 +399,7 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
     }
 
     override fun onStepCounterDataReceived(data: String) {
-        setSteps(data.toLong())
+        this.actualSteps = data.toLong()
     }
 
     private fun registerStep(data: String) {
@@ -402,16 +407,15 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
         onStepCounterDataReceived(step.toString())
     }
 
-    private fun setSteps(totalSteps: Long) {
-        this.actualSteps = totalSteps
-    }
 
     fun checkActivityToStop(){
         if (started){
 
             CoroutineScope(Dispatchers.IO).launch {
-                activityHandlerViewModel.stopSensors()
-                activityHandlerViewModel.stopSelectedActivity(isWalkingType, true)
+                if (isWalkingType) {
+                    activityHandlerViewModel.stopSensors()
+                }
+                activityHandlerViewModel.stopSelectedActivity(isWalkingType, true, actualSteps)
 
             }
             started = false

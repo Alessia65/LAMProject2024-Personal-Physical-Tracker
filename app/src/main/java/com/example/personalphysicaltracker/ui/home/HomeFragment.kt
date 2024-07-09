@@ -262,7 +262,7 @@ class HomeFragment : Fragment() {
     private fun startDrivingActivity() {
         viewLifecycleOwner.lifecycleScope.launch {
             activityHandlerViewModel.startSelectedActivity(DrivingActivity(), false)
-            activityHandlerViewModel.startSensors()
+            //activityHandlerViewModel.startSensors()
         }
         changeButtonToStop()
         isWalkingActivity = false
@@ -276,8 +276,6 @@ class HomeFragment : Fragment() {
     private fun startStandingActivity() {
         viewLifecycleOwner.lifecycleScope.launch {
             activityHandlerViewModel.startSelectedActivity(StandingActivity(), false)
-            activityHandlerViewModel.startSensors()
-
         }
         changeButtonToStop()
         isWalkingActivity = false
@@ -327,8 +325,10 @@ class HomeFragment : Fragment() {
     // Stop the currently selected activity and reset the button to "Start Activity"
     private fun stopSelectedActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
-            activityHandlerViewModel.stopSensors()
-            activityHandlerViewModel.stopSelectedActivity(isWalkingActivity, false)
+            if (isWalkingActivity) {
+                activityHandlerViewModel.stopSensors()
+            }
+            activityHandlerViewModel.stopSelectedActivity(isWalkingActivity, false, 0)
         }
         resetButtonToStart()
         requireActivity().runOnUiThread {
