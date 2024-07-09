@@ -19,51 +19,47 @@ object NotificationHandler {
     private lateinit var actualIntentStepsReminder: PendingIntent
 
     fun createDailyReminderChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val existingChannel = notificationManager.getNotificationChannel(Constants.CHANNEL_DAILY_REMINDER_ID)
-            if (existingChannel == null) {
-                val nameDailyReminder = Constants.CHANNEL_DAILY_REMINDER_TITLE
-                val descriptionTextDailyReminder = Constants.CHANNEL_DAILY_REMINDER_DESCRIPTION
-                val importanceDailyReminder = NotificationManager.IMPORTANCE_HIGH
-                val channelDailyReminder = NotificationChannel(
-                    Constants.CHANNEL_DAILY_REMINDER_ID,
-                    nameDailyReminder,
-                    importanceDailyReminder
-                ).apply {
-                    description = descriptionTextDailyReminder
-                }
-
-                notificationManager.createNotificationChannel(channelDailyReminder)
-                Log.d("NOTIFICATION HANDLER", "daily reminder notification channel created")
+        val existingChannel = notificationManager.getNotificationChannel(Constants.CHANNEL_DAILY_REMINDER_ID)
+        if (existingChannel == null) {
+            val nameDailyReminder = Constants.CHANNEL_DAILY_REMINDER_TITLE
+            val descriptionTextDailyReminder = Constants.CHANNEL_DAILY_REMINDER_DESCRIPTION
+            val importanceDailyReminder = NotificationManager.IMPORTANCE_HIGH
+            val channelDailyReminder = NotificationChannel(
+                Constants.CHANNEL_DAILY_REMINDER_ID,
+                nameDailyReminder,
+                importanceDailyReminder
+            ).apply {
+                description = descriptionTextDailyReminder
             }
+
+            notificationManager.createNotificationChannel(channelDailyReminder)
+            Log.d("NOTIFICATION HANDLER", "daily reminder notification channel created")
         }
     }
 
 
     fun createStepsReminderChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationManager: NotificationManager =
-                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            val existingChannel = notificationManager.getNotificationChannel(Constants.CHANNEL_STEPS_REMINDER_ID)
-            if (existingChannel == null) {
-                val nameStepsReminder = Constants.CHANNEL_STEPS_REMINDER_TITLE
-                val descriptionTextStepsReminder = Constants.CHANNEL_STEPS_REMINDER_DESCRIPTION
-                val importanceStepsReminder = NotificationManager.IMPORTANCE_HIGH
-                val channelStepsReminder = NotificationChannel(
-                    Constants.CHANNEL_STEPS_REMINDER_ID,
-                    nameStepsReminder,
-                    importanceStepsReminder
-                ).apply {
-                    description = descriptionTextStepsReminder
-                }
-
-                notificationManager.createNotificationChannel(channelStepsReminder)
-                Log.d("NOTIFICATION HANDLER", "steps reminder notification channel created")
+        val existingChannel = notificationManager.getNotificationChannel(Constants.CHANNEL_STEPS_REMINDER_ID)
+        if (existingChannel == null) {
+            val nameStepsReminder = Constants.CHANNEL_STEPS_REMINDER_TITLE
+            val descriptionTextStepsReminder = Constants.CHANNEL_STEPS_REMINDER_DESCRIPTION
+            val importanceStepsReminder = NotificationManager.IMPORTANCE_HIGH
+            val channelStepsReminder = NotificationChannel(
+                Constants.CHANNEL_STEPS_REMINDER_ID,
+                nameStepsReminder,
+                importanceStepsReminder
+            ).apply {
+                description = descriptionTextStepsReminder
             }
+
+            notificationManager.createNotificationChannel(channelStepsReminder)
+            Log.d("NOTIFICATION HANDLER", "steps reminder notification channel created")
         }
     }
 
@@ -190,19 +186,15 @@ object NotificationHandler {
 
     private fun cancelDailyNotificationChannel(context: Context) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.deleteNotificationChannel(Constants.CHANNEL_DAILY_REMINDER_ID)
-            Log.d("NOTIFICATION HANDLER", "Daily notification channel deleted")
-        }
+        notificationManager.deleteNotificationChannel(Constants.CHANNEL_DAILY_REMINDER_ID)
+        Log.d("NOTIFICATION HANDLER", "Daily notification channel deleted")
 
     }
 
     private fun cancelStepsNotificationChannel(context: Context) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.deleteNotificationChannel(Constants.CHANNEL_STEPS_REMINDER_ID)
-            Log.d("NOTIFICATION HANDLER", "Steps notification channel deleted")
-        }
+        notificationManager.deleteNotificationChannel(Constants.CHANNEL_STEPS_REMINDER_ID)
+        Log.d("NOTIFICATION HANDLER", "Steps notification channel deleted")
 
     }
 
