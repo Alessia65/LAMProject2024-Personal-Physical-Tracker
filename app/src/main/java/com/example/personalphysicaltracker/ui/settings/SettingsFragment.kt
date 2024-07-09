@@ -157,8 +157,9 @@ class SettingsFragment : Fragment() {
         settingsViewModel.setBackgroundLocationDetection(requireActivity(), isChecked)
         if (isChecked) {
             handlePermissions()
+
             val setLocation = settingsViewModel.checkLocationSet(requireActivity())
-            if (setLocation){
+            if (setLocation && PermissionsHandler.hasLocationPermissions(requireContext())){
                 settingsViewModel.startLocationUpdates(requireActivity())
             } else {
                switchLocation.isChecked = false
