@@ -7,7 +7,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -44,12 +43,15 @@ class SettingsFragment : Fragment() {
     private lateinit var helpButton: TextView
 
     private var dailySteps = 0L
-    private val SETTINGS_PERMISSION_REQUEST = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
-        if (!PermissionsHandler.hasLocationPermissions(requireContext())){
-            showDialogSettings()
-            PermissionsHandler.locationPermission = false
-        } else {
-            PermissionsHandler.locationPermission = true
+    private val SETTINGS_PERMISSION_REQUEST_LOCATION = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+        if (!PermissionsHandler.hasLocationPermissions(requireActivity())){
+            showDialogSettingsLocation()
+        }
+    }
+
+    private val SETTINGS_PERMISSION_REQUEST_NOTIFICATION = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { _ ->
+        if (!PermissionsHandler.checkPermissionNotifications(requireActivity())){
+            showDialogSettingsNotifications()
         }
     }
 
@@ -79,6 +81,9 @@ class SettingsFragment : Fragment() {
         switchLocation = binding.root.findViewById(R.id.switch_b_o_location)
         setLocation = binding.root.findViewById(R.id.set_location_text)
 
+        checkPermissionsIfSettingsOn()
+
+
         switchDailyReminder.isChecked = settingsViewModel.checkDailyReminder(requireActivity())
         switchDailyReminder.setOnCheckedChangeListener { _, isChecked ->
             handleDailyReminderSwitch(isChecked)
@@ -96,16 +101,11 @@ class SettingsFragment : Fragment() {
             handleActivityRecognitionSwitch(isChecked)
         }
 
-        val locationBackground = settingsViewModel.checkBackgroundLocationDetection(requireContext())
-        switchLocation.isChecked = locationBackground
-        if (locationBackground){
-            handlePermissions()
-        }
+        switchLocation.isChecked =  settingsViewModel.checkBackgroundLocationDetection(requireContext())
         switchLocation.setOnCheckedChangeListener{_, isChecked ->
             handleLocationDetectionSwitch(isChecked)
         }
         setLocation.setOnClickListener{
-            handlePermissions()
             if (PermissionsHandler.hasLocationPermissions(requireContext())){
                 goToFragmentMap()
             }
@@ -119,14 +119,15 @@ class SettingsFragment : Fragment() {
         settingsViewModel.setDailyReminder(requireActivity(), isChecked)
 
         if (isChecked) {
-            if (checkNotificationPermission()){
+            if (PermissionsHandler.checkPermissionNotifications(requireActivity())){
                 showTimePickerDialog()
             }
             else{
-                PermissionsHandler.requestPermissions(requireActivity())
-                if (!PermissionsHandler.notificationPermission){
+                PermissionsHandler.requestPermissionNotifications(requireActivity())
+                if (!PermissionsHandler.checkPermissionNotifications(requireActivity())){
                     switchDailyReminder.isChecked = false
                     settingsViewModel.setDailyReminder(requireActivity(), false)
+                    showDialogSettingsNotifications()
                 }
             }
         } else {
@@ -139,14 +140,15 @@ class SettingsFragment : Fragment() {
         settingsViewModel.setStepsReminder(requireActivity(), isChecked)
 
         if (isChecked) {
-            if (checkNotificationPermission()){
+            if (PermissionsHandler.checkPermissionNotifications(requireActivity())){
                 showNumberOfStepsDialog()
             }
             else{
-                PermissionsHandler.requestPermissions(requireActivity())
-                if (!PermissionsHandler.notificationPermission ){
+                PermissionsHandler.requestPermissionNotifications(requireActivity())
+                if (!PermissionsHandler.checkPermissionNotifications(requireActivity()) ){
                     switchStepsReminder.isChecked = false
                     settingsViewModel.setStepsReminder(requireActivity(), false)
+                    showDialogSettingsNotifications()
                 }
 
             }
@@ -160,18 +162,24 @@ class SettingsFragment : Fragment() {
     private fun handleLocationDetectionSwitch(isChecked: Boolean) {
         settingsViewModel.setBackgroundLocationDetection(requireActivity(), isChecked)
         if (isChecked) {
-            handlePermissions()
-
             val setLocation = settingsViewModel.checkLocationSet(requireActivity())
-            if (setLocation && PermissionsHandler.hasLocationPermissions(requireContext())){
+            if (setLocation && PermissionsHandler.hasLocationPermissions(requireContext()) && PermissionsHandler.checkPermissionNotifications(requireActivity())){
                 settingsViewModel.startLocationUpdates(requireActivity())
             } else if (!setLocation){
                switchLocation.isChecked = false
                 settingsViewModel.setBackgroundLocationDetection(requireActivity(), false)
                 showGeofenceAlert()
                 settingsViewModel.stopLocationUpdates(requireActivity())
+            } else if (!PermissionsHandler.hasLocationPermissions(requireActivity())){
+                PermissionsHandler.requestLocationPermissions(requireActivity())
+                showDialogSettingsLocation()
+                switchLocation.isChecked = false
+                settingsViewModel.setBackgroundLocationDetection(requireContext(), false)
+
             } else {
-                handlePermissions()
+                showDialogSettingsNotifications()
+                switchLocation.isChecked = false
+                settingsViewModel.setBackgroundLocationDetection(requireContext(), false)
             }
 
         } else {
@@ -181,7 +189,7 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    private fun showDialogSettings(){
+    private fun showDialogSettingsLocation(){
         val builder = AlertDialog.Builder(requireContext())
         builder.setMessage("You need permissions to detect locations!")
             .setTitle("Permission required")
@@ -190,30 +198,51 @@ class SettingsFragment : Fragment() {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 val uri: Uri = Uri.fromParts("package", requireActivity().packageName, null)
                 intent.setData(uri)
-                SETTINGS_PERMISSION_REQUEST.launch(intent)
+                SETTINGS_PERMISSION_REQUEST_LOCATION.launch(intent)
                 dialog.dismiss()
             }
             .setNegativeButton("Continue") { dialog, _ ->
                 dialog.dismiss()
-                PermissionsHandler.locationPermission = false
+            }
+        builder.show()
+    }
+
+    private fun showDialogSettingsNotifications(){
+        val builder = AlertDialog.Builder(requireContext())
+        builder.setMessage("You need permissions to send notifications!")
+            .setTitle("Permission required")
+            .setCancelable(false)
+            .setPositiveButton("Settings") { dialog, _ ->
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                val uri: Uri = Uri.fromParts("package", requireActivity().packageName, null)
+                intent.setData(uri)
+                SETTINGS_PERMISSION_REQUEST_NOTIFICATION.launch(intent)
+                dialog.dismiss()
+            }
+            .setNegativeButton("Continue") { dialog, _ ->
+                dialog.dismiss()
             }
         builder.show()
     }
 
 
     private fun handleActivityRecognitionSwitch(isChecked: Boolean) {
-
+        settingsViewModel.setBackgroundRecogniseActivities(requireActivity(), isChecked)
         if (isChecked) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
-                Log.d("SETTINGS", "here S")
-                if (PermissionsHandler.hasLocationPermissions(requireContext())) {
+                if (PermissionsHandler.hasLocationPermissions(requireContext()) && PermissionsHandler.checkPermissionNotifications(requireActivity())) {
                     settingsViewModel.connectToActivityTransition(requireActivity())
                 } else {
-                    PermissionsHandler.requestLocationPermissions(requireActivity(), requireContext())
-                    if (!PermissionsHandler.locationPermission){
+                    if (!PermissionsHandler.hasLocationPermissions(requireActivity())){
                         settingsViewModel.setBackgroundRecogniseActivities(requireContext(), false)
                         switchActivityRecognition.isChecked = false
-                        showDialogSettings()
+                        showDialogSettingsLocation()
+                    }
+
+                    if (!PermissionsHandler.checkPermissionNotifications(requireActivity())){
+                        settingsViewModel.setBackgroundRecogniseActivities(requireContext(), false)
+                        switchActivityRecognition.isChecked = false
+                        showDialogSettingsNotifications()
                     }
                 }
             } else {
@@ -223,10 +252,6 @@ class SettingsFragment : Fragment() {
         }else {
             settingsViewModel.disconnect(requireActivity())
         }
-    }
-
-    private fun checkNotificationPermission(): Boolean {
-        return PermissionsHandler.notificationPermission
     }
 
     private fun showNumberOfStepsDialog() {
@@ -320,19 +345,7 @@ class SettingsFragment : Fragment() {
         Toast.makeText(requireContext(), "Daily reminder set for $formattedTime", Toast.LENGTH_SHORT).show()
     }
 
-    private fun handlePermissions() {
-        if (PermissionsHandler.hasLocationPermissions(requireContext())){
-            return
-        }
 
-        if (!PermissionsHandler.requestLocationPermissions(requireActivity(), requireContext())){
-            showDialogSettings()
-            switchLocation.isChecked = false
-            settingsViewModel.setBackgroundLocationDetection(requireContext(), false)
-
-        }
-
-    }
 
     private fun goToFragmentMap(){
         val navController = findNavController()
@@ -361,6 +374,47 @@ class SettingsFragment : Fragment() {
         alertDialogBuilder.show()
     }
 
+    private fun checkPermissionsIfSettingsOn(){
+        if (settingsViewModel.checkDailyReminder(requireActivity())){
+            if (!PermissionsHandler.checkPermissionNotifications(requireActivity())){
+                settingsViewModel.setDailyReminder(requireActivity(), false)
+                switchDailyReminder.isChecked = false
+                settingsViewModel.cancelDailyNotification(requireActivity())
+            }
+        }
+
+        if (settingsViewModel.checkStepsReminder(requireActivity())){
+            if (!PermissionsHandler.checkPermissionNotifications(requireActivity())){
+                settingsViewModel.setStepsReminder(requireActivity(), false)
+                switchStepsReminder.isChecked = false
+                settingsViewModel.cancelStepsNotification(requireActivity())
+            }
+        }
+
+        if (settingsViewModel.checkBackgroundRecogniseActivitiesOn(requireActivity())){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                if (!PermissionsHandler.hasLocationPermissions(requireActivity()) || !PermissionsHandler.checkPermissionNotifications(
+                        requireActivity()
+                    )
+                ) {
+                    settingsViewModel.setBackgroundRecogniseActivities(requireActivity(), false)
+                    switchActivityRecognition.isChecked = false
+                    settingsViewModel.disconnect(requireActivity())
+                }
+            }
+        }
+
+        if (settingsViewModel.checkLocationSet(requireActivity())){
+            if (!PermissionsHandler.hasLocationPermissions(requireActivity()) || !PermissionsHandler.checkPermissionNotifications(requireActivity())){
+                settingsViewModel.setBackgroundLocationDetection(requireActivity(), false)
+                switchLocation.isChecked = false
+                settingsViewModel.stopLocationUpdates(requireActivity())
+                settingsViewModel.deregisterGeofence()
+                settingsViewModel.removeGeofence()
+            }
+        }
+
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

@@ -12,45 +12,44 @@ import com.example.personalphysicaltracker.utils.Constants
 @SuppressLint("StaticFieldLeak")
 object PermissionsHandler {
 
-    var notificationPermission = false
-    var locationPermission = false
-
-    private var ACTUAL_PERMISSION_ACTIVITY_RECOGNITION = ""
-
-    fun checkPermissions(context: Context): Boolean{
+    fun checkPermissionsActivityRecognition(context: Context): Boolean{
         val activityRecognise: Int = ActivityCompat.checkSelfPermission(context, Constants.PERMISSION_ACTIVITY_RECOGNITION)
-        ACTUAL_PERMISSION_ACTIVITY_RECOGNITION = Constants.PERMISSION_ACTIVITY_RECOGNITION
+        return activityRecognise == PackageManager.PERMISSION_GRANTED
+    }
 
+    fun checkPermissionNotifications(context: Context): Boolean{
         val postNotifications = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ActivityCompat.checkSelfPermission(context, Constants.PERMISSION_POST_NOTIFICATIONS)
         } else {
             PackageManager.PERMISSION_GRANTED
         }
-        return activityRecognise == PackageManager.PERMISSION_GRANTED && postNotifications == PackageManager.PERMISSION_GRANTED
+
+        return postNotifications == PackageManager.PERMISSION_GRANTED
     }
 
-    fun requestPermissions(activity: Activity) {
-        val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(
-                ACTUAL_PERMISSION_ACTIVITY_RECOGNITION,
-                Constants.PERMISSION_POST_NOTIFICATIONS
-            )
-        } else {
-            arrayOf(
-                ACTUAL_PERMISSION_ACTIVITY_RECOGNITION
-            )
-        }
-
+    fun requestPermissionsActivity(activity: Activity) {
         ActivityCompat.requestPermissions(
             activity,
-            permissionsToRequest,
-            Constants.PERMISSION_REQUESTS_CODE
+            arrayOf(Constants.PERMISSION_ACTIVITY_RECOGNITION),
+            Constants.PERMISSION_REQUESTS_CODE_ACTIVITY
         )
     }
 
+    fun requestPermissionNotifications(activity: Activity){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Constants.PERMISSION_POST_NOTIFICATIONS),
+                Constants.PERMISSION_REQUESTS_CODE_NOTIFICATION
+            )
+        }
+
+    }
+
+
 
     fun hasLocationPermissions(context: Context): Boolean {
-
+        var locationPermission = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
             locationPermission =
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
@@ -74,7 +73,7 @@ object PermissionsHandler {
         return locationPermission
     }
 
-    fun requestLocationPermissions(activity: Activity, context: Context): Boolean {
+    fun requestLocationPermissions(activity: Activity): Boolean {
         val permissionsToRequest = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             arrayOf(
                 Constants.ACCESS_FINE_LOCATION,
@@ -103,7 +102,7 @@ object PermissionsHandler {
             Constants.PERMISSION_LOCATION_REQUESTS_CODE
         )
 
-        return hasLocationPermissions(context)
+        return hasLocationPermissions(activity)
     }
 
 }

@@ -7,7 +7,10 @@ object Constants {
 
     const val SHARED_PREFERENCES_FIRST_OPEN = "SHARED_PREFERENCES_FIRST_OPEN"
     const val FIRST_OPEN = "FIRST_OPEN"
-    const val PERMISSION_REQUESTS_CODE = 100
+    const val PERMISSION_REQUESTS_CODE_ACTIVITY = 101
+    const val PERMISSION_REQUESTS_CODE_NOTIFICATION = 102
+    const val PERMISSION_LOCATION_REQUESTS_CODE = 103
+
 
     const val REQUEST_CODE_DAILY_REMINDER = 0
     const val REQUEST_CODE_STEPS_REMINDER = 1
@@ -73,7 +76,6 @@ object Constants {
     const val INTERNET = android.Manifest.permission.INTERNET
 
 
-    const val PERMISSION_LOCATION_REQUESTS_CODE = 101
 
     const val GEOFENCE = "GEOFENCE"
     const val GEOFENCE_LATITUDE = "GEOFENCE_LATITUDE"

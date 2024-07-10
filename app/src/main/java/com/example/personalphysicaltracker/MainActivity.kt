@@ -5,12 +5,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -79,10 +77,8 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun checkAndRequestPermissions() {
-        if (!PermissionsHandler.checkPermissions(applicationContext)){
-            PermissionsHandler.requestPermissions(this)
-        } else {
-            PermissionsHandler.notificationPermission = true
+        if (!PermissionsHandler.checkPermissionsActivityRecognition(applicationContext)){
+            PermissionsHandler.requestPermissionsActivity(this)
         }
     }
 
@@ -122,6 +118,7 @@ class MainActivity : AppCompatActivity() {
 
     // Show dialog directing user to app settings for permission management
     private fun showDialogSettingsActivityRecognition(){
+
         val builder = AlertDialog.Builder(this)
         builder.setMessage("You need permissions to register your physical activities!")
             .setTitle("Permission required")
@@ -147,22 +144,12 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         when (requestCode) {
-            Constants.PERMISSION_REQUESTS_CODE -> {
+            Constants.PERMISSION_REQUESTS_CODE_ACTIVITY -> {
                 if (grantResults.isNotEmpty()) {
                     val activityRec = grantResults[0] == PackageManager.PERMISSION_GRANTED
 
                     if (!activityRec) {
                         showDialogSettingsActivityRecognition()
-                    } else {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            val postNotification = grantResults[1] == PackageManager.PERMISSION_GRANTED
-                            if (!postNotification) {
-                                showDialogSettingsNotification()
-                            }
-                        } else {
-                            PermissionsHandler.notificationPermission = true
-
-                        }
                     }
                 }
             }
@@ -170,6 +157,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
+    /*
     private fun showDialogSettingsNotification(){
         val builder = AlertDialog.Builder(this)
         builder.setMessage("You need permissions to send notifications!")
@@ -189,22 +177,11 @@ class MainActivity : AppCompatActivity() {
         builder.show()
     }
 
+
+     */
     private fun handleSettingPermissionResult() {
         // Check if activity recognition permission is granted
-        if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_ACTIVITY_RECOGNITION) == PackageManager.PERMISSION_GRANTED) {
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
-                PermissionsHandler.notificationPermission = true
-                return
-            }
-
-            if (ActivityCompat.checkSelfPermission(this, Constants.PERMISSION_POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED ){
-                showDialogSettingsNotification()
-                PermissionsHandler.notificationPermission = false
-            }  else{
-                PermissionsHandler.notificationPermission = true
-            }
-        } else {
+        if (!PermissionsHandler.checkPermissionsActivityRecognition(this)) {
             // Show settings dialog if permission is still not granted
             showDialogSettingsActivityRecognition()
         }
