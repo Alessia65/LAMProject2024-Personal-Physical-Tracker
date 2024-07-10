@@ -61,11 +61,6 @@
 
 
         <receiver
-            android:name=".receivers.ActivityTransitionReceiver"
-            android:exported="false"
-            android:enabled="true"/>
-
-        <receiver
             android:name=".receivers.DailyReminderReceiver"
             android:exported="false"
             android:enabled="true"/>

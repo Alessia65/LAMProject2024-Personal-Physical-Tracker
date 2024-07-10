@@ -51,7 +51,6 @@ object Constants {
     const val SHARED_PREFERENCES_BACKGROUND_LOCATION_DETECTION_ENABLED = "background_location_detection_enabled"
 
     const val PERMISSION_ACTIVITY_RECOGNITION = android.Manifest.permission.ACTIVITY_RECOGNITION
-    const val PERMISSION_ACTIVITY_RECOGNITION_BEFORE = "com.google.android.gms.permission.ACTIVITY_RECOGNITION"
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     const val PERMISSION_POST_NOTIFICATIONS = android.Manifest.permission.POST_NOTIFICATIONS
     @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

@@ -96,7 +96,11 @@ class SettingsFragment : Fragment() {
             handleActivityRecognitionSwitch(isChecked)
         }
 
-        switchLocation.isChecked = settingsViewModel.checkBackgroundLocationDetection(requireContext())
+        val locationBackground = settingsViewModel.checkBackgroundLocationDetection(requireContext())
+        switchLocation.isChecked = locationBackground
+        if (locationBackground){
+            handlePermissions()
+        }
         switchLocation.setOnCheckedChangeListener{_, isChecked ->
             handleLocationDetectionSwitch(isChecked)
         }
@@ -161,11 +165,13 @@ class SettingsFragment : Fragment() {
             val setLocation = settingsViewModel.checkLocationSet(requireActivity())
             if (setLocation && PermissionsHandler.hasLocationPermissions(requireContext())){
                 settingsViewModel.startLocationUpdates(requireActivity())
-            } else {
+            } else if (!setLocation){
                switchLocation.isChecked = false
                 settingsViewModel.setBackgroundLocationDetection(requireActivity(), false)
                 showGeofenceAlert()
                 settingsViewModel.stopLocationUpdates(requireActivity())
+            } else {
+                handlePermissions()
             }
 
         } else {

@@ -13,21 +13,14 @@ import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStoreOwner
 import com.example.personalphysicaltracker.utils.Constants
-import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.PhysicalActivity
-import com.example.personalphysicaltracker.activities.StandingActivity
-import com.example.personalphysicaltracker.activities.WalkingActivity
 import com.example.personalphysicaltracker.services.NotificationServiceActivityRecognition
 import com.example.personalphysicaltracker.viewModels.ActivityHandlerViewModel
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityTransition
 import com.google.android.gms.location.ActivityTransitionRequest
 import com.google.android.gms.location.DetectedActivity
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 
 @SuppressLint("StaticFieldLeak")
@@ -38,7 +31,6 @@ object ActivityTransitionHandler {
 
     private lateinit var notificationService: NotificationServiceActivityRecognition
     private val _isServiceBound = MutableStateFlow(false)
-    private val isServiceBound: StateFlow<Boolean> get() = _isServiceBound
 
     private val serviceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
@@ -160,7 +152,7 @@ object ActivityTransitionHandler {
         notificationService.selectedActivity = activity
     }
 
-    fun getCurrentActivity(): PhysicalActivity? {
+    fun getCurrentActivity(): PhysicalActivity {
         return notificationService.selectedActivity
     }
 

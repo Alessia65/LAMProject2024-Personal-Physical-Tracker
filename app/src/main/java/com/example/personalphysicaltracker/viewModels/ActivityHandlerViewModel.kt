@@ -216,11 +216,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     suspend fun stopSelectedActivity(isWalkingActivity: Boolean, isBackground: Boolean, backgroundSteps: Long) {
         if (!::selectedActivity.isInitialized && isBackground) {
             val temp = ActivityTransitionHandler.getCurrentActivity()
-            if (temp!=null){
-                selectedActivity = temp
-            } else {
-                return
-            }
+            selectedActivity = temp
         }
         started = false
         this.isWalkingActivity = isWalkingActivity
