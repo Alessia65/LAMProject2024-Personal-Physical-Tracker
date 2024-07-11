@@ -118,6 +118,7 @@ object ActivityTransitionHandler {
             if (isServiceRunning(context)) {
                 val intent = Intent(context, NotificationServiceActivityRecognition::class.java)
                 context.stopService(intent)
+                notificationService.stopAll()
                 context.unbindService(serviceConnection)
                 _isServiceBound.value = false
                 saveServiceState(context, false)

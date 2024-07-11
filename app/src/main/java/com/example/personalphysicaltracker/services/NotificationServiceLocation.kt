@@ -184,7 +184,7 @@ class NotificationServiceLocation : Service() {
     private fun deleteChannelLocationDetection() {
         val notificationManager = this.context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
-        Log.d("NOT", "deleteChannelLocationDetection")
+        Log.d("NOTIFICATION SERVICE LOCATION", "deleteChannelLocationDetection")
     }
 
 

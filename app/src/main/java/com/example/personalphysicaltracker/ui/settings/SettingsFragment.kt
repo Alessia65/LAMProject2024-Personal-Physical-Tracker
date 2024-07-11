@@ -105,8 +105,10 @@ class SettingsFragment : Fragment() {
             handleLocationDetectionSwitch(isChecked)
         }
         setLocation.setOnClickListener{
-            if (PermissionsHandler.hasLocationPermissions(requireContext())){
+            if (PermissionsHandler.hasLocationPermissions(requireActivity())){
                 goToFragmentMap()
+            } else {
+                showDialogSettingsLocation()
             }
         }
 
@@ -224,30 +226,34 @@ class SettingsFragment : Fragment() {
 
 
     private fun handleActivityRecognitionSwitch(isChecked: Boolean) {
-        settingsViewModel.setBackgroundRecogniseActivities(requireActivity(), isChecked)
         if (isChecked) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
                 if (PermissionsHandler.hasLocationPermissions(requireContext()) && PermissionsHandler.checkPermissionNotifications(requireActivity())) {
+                    settingsViewModel.setBackgroundRecogniseActivities(requireActivity(), true)
                     settingsViewModel.connectToActivityTransition(requireActivity())
+
                 } else {
                     if (!PermissionsHandler.hasLocationPermissions(requireActivity())){
-                        settingsViewModel.setBackgroundRecogniseActivities(requireContext(), false)
+                        settingsViewModel.setBackgroundRecogniseActivities(requireActivity(), false)
                         switchActivityRecognition.isChecked = false
                         showDialogSettingsLocation()
                     }
 
                     if (!PermissionsHandler.checkPermissionNotifications(requireActivity())){
-                        settingsViewModel.setBackgroundRecogniseActivities(requireContext(), false)
+                        settingsViewModel.setBackgroundRecogniseActivities(requireActivity(), false)
                         switchActivityRecognition.isChecked = false
                         showDialogSettingsNotifications()
                     }
                 }
             } else {
+                settingsViewModel.setBackgroundRecogniseActivities(requireActivity(), true)
                 settingsViewModel.connectToActivityTransition(requireActivity())
             }
 
         }else {
             settingsViewModel.disconnect(requireActivity())
+            settingsViewModel.setBackgroundRecogniseActivities(requireActivity(), false)
+
         }
     }
 

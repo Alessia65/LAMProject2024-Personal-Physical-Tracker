@@ -231,10 +231,15 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
     }
 
     fun stopAll(){
-        Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Stopped")
-        unregisterActivityChangeReceiver()
-        stopPermanentNotificationActivityRecognition()
-        stopForegroundService()
+        try {
+            Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Stopped")
+            unregisterActivityChangeReceiver()
+            stopPermanentNotificationActivityRecognition()
+            stopForegroundService()
+        } catch (e: Exception){
+            Log.e("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "Error occurred while stopping")
+        }
+
 
     }
 
@@ -250,9 +255,12 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
             Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION,
             Context.MODE_PRIVATE
         )
+
         return sharedPreferencesBackgroundActivities.getBoolean(
-            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED, false
+            Constants.SHARED_PREFERENCES_BACKGROUND_ACTIVITIES_RECOGNITION_ENABLED,
+            false
         )
+
     }
 
     fun setIsOn(value: Boolean) {
@@ -417,7 +425,6 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
 
     override fun onDestroy() {
         Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "onDestroy started")
-
         unregisterActivityChangeReceiver()
         stopPermanentNotificationActivityRecognition()
         stopForegroundService()

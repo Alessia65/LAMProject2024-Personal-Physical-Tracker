@@ -110,6 +110,7 @@ class SettingsViewModel : ViewModel() {
     fun disconnect(context: Context){
         ActivityTransitionHandler.disconnect()
         unregisterActivityTransitions(context)
+
     }
 
     private fun unregisterActivityTransitions(context: Context) {
