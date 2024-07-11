@@ -2,6 +2,8 @@ package com.example.personalphysicaltracker.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.example.personalphysicaltracker.activities.DrivingActivity
 import com.example.personalphysicaltracker.activities.LocationInfo
 import com.example.personalphysicaltracker.activities.PhysicalActivity
@@ -11,6 +13,8 @@ import com.example.personalphysicaltracker.database.ActivityEntity
 import com.example.personalphysicaltracker.database.LocationEntity
 import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.database.WalkingActivityEntity
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ActivityDBViewModel(private val repository: TrackingRepository) : ViewModel() {
 
@@ -142,6 +146,14 @@ class ActivityDBViewModel(private val repository: TrackingRepository) : ViewMode
 
     fun checkDuplicate(latitude: Double, longitude: Double, date:String, timeStart: String, timeFinish:String, duration: Double ): Int{
         return repository.checkDuplicate(latitude, longitude, date, timeStart, timeFinish, duration)
+    }
+
+    suspend fun getDuplicateIds(): List<Int> {
+        return repository.getDuplicateIds()
+    }
+
+    suspend fun deleteByIds(ids: List<Int>) {
+        repository.deleteByIds(ids)
     }
 
 

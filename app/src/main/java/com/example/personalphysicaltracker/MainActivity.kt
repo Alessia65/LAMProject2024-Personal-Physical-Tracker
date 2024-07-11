@@ -7,13 +7,16 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.personalphysicaltracker.database.TrackingRepository
 import com.example.personalphysicaltracker.databinding.ActivityMainBinding
 import com.example.personalphysicaltracker.handlers.AccelerometerSensorHandler
 import com.example.personalphysicaltracker.handlers.StepCounterSensorHandler
@@ -21,12 +24,16 @@ import com.example.personalphysicaltracker.handlers.ActivityTransitionHandler
 import com.example.personalphysicaltracker.handlers.NotificationHandler
 import com.example.personalphysicaltracker.handlers.PermissionsHandler
 import com.example.personalphysicaltracker.utils.Constants
+import com.example.personalphysicaltracker.viewModels.ActivityDBViewModel
 import com.example.personalphysicaltracker.viewModels.ActivityHandlerViewModel
+import com.example.personalphysicaltracker.viewModels.ActivityViewModelFactory
 import com.example.personalphysicaltracker.viewModels.ChartsViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -60,6 +67,22 @@ class MainActivity : AppCompatActivity() {
             val navController = findNavController(R.id.nav_host_fragment_activity_main)
             navController.navigate(R.id.helpFragment)
             unsetFirstOpen()
+        }
+
+        checkIntegrityOfLocationDB()
+    }
+
+    private fun checkIntegrityOfLocationDB() {
+        val activityViewModel = ViewModelProvider(this, ActivityViewModelFactory(TrackingRepository(application)))[ActivityDBViewModel::class.java]
+
+        lifecycleScope.launch {
+            val ids = withContext(Dispatchers.IO) {
+                activityViewModel.getDuplicateIds()
+            }
+            delay(3000)
+            if (ids.isNotEmpty()) {
+                activityViewModel.deleteByIds(ids)
+            }
         }
     }
 

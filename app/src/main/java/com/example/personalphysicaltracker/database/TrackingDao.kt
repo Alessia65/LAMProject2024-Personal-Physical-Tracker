@@ -47,4 +47,17 @@ interface TrackingDao {
     @Query("SELECT COUNT(*) FROM locations_table WHERE (latitude = :latitude AND longitude = :longitude AND date = :date AND date_time_start = :timeStart AND date_time_finish = :timeFinish AND duration = :duration)")
     fun checkDuplicate(latitude: Double, longitude: Double, date:String, timeStart: String, timeFinish:String, duration: Double ): Int
 
+
+    @Query("""
+        SELECT id FROM locations_table
+        WHERE id NOT IN (
+            SELECT MIN(id)
+            FROM locations_table
+            GROUP BY latitude, longitude, date, date_time_start, date_time_finish, duration
+        )
+    """)
+    suspend fun getDuplicateIds(): List<Int>
+
+    @Query("DELETE FROM locations_table WHERE id IN (:ids)")
+    suspend fun deleteByIds(ids: List<Int>)
 }

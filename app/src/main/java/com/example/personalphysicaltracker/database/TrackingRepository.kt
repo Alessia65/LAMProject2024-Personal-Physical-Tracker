@@ -75,4 +75,12 @@ class TrackingRepository(app: Application) {
     fun checkDuplicate(latitude: Double, longitude: Double, date:String, timeStart: String, timeFinish:String, duration: Double ): Int{
         return trackingDao.checkDuplicate(latitude, longitude, date, timeStart, timeFinish, duration)
     }
+
+    suspend fun getDuplicateIds(): List<Int>{
+        return trackingDao.getDuplicateIds()
+    }
+
+    suspend fun deleteByIds(ids: List<Int>){
+        return trackingDao.deleteByIds(ids)
+    }
 }
