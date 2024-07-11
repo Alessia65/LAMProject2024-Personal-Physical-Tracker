@@ -157,28 +157,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    /*
-    private fun showDialogSettingsNotification(){
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage("You need permissions to send notifications!")
-            .setTitle("Permission required")
-            .setCancelable(false)
-            .setPositiveButton("Settings") { dialog, _ ->
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri: Uri = Uri.fromParts("package", packageName, null)
-                intent.setData(uri)
-                SETTINGS_PERMISSION_REQUEST.launch(intent)
-                dialog.dismiss()
-            }
-            .setNegativeButton("Continue") { dialog, _ ->
-                dialog.dismiss()
-                PermissionsHandler.notificationPermission = false
-            }
-        builder.show()
-    }
-
-
-     */
     private fun handleSettingPermissionResult() {
         // Check if activity recognition permission is granted
         if (!PermissionsHandler.checkPermissionsActivityRecognition(this)) {

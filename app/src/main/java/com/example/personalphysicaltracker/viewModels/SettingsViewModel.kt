@@ -52,7 +52,6 @@ class SettingsViewModel : ViewModel() {
                 }
 
             } catch (e: Exception) {
-                // Exception handling, such as logging or other types of handling
                 Log.e("SettingsViewModel", "Exception with total steps = 0")
                 0
             }
@@ -72,7 +71,6 @@ class SettingsViewModel : ViewModel() {
 
     fun scheduleDailyNotification(context: Context, hour: Int, minute: Int, formattedTime: String) {
 
-        //Set sharedPreferences:
         val sharedPreferences = context.getSharedPreferences(Constants.SHARED_PREFERENCES_DAILY_REMINDER, Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putInt(Constants.SHARED_PREFERENCES_DAILY_REMINDER_HOUR, hour)

@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import com.example.personalphysicaltracker.receivers.DailyReminderReceiver
 import com.example.personalphysicaltracker.receivers.StepsReminderReceiver
@@ -100,8 +99,7 @@ object NotificationHandler {
                     PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
-            val intervalMillis = 24 * 60 * 60 * 1000L // 24 ore in millisecondi
-
+            val intervalMillis = 24 * 60 * 60 * 1000L // 24 hours in millis
 
             alarmManager.setRepeating(
                     AlarmManager.RTC_WAKEUP,

@@ -50,12 +50,12 @@
     <fragment
         android:id="@+id/mapFragment"
         android:name="com.example.personalphysicaltracker.ui.settings.MapFragment"
-        android:label="MAP"
+        android:label="@string/map"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/helpFragment"
         android:name="com.example.personalphysicaltracker.ui.home.HelpFragment"
-        android:label="HELP"
+        android:label="@string/help"
         tools:layout="@layout/fragment_help" />
 </navigation>

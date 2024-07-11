@@ -69,7 +69,6 @@ object Constants {
 
     const val BACKGROUND_OPERATION_LOCATION_DETECTION = "LOCATION_DETECTION_ON"
     const val BACKGROUND_OPERATION_LOCATION_DETECTION_CODE = 1001
-    const val ACCESS_COARSE_LOCATION = android.Manifest.permission.ACCESS_COARSE_LOCATION
     const val ACCESS_FINE_LOCATION = android.Manifest.permission.ACCESS_FINE_LOCATION
     const val ACCESS_BACKGROUND_LOCATION = android.Manifest.permission.ACCESS_BACKGROUND_LOCATION
     const val ACCESS_NETWORK_STATE = android.Manifest.permission.ACCESS_NETWORK_STATE

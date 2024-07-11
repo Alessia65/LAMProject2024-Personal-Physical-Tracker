@@ -183,7 +183,6 @@ class NotificationServiceLocation : Service() {
 
     private fun deleteChannelLocationDetection() {
         val notificationManager = this.context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        // Cancel the notification
         notificationManager.cancel(Constants.REQUEST_CODE_LOCATION_DETECTION)
         Log.d("NOT", "deleteChannelLocationDetection")
     }
@@ -217,12 +216,8 @@ class NotificationServiceLocation : Service() {
                 sharedPreferences.edit().putString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start).apply()
 
             } else {
-                /*
-                    If I was already inside we remember what time I entered because if the app restarts it no longer knows
-                    Let's save the time we entered.
-                    The latitude and longitude will not be the same but the important thing is that we were within the area
-                 */
-                showLocationChangesNotification("Reminder", "you are in  your area of interest")
+
+                showLocationChangesNotification("Reminder", "you are in  your area of interest") //For testing
 
                 currentInfoLocation.initialize(lat, lon, activityDBViewModel)
                 val oldStart = sharedPreferences.getString(Constants.GEOFENCE_ENTRANCE, currentInfoLocation.start).toString()
@@ -340,9 +335,6 @@ class NotificationServiceLocation : Service() {
         stopPermanentNotificationLocationDetection()
         stopForegroundService()
         super.onDestroy()
-        Log.d("LOC", "Service destroyed")
-
-
     }
 
 }

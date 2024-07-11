@@ -95,7 +95,6 @@ class SettingsFragment : Fragment() {
         }
 
 
-        //Background Operations
         switchActivityRecognition.isChecked = settingsViewModel.checkBackgroundRecogniseActivitiesOn(requireContext())
         switchActivityRecognition.setOnCheckedChangeListener{_, isChecked ->
             handleActivityRecognitionSwitch(isChecked)
@@ -131,7 +130,6 @@ class SettingsFragment : Fragment() {
                 }
             }
         } else {
-            // Cancel daily notification when daily reminder switch is turned off
             settingsViewModel.cancelDailyNotification(requireContext())
         }
     }
@@ -154,7 +152,6 @@ class SettingsFragment : Fragment() {
             }
 
         } else {
-            // Cancel inactivity notification when inactivity reminder switch is turned off
             settingsViewModel.cancelStepsNotification(requireContext())
         }
     }

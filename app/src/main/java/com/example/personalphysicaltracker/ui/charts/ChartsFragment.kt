@@ -2,7 +2,6 @@ package com.example.personalphysicaltracker.ui.charts
 
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -22,10 +21,6 @@ import com.github.mikephil.charting.formatter.PercentFormatter
 import com.github.mikephil.charting.listener.ChartTouchListener
 import com.github.mikephil.charting.listener.OnChartGestureListener
 import com.google.android.material.datepicker.MaterialDatePicker
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -171,7 +166,7 @@ class ChartsFragment : Fragment() {
     }
 
     private fun setTextDay(formattedStartDate: String, formattedEndDate: String) {
-        if (formattedStartDate.equals(formattedEndDate)){
+        if (formattedStartDate == formattedEndDate){
             textDate.text = formattedStartDate
         } else {
             val text = "$formattedStartDate / $formattedEndDate"

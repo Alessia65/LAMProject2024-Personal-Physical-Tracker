@@ -23,10 +23,12 @@
                 android:clickable="true"
                 android:paddingTop="10sp"
                 android:paddingBottom="10sp"
-                android:text="Do you need help?"
+                android:text="@string/do_you_need_help"
                 android:textColor="#FF0000"
                 android:textSize="20sp"
-                android:textStyle="bold"></TextView>
+                android:textStyle="bold">
+
+            </TextView>
 
             <TextView
                 android:layout_width="match_parent"

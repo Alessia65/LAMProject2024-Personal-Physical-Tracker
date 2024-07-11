@@ -14,7 +14,7 @@
         android:layout_height="51dp"
         android:layout_marginEnd="16dp"
         android:backgroundTint="#DAFFEF"
-        android:contentDescription="SHARE"
+        android:contentDescription="@string/shareText"
         android:scaleType="centerInside"
         android:src="@drawable/ic_share"
         app:layout_constraintBottom_toTopOf="@id/chip_group"

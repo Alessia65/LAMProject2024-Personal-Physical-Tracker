@@ -16,4 +16,25 @@
     <string name="allow_daily_reminder">Allow daily reminder</string>
     <string name="notification">Notification</string>
     <string name="allow_presence_detection_in_a_location">Allow presence detection in a location</string>
+    <string name="shareText">SHARE</string>
+    <string name="date">DATE</string>
+    <string name="walkingLower">Walking</string>
+    <string name="drivingLower">Driving</string>
+    <string name="standingLower">Standing</string>
+    <string name="nothing">Nothing</string>
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="year">Year</string>
+    <string name="_12h">12h</string>
+    <string name="_0h">0h</string>
+    <string name="_18h">18h</string>
+    <string name="_6h">6h</string>
+    <string name="start_activity">Start activity</string>
+    <string name="no_activity_running">No activity running</string>
+    <string name="see_your_history">See your history</string>
+    <string name="cancel_location">Cancel Location</string>
+    <string name="do_you_need_help">Do you need help?</string>
+    <string name="map">MAP</string>
+    <string name="help">HELP</string>
 </resources>

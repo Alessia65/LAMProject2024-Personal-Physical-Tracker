@@ -114,7 +114,7 @@
             android:background="#DAFFEF"
             android:fontFamily="@font/andika_new_basic"
             android:paddingRight="1dp"
-            android:text="steps"
+            tools:text="steps"
             android:textAlignment="center"
             android:textColor="#000000"
             android:textSize="15sp"

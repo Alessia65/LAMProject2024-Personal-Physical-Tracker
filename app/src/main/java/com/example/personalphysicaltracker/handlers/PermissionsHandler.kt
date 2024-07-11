@@ -49,26 +49,17 @@ object PermissionsHandler {
 
 
     fun hasLocationPermissions(context: Context): Boolean {
-        var locationPermission = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
-            locationPermission =
-                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+        val locationPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+            (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.FOREGROUND_SERVICE_LOCATION) == PackageManager.PERMISSION_GRANTED)
-        } else if(Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            locationPermission =
-                    (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
+        } else{
+            (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
                     (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
-        } else { // For safety
-            locationPermission =
-                (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
-                (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) &&
-                (ActivityCompat.checkSelfPermission(context, Constants.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_GRANTED) &&
-                (ActivityCompat.checkSelfPermission(context, Constants.INTERNET) == PackageManager.PERMISSION_GRANTED)
         }
         return locationPermission
     }
@@ -81,19 +72,12 @@ object PermissionsHandler {
                 Constants.ACCESS_NETWORK_STATE,
                 Constants.INTERNET,
                 Constants.FOREGROUND_SERVICE_LOCATION)
-        } else if(Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        } else {
             arrayOf(
                 Constants.ACCESS_FINE_LOCATION,
                 Constants.ACCESS_BACKGROUND_LOCATION,
                 Constants.ACCESS_NETWORK_STATE,
                 Constants.INTERNET)
-        } else {  //For safety
-            arrayOf(
-                Constants.ACCESS_FINE_LOCATION,
-                Constants.ACCESS_COARSE_LOCATION,
-                Constants.ACCESS_NETWORK_STATE,
-                Constants.INTERNET
-            )
         }
 
         ActivityCompat.requestPermissions(

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="#FEFEFE"
@@ -12,20 +11,18 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Titolo DATA -->
         <TextView
             android:id="@+id/text_date"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:fontFamily="@font/andika_new_basic"
-            android:text="DATA"
+            android:text="@string/date"
             android:textAlignment="center"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Layout orizzontale per i grafici -->
         <LinearLayout
             android:id="@+id/chart_layout"
             android:layout_width="396dp"
@@ -35,7 +32,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/text_date">
 
-            <!-- Grafico a torta -->
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/pie_chart"
                 android:layout_width="304dp"
@@ -46,12 +42,9 @@
                 android:clickable="true"
                 android:focusable="true" />
 
-            <!-- LineChart -->
         </LinearLayout>
 
-        <!-- Legenda sotto il grafico a torta -->
 
-        <!-- LinearLayout verticale per le icone -->
 
         <LinearLayout
             android:id="@+id/legend_layout"
@@ -66,7 +59,6 @@
             app:layout_constraintTop_toBottomOf="@+id/chart_layout"
             app:layout_constraintVertical_bias="0.033">
 
-            <!-- Prima riga della legenda -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -81,7 +73,7 @@
                     android:drawableTint="@color/green_500"
                     android:gravity="center"
                     android:padding="4dp"
-                    android:text="Walking"
+                    android:text="@string/walkingLower"
                     android:textAlignment="center"
                     android:textColor="@color/black" />
 
@@ -94,12 +86,11 @@
                     android:drawableTint="@color/blue_500"
                     android:gravity="center"
                     android:padding="4dp"
-                    android:text="Driving"
+                    android:text="@string/drivingLower"
                     android:textAlignment="center"
                     android:textColor="@color/black" />
             </LinearLayout>
 
-            <!-- Seconda riga della legenda -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -114,7 +105,7 @@
                     android:drawableTint="@color/red_500"
                     android:gravity="center"
                     android:padding="4dp"
-                    android:text="Standing"
+                    android:text="@string/standingLower"
                     android:textAlignment="center"
                     android:textColor="@color/black" />
 
@@ -127,7 +118,7 @@
                     android:drawableTint="@color/grey_500"
                     android:gravity="center"
                     android:padding="4dp"
-                    android:text="Nothing"
+                    android:text="@string/nothing"
                     android:textAlignment="center"
                     android:textColor="@color/black" />
             </LinearLayout>
@@ -144,7 +135,6 @@
             app:layout_constraintTop_toBottomOf="@+id/legend_layout"
             app:layout_constraintVertical_bias="0.0">
 
-            <!-- Primo LinearLayout orizzontale -->
             <LinearLayout
                 android:id="@+id/linear_layout_walking"
                 android:layout_width="match_parent"
@@ -165,12 +155,11 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:backgroundTint="#DAFFEF"
-                    android:text="Walking"
+                    android:text="@string/text_walking"
                     android:textAlignment="textStart"
                     android:textColor="#000000" />
             </LinearLayout>
 
-            <!-- Secondo LinearLayout orizzontale -->
             <LinearLayout
                 android:id="@+id/linear_layout_driving"
                 android:layout_width="match_parent"
@@ -191,12 +180,11 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:backgroundTint="#DAFFEF"
-                    android:text="Driving"
+                    android:text="@string/text_driving"
                     android:textAlignment="textStart"
                     android:textColor="#000000" />
             </LinearLayout>
 
-            <!-- Terzo LinearLayout orizzontale -->
             <LinearLayout
                 android:id="@+id/linear_layout_standing"
                 android:layout_width="match_parent"
@@ -217,7 +205,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:backgroundTint="#DAFFEF"
-                    android:text="Standing"
+                    android:text="@string/text_standing"
                     android:textAlignment="textStart"
                     android:textColor="#000000" />
             </LinearLayout>

@@ -223,14 +223,7 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
         Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "CHANNEL DELETED")
     }
 
-    override fun onDestroy() {
-        Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "onDestroy")
 
-        unregisterActivityChangeReceiver()
-        stopPermanentNotificationActivityRecognition()
-        stopForegroundService()
-        super.onDestroy()
-    }
 
     private fun stopForegroundService() {
         val serviceIntent = Intent(this.context, NotificationServiceActivityRecognition::class.java)
@@ -420,6 +413,15 @@ class NotificationServiceActivityRecognition : Service() , AccelerometerListener
             started = false
             stopped = true
         }
+    }
+
+    override fun onDestroy() {
+        Log.d("NOTIFICATION SERVICE ACTIVITY RECOGNITION", "onDestroy started")
+
+        unregisterActivityChangeReceiver()
+        stopPermanentNotificationActivityRecognition()
+        stopForegroundService()
+        super.onDestroy()
     }
 
 }
