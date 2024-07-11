@@ -168,16 +168,28 @@ class ChartsViewModel : ViewModel() {
         val entries = ArrayList<BarEntry>()
         val sums = Array(24) { 0.0 }
 
-        // Calculate sums per hour
+// Calculate sums per hour
         for (activities in activitiesToShow) {
             val hourStart = activities.start.substring(11, 13).toInt()
+            val minuteStart = activities.start.substring(14, 16).toInt()
             val hourEnd = activities.end.substring(11, 13).toInt()
-            val durationInHour = activities.duration / 3600.0
+            val minuteEnd = activities.end.substring(14, 16).toInt()
 
-            for (i in hourStart until hourEnd+1) {
-                sums[i] += durationInHour
+            if (hourStart == hourEnd) {
+                val durationInMinutes = minuteEnd - minuteStart
+                sums[hourStart] += durationInMinutes.toDouble()
+            } else {
+                val minutesInStartHour = 60 - minuteStart
+                sums[hourStart] += minutesInStartHour.toDouble()
+
+                sums[hourEnd] += minuteEnd.toDouble()
+
+                for (i in hourStart + 1 until hourEnd) {
+                    sums[i] += 60.0
+                }
             }
         }
+
 
         // Create BarEntry objects
         for (i in sums.indices) {
@@ -186,7 +198,7 @@ class ChartsViewModel : ViewModel() {
 
         val barData = configureBarData(entries)
 
-        barChart.description.text = "Daily Hours"
+        barChart.description.text = "Duration in minutes for all hours of the day"
 
         return configureBarChart(barChart, barData, emptyArray(), isWeeklyChart = false, isMonthChart = false, isYearChart = false)
 
@@ -215,7 +227,7 @@ class ChartsViewModel : ViewModel() {
 
         val barData = configureBarData(entries)
 
-        barChart.description.text = "Daily Hours in Week"
+        barChart.description.text = "Duration in hours for all days of the week"
 
         return configureBarChart(barChart, barData, referenceDates, isWeeklyChart = true, isMonthChart = false, isYearChart = false)
 
@@ -374,7 +386,7 @@ class ChartsViewModel : ViewModel() {
 
         val barData = configureBarData(entries)
 
-        barChart.description.text = "Daily Hours in Month"
+        barChart.description.text = "Duration in hours for all days of the month"
         return configureBarChart(barChart, barData, referenceDates, isWeeklyChart = false, isMonthChart = true, isYearChart = false)
     }
 
@@ -417,7 +429,7 @@ class ChartsViewModel : ViewModel() {
 
         val barData = configureBarData(entries)
 
-        barChart.description.text = "Month Hours in Year"
+        barChart.description.text = "Duration in hours for all months of the year"
         return configureBarChart(barChart, barData, emptyArray(), isWeeklyChart = false, isMonthChart = false, isYearChart = true)
     }
 
@@ -457,7 +469,7 @@ class ChartsViewModel : ViewModel() {
 
         val barData = configureBarData(entries)
 
-        barChartSteps.description.text = "Daily Steps"
+        barChartSteps.description.text = "Steps for 24 hours"
 
         return configureBarChart(barChartSteps, barData, emptyArray(), isWeeklyChart = false, isMonthChart = false, isYearChart = false)
 
@@ -487,7 +499,7 @@ class ChartsViewModel : ViewModel() {
 
         val barData = configureBarData(entries)
 
-        barChartSteps.description.text = "Daily Steps in Week"
+        barChartSteps.description.text = "Steps for all days of the week"
 
         return configureBarChart(barChartSteps, barData, referenceDates, isWeeklyChart = true, isMonthChart = false, isYearChart = false)
 
@@ -532,7 +544,7 @@ class ChartsViewModel : ViewModel() {
 
         val barData = configureBarData(entries)
 
-        barChartStep.description.text = "Daily Hours in Month"
+        barChartStep.description.text = "Steps for all days of the month"
         return configureBarChart(barChartStep, barData, referenceDates, isWeeklyChart = false, isMonthChart = true, isYearChart = false)
     }
 
@@ -562,7 +574,7 @@ class ChartsViewModel : ViewModel() {
 
         val barData = configureBarData(entries)
 
-        barChartSteps.description.text = "Month Hours in Year"
+        barChartSteps.description.text = "Steps for all months of the year"
         return configureBarChart(barChartSteps, barData, emptyArray(), isWeeklyChart = false, isMonthChart = false, isYearChart = true)
     }
 
