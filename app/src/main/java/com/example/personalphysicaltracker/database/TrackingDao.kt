@@ -1,11 +1,9 @@
 package com.example.personalphysicaltracker.database
 
-import androidx.compose.animation.core.DurationBasedAnimationSpec
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import java.time.Duration
 
 
 @Dao
