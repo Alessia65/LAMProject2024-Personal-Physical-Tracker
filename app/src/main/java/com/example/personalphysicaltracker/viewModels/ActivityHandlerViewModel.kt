@@ -36,7 +36,7 @@ class ActivityHandlerViewModel:  ViewModel(), AccelerometerListener, StepCounter
     private lateinit var accelerometerSensorHandler: AccelerometerSensorHandler
     private lateinit var stepCounterSensorHandler: StepCounterSensorHandler
     private var isWalkingActivity = false
-    private var started = false
+    var started = false
 
     private var date: String = ""
     private var totalStepsDone: Long = 0

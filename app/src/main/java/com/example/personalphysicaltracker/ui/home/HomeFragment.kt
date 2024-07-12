@@ -25,6 +25,7 @@ import com.example.personalphysicaltracker.databinding.FragmentHomeBinding
 import com.example.personalphysicaltracker.viewModels.ActivityHandlerViewModel
 import com.example.personalphysicaltracker.viewModels.HistoryViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -80,7 +81,7 @@ class HomeFragment : Fragment() {
         // Initialize buttons
         initializeButtons(root)
 
-        if(activityHandlerViewModel.stepCounterActive() || activityHandlerViewModel.accelerometerActive()!=null){
+        if(activityHandlerViewModel.stepCounterActive() || activityHandlerViewModel.accelerometerActive()!=null || activityHandlerViewModel.started){
             changeButtonToStop()
             val text = activityHandlerViewModel.accelerometerActive().toString() + " Activity Running"
             descriptionActivityText.text = text
@@ -395,6 +396,7 @@ class HomeFragment : Fragment() {
     // Clean up bindings and stop the activity on view destruction
     override fun onDestroyView() {
         super.onDestroyView()
+
         _binding = null
     }
 
