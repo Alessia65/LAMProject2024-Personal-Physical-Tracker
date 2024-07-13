@@ -153,7 +153,7 @@ class ChartsFragment : Fragment() {
 
                 setTextDay(formattedStartDate,formattedEndDate)
 
-                chartsViewModel.sendActivitiesInRange(formattedStartDate, formattedEndDate)
+                physicalActivities = chartsViewModel.sendActivitiesInRange(formattedStartDate, formattedEndDate)
 
                 sumDurations()
                 populatePieChart(daysNumber)
