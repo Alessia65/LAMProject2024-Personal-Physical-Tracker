@@ -32,7 +32,6 @@ class WalkingChartsFragment : Fragment() {
     private lateinit var barChartSteps: BarChart
     private var walkingActivitiesToShow: List<WalkingActivity> = emptyList()
 
-    // ViewModel initialization
     private lateinit var chartViewModel: ChartsViewModel
 
     override fun onCreateView(

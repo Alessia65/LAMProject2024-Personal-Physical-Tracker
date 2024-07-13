@@ -168,7 +168,7 @@ class ChartsViewModel : ViewModel() {
         val entries = ArrayList<BarEntry>()
         val sums = Array(24) { 0.0 }
 
-// Calculate sums per hour
+        // Calculate sums per hour
         for (activities in activitiesToShow) {
             val hourStart = activities.start.substring(11, 13).toInt()
             val minuteStart = activities.start.substring(14, 16).toInt()
